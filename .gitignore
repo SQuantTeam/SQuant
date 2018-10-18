@@ -96,6 +96,7 @@ venv.bak/
 
 # Rope project settings
 .ropeproject
+code/SQuant/.idea
 
 # mkdocs documentation
 /site
