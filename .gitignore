@@ -105,3 +105,4 @@ code/SQuant/.idea
 .mypy_cache/
 code/SQuant/.idea/
 !code/SQuant/appfront
+!code/SQuant/appfront/build
