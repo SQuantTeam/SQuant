@@ -106,3 +106,4 @@ code/SQuant/.idea
 code/SQuant/.idea/
 !code/SQuant/appfront
 !code/SQuant/appfront/build
+.idea
