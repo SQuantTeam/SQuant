@@ -1,5 +1,6 @@
 <template>
     <div id="signup_bg">
+        <div style="width:0;height:100%;vertical-align:middle;display:inline-block;"></div>
         <div id="sign_up_form">
             <div id="sign_up_logo"></div>
             <h3>注册</h3>
@@ -44,10 +45,10 @@
     text-align: left;
     background-color: white; 
     border-radius:5px; 
-    position: absolute;
     width: 300px;
-    left:550px;
-    top:160px;
+    display: inline-block;
+    margin: 0 auto;
+    vertical-align:middle;
     font-size:12px; 
     font-weight: normal;
 }
