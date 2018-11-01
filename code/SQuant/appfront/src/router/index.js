@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
+import HP from '@/components/HP'
+import signup from '@/components/signup'
+import signin from '@/components/signin'
 
 Vue.use(Router)
 
@@ -8,8 +10,18 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Home',
-      component: Home
+      name: 'HP',
+      component: HP
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: signup
+    },
+    {
+      path: '/signin',
+      name: 'signin',
+      component: signin
     }
   ]
 })
