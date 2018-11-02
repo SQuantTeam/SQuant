@@ -48,7 +48,8 @@ def add_user(request):
                   password=user_data['password'],
                   user_type=user_data['user_type'])
         user.save()
-        response['msg']='added user:'+str(json.loads(serializers.serialize("json", user)))
+        users=[user]
+        response['msg']='added user:'+str(json.loads(serializers.serialize("json", users)))
         response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
@@ -64,7 +65,7 @@ def update_user(request):
         User.objects.filter(email=user_data['email'])\
             .update(password=user_data['password'],
                     user_type=user_data['user_type'])
-        response['msg']='updated user:'+str(json.loads(serializers.serialize("json", str(user_data))))
+        response['msg']='updated user:'+str(user_data)
         response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
