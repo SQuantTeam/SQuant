@@ -31,10 +31,8 @@ def get_user(request, email):
         users = User.objects.filter(email=email)
 
         response['list'] = json.loads(serializers.serialize("json", users))
-        response['msg'] = 'success'
         response['error_num'] = 0
         response['msg']='success'
-        response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
         response['error_num']=1
@@ -50,7 +48,7 @@ def add_user(request):
                   password=user_data['password'],
                   user_type=user_data['user_type'])
         user.save()
-        response['msg']='success'
+        response['msg']='added user:'+str(json.loads(serializers.serialize("json", user)))
         response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
@@ -66,7 +64,7 @@ def update_user(request):
         User.objects.filter(email=user_data['email'])\
             .update(password=user_data['password'],
                     user_type=user_data['user_type'])
-        response['msg']='success'
+        response['msg']='updated user:'+str(json.loads(serializers.serialize("json", str(user_data))))
         response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
@@ -80,7 +78,7 @@ def delete_user(request, email):
         print("delete_user->email:" + email)
         User.objects.filter(email=email) \
             .delete()
-        response['msg']='success'
+        response['msg']='deleted user:'+email
         response['error_num']=0
     except Exception, e:
         response['msg']=str(e)
