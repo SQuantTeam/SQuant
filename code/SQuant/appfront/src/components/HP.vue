@@ -219,9 +219,9 @@ export default {
       renderer.setSize(1584, 625);
       container.appendChild(renderer.domElement);
 
-      document.addEventListener("mousemove", this.onDocumentMouseMove, false);
-      document.addEventListener("touchstart", this.onDocumentTouchStart, false);
-      document.addEventListener("touchmove",this. onDocumentTouchMove, false);
+      // document.addEventListener("mousemove", this.onDocumentMouseMove, false);
+      // document.addEventListener("touchstart", this.onDocumentTouchStart, false);
+      // document.addEventListener("touchmove",this. onDocumentTouchMove, false);
 
       //
 
