@@ -1,24 +1,24 @@
 <template>
   <div>
     <el-row 
-            type="flex" 
-            class="row-bg" >
-            <el-col :span="3" :offset="2" id="nav_logo" >   
-            </el-col>
-            <el-col :span="12" :offset="13">
-                <el-menu
-                    :default-active="Menu"
-                    class="el-menu-demo"
-                    mode="horizontal"
-                    text-color="#fff"
-                    active-text-color="#fff">
-                    <el-menu-item index="1">SQuant</el-menu-item>
-                    <el-menu-item index="2">我的策略</el-menu-item>
-                    <el-menu-item index="3"><a href="#/signup">注册</a></el-menu-item>
-                    <el-menu-item index="4"><a href="#/signin">登录</a></el-menu-item>
-                </el-menu>
-            </el-col>
-        </el-row>
+        type="flex" 
+        class="row-bg" >
+        <el-col :span="3" :offset="2" id="nav_logo" >   
+        </el-col>
+        <el-col :span="12" :offset="13">
+            <el-menu
+                :default-active="Menu"
+                class="el-menu-demo"
+                mode="horizontal"
+                text-color="#fff"
+                active-text-color="#fff">
+                <el-menu-item index="1">SQuant</el-menu-item>
+                <el-menu-item index="2">我的策略</el-menu-item>
+                <el-menu-item index="3"><a href="#/signup">注册</a></el-menu-item>
+                <el-menu-item index="4"><a href="#/signin">登录</a></el-menu-item>
+            </el-menu>
+        </el-col>
+    </el-row>
     <el-carousel 
         class="banner"
         arrow="never"
@@ -27,12 +27,12 @@
         <el-carousel-item id="banner-0">
             <div style="width:0;height:100%;vertical-align:middle;display:inline-block;"></div>
             <div style="position:absolute;width:100%; height: 100%;margin-top:-625px;" id="target"></div>
-            <div style="display:inline-block;color:white;position:absolute;margin-top:100px;margin-left:-250px;">
+            <div style="display:inline-block;color:white;position:absolute;margin-top:100px;margin-left:-250px;z-index: 1000000">
                 <h1 style="font-size:44px">SQuant人工智能量化平台</h1>
                 <h5 style="font-size:23px;opacity:0.8">用人工智能做更好的量化投资</h5>
                 <h5 style="font-size:23px;opacity:0.8">Democratize AI to empower investor</h5>
-                <h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer;margin-right:20px;background:white;color: #f35135;">编写策略</h2>
-                <h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">行情查看</h2>
+                <a href="https://www.baidu.com" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer;margin-right:20px;background:white;color: #f35135;">编写策略</h2></a>
+                <a href="#/details" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">行情查看</h2></a>
             </div>
         </el-carousel-item>
         <el-carousel-item id="banner-2">
