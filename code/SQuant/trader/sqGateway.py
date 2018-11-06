@@ -7,7 +7,6 @@ import time
 
 from sqConstant import *
 
-
 ########################################################################
 
 
@@ -23,13 +22,13 @@ class SqBaseData(object):
 
 
 ########################################################################
-class VtTickData(SqBaseData):
+class SqTickData(SqBaseData):
     """Tick行情数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtTickData, self).__init__()
+        super(SqTickData, self).__init__()
 
         # 代码相关
         self.symbol = EMPTY_STRING  # 合约代码
@@ -83,13 +82,13 @@ class VtTickData(SqBaseData):
     ########################################################################
 
 
-class VtTradeData(SqBaseData):
+class SqTradeData(SqBaseData):
     """成交数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtTradeData, self).__init__()
+        super(SqTradeData, self).__init__()
 
         # 代码编号相关
         self.symbol = EMPTY_STRING  # 合约代码
@@ -111,13 +110,13 @@ class VtTradeData(SqBaseData):
 
 
 ########################################################################
-class VtOrderData(SqBaseData):
+class SqOrderData(SqBaseData):
     """订单数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtOrderData, self).__init__()
+        super(SqOrderData, self).__init__()
 
         # 代码编号相关
         self.symbol = EMPTY_STRING  # 合约代码
@@ -148,13 +147,13 @@ class VtOrderData(SqBaseData):
 
 
 ########################################################################
-class VtPositionData(SqBaseData):
+class SqPositionData(SqBaseData):
     """持仓数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtPositionData, self).__init__()
+        super(SqPositionData, self).__init__()
 
         # 代码编号相关
         self.symbol = EMPTY_STRING  # 合约代码
@@ -183,13 +182,13 @@ class VtPositionData(SqBaseData):
 
 
 ########################################################################
-class VtAccountData(SqBaseData):
+class SqAccountData(SqBaseData):
     """账户数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtAccountData, self).__init__()
+        super(SqAccountData, self).__init__()
 
         # 账号代码相关
         self.accountID = EMPTY_INT  # 账户代码
@@ -209,7 +208,7 @@ class VtAccountData(SqBaseData):
 
 
 ########################################################################
-class VtErrorData(SqBaseData):
+class SqErrorData(SqBaseData):
     """错误数据类"""
 
     # ----------------------------------------------------------------------
@@ -225,26 +224,26 @@ class VtErrorData(SqBaseData):
 
 
 ########################################################################
-class VtLogData(SqBaseData):
+class SqLogData(SqBaseData):
     """日志数据类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtLogData, self).__init__()
+        super(SqLogData, self).__init__()
 
         self.logTime = time.strftime('%X', time.localtime())  # 日志生成时间
         self.logContent = EMPTY_UNICODE  # 日志信息
 
 
 ########################################################################
-class VtContractData(SqBaseData):
+class SqContractData(SqBaseData):
     """合约详细信息类"""
 
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtContractData, self).__init__()
+        super(SqContractData, self).__init__()
 
         self.exchange = EMPTY_STRING  # 交易所代码
         self.symbol = EMPTY_STRING  # 合约代码
@@ -262,7 +261,7 @@ class VtContractData(SqBaseData):
 
 
 ########################################################################
-class VtSubscribeReq(object):
+class SqSubscribeReq(object):
     """订阅行情时传入的对象类"""
 
     # ----------------------------------------------------------------------
@@ -280,7 +279,7 @@ class VtSubscribeReq(object):
 
 
 ########################################################################
-class VtOrderReq(object):
+class SqOrderReq(object):
     """发单时传入的对象类"""
 
     # ----------------------------------------------------------------------
@@ -305,7 +304,7 @@ class VtOrderReq(object):
 
 
 ########################################################################
-class VtCancelOrderReq(object):
+class SqCancelOrderReq(object):
     """撤单时传入的对象类"""
 
     # ----------------------------------------------------------------------
@@ -321,7 +320,7 @@ class VtCancelOrderReq(object):
 
 
 ########################################################################
-class VtBasketOrderReq(object):
+class SqBasketOrderReq(object):
     """"""
 
     # ----------------------------------------------------------------------
