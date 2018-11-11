@@ -106,8 +106,11 @@ code/SQuant/.idea
 code/SQuant/.idea/
 !code/SQuant/appfront
 !code/SQuant/appfront/build
+code/SQuant/node_modules
 .idea
 code/SQuant/myapp/migrations
 
 #mac
 .DS_Store
+
+
