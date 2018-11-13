@@ -35,10 +35,6 @@
                 <i class="el-icon-setting"></i>
             </el-menu-item>
         </el-menu>
-        <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;display:none" >
-            <el-radio-button :label="false">展开</el-radio-button>
-            <el-radio-button :label="true">收起</el-radio-button>
-        </el-radio-group> -->
         <div style="position:absolute;left:8%;top:12%;">
             <h3 style="text-align:left">股票代码</h3>
             <el-autocomplete
