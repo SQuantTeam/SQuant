@@ -37,7 +37,7 @@
         </el-menu>
 
         <div>
-          <div id="stocks_list" style="position: absolute; width: 23%;border: 1px solid black;left: 5%;top: 14%;padding:10px">
+          <div id="stocks_list" style="position: absolute; width: 23%;border: 1px solid black;left: 8%;top: 14%;padding:10px">
             <el-table
               :data="stock_list_data"
               style="width: 100%"
@@ -67,7 +67,50 @@
                 label="涨跌幅">
               </el-table-column>
             </el-table>
+          </div>
         </div>
+
+        <div style="border:1px solid black;width: 50%; position: absolute; left: 40%; top: 14%;">
+          <div id="stock_basic_info" style="border:1px solid red;">
+            <!-- example
+            {
+              close: '2668.1704',
+              date: '20181115',
+              high: '2668.1704',
+              last: '2668.1704',
+              limit_down: '0.0',
+              limit_up: '0.0',
+              low: '2631.8875',
+              oi: '0',
+              open: '2632.1379',
+              preclose: '2632.24249',
+              symbol: '000001.SH',
+              time: '150050000',
+              turnover: '171882491635.5',
+              volume: '207848721
+            }
+             -->
+            <h3>中信证券</h3>
+            <div style="color:#da0003;position:relative;margin-left:-80%;">
+              <h1 >17.40</h1>
+            </div>
+            
+            <div style="position: relative;margin-left: 0%;margin-top: -10%;">
+              <h5 style="display:inline">今开  {{stock_details.open}}</h5>
+              <h5 style="display:inline">昨收</h5>
+              <h5 style="display:inline">成交量</h5>
+
+              <h5 style="display:inline">最高</h5>
+              <h5 style="display:inline">最低</h5>
+              
+              <h5 style="display:inline">成交额</h5>
+              <h5 style="display:inline">成交额</h5>
+            </div>
+            
+          </div>
+          <div id="stock_kline" style="border:1px solid pink">
+
+          </div>
         </div>
     </div>
 </template>
@@ -123,27 +166,44 @@ export default {
         activeIndex: "1",
         isCollapse: true,
         stock_id: '',
-        stock_list_data: [{
-          stock_code: '600030.SH',
-          lasted_price: '8.06',
-          stock_change: '1.87%',
-          stock_rise_fall: '+0.26',
-          stock_up_down: '+1.52%'
-        },
-        {
-          stock_code: '000651.SZ',
-          lasted_price: '8.06',
-          stock_change: '1.87%',
-          stock_rise_fall: '+0.26',
-          stock_up_down: '+1.52%'
-        },
-        {
-          stock_code: '601857.SH',
-          lasted_price: '8.06',
-          stock_change: '1.87%',
-          stock_rise_fall: '-0.26',
-          stock_up_down: '-1.52%'
-        }]
+        stock_list_data: [
+          {
+            stock_code: '600030.SH',
+            lasted_price: '8.06',
+            stock_change: '1.87%',
+            stock_rise_fall: '+0.26',
+            stock_up_down: '+1.52%'
+          },
+          {
+            stock_code: '000651.SZ',
+            lasted_price: '8.06',
+            stock_change: '1.87%',
+            stock_rise_fall: '+0.26',
+            stock_up_down: '+1.52%'
+          },
+          {
+            stock_code: '601857.SH',
+            lasted_price: '8.06',
+            stock_change: '1.87%',
+            stock_rise_fall: '-0.26',
+            stock_up_down: '-1.52%'
+          }],
+        stock_details: {
+          close: '2668.1704',
+          date: '20181115',
+          high: '2668.1704',
+          last: '2668.1704',
+          limit_down: '0.0',
+          limit_up: '0.0',
+          low: '2631.8875',
+          oi: '0',
+          open: '2632.1379',
+          preclose: '2632.24249',
+          symbol: '000001.SH',
+          time: '150050000',
+          turnover: '171882491635.5',
+          volume: '207848721'
+        }
       };
     },
     methods: {
