@@ -19,9 +19,9 @@ class User(models.Model):
 
 
 class Order(models.Model):
-    id=models.IntegerField(max_length=64,primary_key=True,unique=True,null=False,blank=False,db_index=True,)
+    id=models.IntegerField(primary_key=True,unique=True,null=False,blank=False,db_index=True,)
     user=models.CharField(max_length=64,)
-    amount=models.IntegerField(max_length=64,)
+    amount=models.IntegerField()
     stock_id=models.CharField(max_length=64,)
     order_time=models.DateTimeField(max_length=64,)
     order_price=models.FloatField(max_length=64,)
