@@ -92,19 +92,16 @@
              -->
             <h3>中信证券</h3>
             <div style="color:#da0003;position:relative;margin-left:-80%;">
-              <h1 >17.40</h1>
+              <h1 >{{stock_details.last}} </h1> 
             </div>
             
-            <div style="position: relative;margin-left: 0%;margin-top: -10%;">
-              <h5 style="display:inline">今开  {{stock_details.open}}</h5>
-              <h5 style="display:inline">昨收</h5>
-              <h5 style="display:inline">成交量</h5>
-
-              <h5 style="display:inline">最高</h5>
-              <h5 style="display:inline">最低</h5>
-              
-              <h5 style="display:inline">成交额</h5>
-              <h5 style="display:inline">成交额</h5>
+            <div id="stock_details_others" style="position: relative;margin-left: 0%;margin-top: -10%;padding-left:30%">
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">今开 {{stock_details.open}}</h5>
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">昨收 {{stock_details.close}} </h5>
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">成交量 {{stock_details.volume}} </h5>
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">最高 {{stock_details.high}}</h5>
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">最低 {{stock_details.low}} </h5>
+              <h5 style="display: block;float: left; width:50px;padding-right:30px;">成交额 {{stock_details.turnover}} </h5>
             </div>
             
           </div>
@@ -157,6 +154,7 @@ body {
     background-color: green;
 }
 
+
 </style>
 
 <script>
@@ -189,6 +187,7 @@ export default {
             stock_up_down: '-1.52%'
           }],
         stock_details: {
+          code: '000001.SH',
           close: '2668.1704',
           date: '20181115',
           high: '2668.1704',

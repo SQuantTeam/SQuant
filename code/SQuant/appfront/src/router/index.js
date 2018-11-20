@@ -4,6 +4,7 @@ import HP from '@/components/HP'
 import signup from '@/components/signup'
 import signin from '@/components/signin'
 import details from '@/components/details'
+import profile from '@/components/profile'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/details',
       name: 'details',
       component: details
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: profile
     }
   ]
 })
