@@ -43,7 +43,7 @@ def add_user(request):
     response={}
     try:
         user_data = json.loads(request.body)
-        print("add_user->user_data:"+str(user_data))
+        # print("add_user->user_data:"+str(user_data))
         user=User(email=user_data['email'],
                   password=user_data['password'],
                   user_type=user_data['user_type'])

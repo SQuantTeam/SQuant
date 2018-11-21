@@ -130,3 +130,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "appfront/dist/static"),
 ]
+
+# Set session serializer
+# SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
