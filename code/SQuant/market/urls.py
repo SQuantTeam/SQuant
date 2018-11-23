@@ -11,5 +11,8 @@ urlpatterns = [
     url(r'user/delete/(?P<email>[A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$', user_views.delete_user, ),
     url(r'market/connect$', views.connect, ),
     url(r'market/quote/(?P<symbol>[0-9]{6}\.S[HZ])$', views.quote, ),
-    url(r'market/place_order$', views.place_order, ),
+    url(r'market/placeOrder$', views.placeOrder, ),
+    url(r'market/qryPosition$', views.qryPosition, ),
+    url(r'market/qryOrder$', views.qryOrder, ),
+    url(r'market/qryTrade$', views.qryTrade, ),
     ]

@@ -6,15 +6,14 @@ import json
 
 from trader.data.dataapi import DataApi
 from trader.trade.tradeapi import TradeApi
+from trader.sqSetting import MdAddress, TdAddress
+from trader.gateway.tradeGateway import TradeGateway
 
-# 行情地址
-MdAddress = 'tcp://data.quantos.org:8910'
-# 交易地址
-TdAddress = 'tcp://gw.quantos.org:8901'
 # Create your views here.
 @require_http_methods(["POST"])
 def connect(request):
     response = {}
+    setting = {}
     try:
         #get data from POST request
         userData = json.loads(request.body)
@@ -32,44 +31,30 @@ def connect(request):
         request.session['phone'] = phone
         request.session['token'] = token
 
-        dApi = DataApi(MdAddress, use_jrpc=False)
-        tApi = TradeApi(TdAddress)
-        # 连接数据服务
-        df, msg = dApi.login(username=phone, password=token)
-        if df is None:
-            response['msg'] = msg
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
             response['error_num'] = 1
             return JsonResponse(response)
+        # 查询持仓信息
+        positionList = tradeGateway.tdApi.qryPosition()
+        contractNameList = []
+        for position in positionList:
+            contractName = {}
+            contractName['symbol'] = position.symbol
+            contractName['name'] = position.name
+            contractNameList.append(contractName)
 
-        #连接交易服务
-        # 订单状态推送
-        def on_orderstatus(order):
-            print("on_orderstatus:")  # , order
-            for key in order:    print("%20s : %s" % (key, str(order[key])))
-            print("")
-        # 成交回报推送
-        def on_trade(trade):
-            print("on_trade:")
-            for key in trade:    print("%20s : %s" % (key, str(trade[key])))
-            print("")
-        # 委托任务执行状态推送
-        # 通常可以忽略该回调函数
-        def on_taskstatus(task):
-            print("on_taskstatus:")
-            for key in task:    print("%20s : %s" % (key, str(task[key])))
-            print("")
+        # 获取用户账户信息
+        account = tradeGateway.tdApi.qryAccount()
 
-        # 设置回调函数
-        tApi.set_ordstatus_callback(on_orderstatus)
-        tApi.set_trade_callback(on_trade)
-        tApi.set_task_callback(on_taskstatus)
-
-        userInfo, msg = tApi.login(username=phone, password=token)
-        # 验证登录结果
-        if msg is None:
-            response['msg'] = msg
-            response['error_num'] = 1
-            return JsonResponse(response)
+        response['contractNameList'] = json.loads(serializers.serialize("json", contractNameList))
+        response['account'] = json.loads(serializers.serialize("json", account))
         response['msg'] = 'successfully connected'
         response['error_num'] = 0
 
@@ -83,26 +68,26 @@ def connect(request):
 @require_http_methods(["GET"])
 def quote(request, symbol):
     response = {}
+    setting = {}
     try:
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
-        print (phone)
         if phone is None or token is None:
             response['msg'] = 'no connection'
             response['error_num'] = 1
             return JsonResponse(response)
 
-        dApi = DataApi(MdAddress, use_jrpc=False)
-        df, msg = dApi.login(username=phone, password=token)
-        if df is None:
-            response['msg'] = 'no such a user'
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
             response['error_num'] = 1
         else:
-            fields = "OPEN,CLOSE,HIGH,LOW,LAST,\
-                        VOLUME,TURNOVER,OI,PRECLOSE,TIME,DATE,\
-                        LIMIT_UP,LIMIT_DOWN"
-            fields = fields.replace(' ', '').lower()
-            df, msg = dApi.quote(symbol=symbol, fields=fields)
+            df = tradeGateway.qryQuote(instcode=symbol)
             if df.empty:
                 response['msg'] = 'wrong symbol of stock'
                 response['error_num'] = 1
@@ -119,8 +104,9 @@ def quote(request, symbol):
 
 
 @require_http_methods(["POST"])
-def place_order(request):
+def placeOrder(request):
     response = {}
+    setting = {}
     try:
         #get data from POST request
         userData = json.loads(request.body)
@@ -131,48 +117,21 @@ def place_order(request):
             response['error_num'] = 1
             return JsonResponse(response)
 
-        tApi = TradeApi(TdAddress)
-        # 连接交易服务
-        # 订单状态推送
-        def on_orderstatus(order):
-            print("on_orderstatus:")  # , order
-            for key in order:    print("%20s : %s" % (key, str(order[key])))
-            print("")
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
-        # 成交回报推送
-        def on_trade(trade):
-            print("on_trade:")
-            for key in trade:    print("%20s : %s" % (key, str(trade[key])))
-            print("")
-
-        # 委托任务执行状态推送
-        # 通常可以忽略该回调函数
-        def on_taskstatus(task):
-            print("on_taskstatus:")
-            for key in task:    print("%20s : %s" % (key, str(task[key])))
-            print("")
-
-        # 设置回调函数
-        tApi.set_ordstatus_callback(on_orderstatus)
-        tApi.set_trade_callback(on_trade)
-        tApi.set_task_callback(on_taskstatus)
-
-        userInfo, msg = tApi.login(username=phone, password=token)
-        # print (userInfo)
-        # 验证登录结果
-        if msg is None:
-            response['msg'] = msg
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
             response['error_num'] = 1
             return JsonResponse(response)
+
         response['msg'] = 'successfully connected'
         response['error_num'] = 0
 
-        user_strats = userInfo['strategies']
-        if user_strats:
-            sid, msg = tApi.use_strategy(user_strats[0])
 
-        taskid, msg = tApi.place_order(userData['symbol'], userData['action'], userData['price'],
-                                       int(userData['volume']))
 
     except Exception as e:
         response['msg'] = str(e)
@@ -181,36 +140,89 @@ def place_order(request):
     return JsonResponse(response)
 
 @require_http_methods(["GET"])
-def quote(request, symbol):
+def queryPosition(request):
     response = {}
+    setting = {}
     try:
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
-        print (phone)
         if phone is None or token is None:
             response['msg'] = 'no connection'
             response['error_num'] = 1
             return JsonResponse(response)
 
-        dApi = DataApi(MdAddress, use_jrpc=False)
-        df, msg = dApi.login(username=phone, password=token)
-        if df is None:
-            response['msg'] = 'no such a user'
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        positionList = tradeGateway.qryPosition()
+        result = json.loads(serializers.serialize("json", positionList))
+        print (result)
+        response['result'] = result
+        response['msg'] = 'success'
+        response['error_num'] = 0
+    except  Exception,e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+@require_http_methods(["GET"])
+def queryOrder(request, symbol):
+    response = {}
+    setting = {}
+    try:
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            response['msg'] = 'no connection'
             response['error_num'] = 1
-        else:
-            fields = "OPEN,CLOSE,HIGH,LOW,LAST,\
-                        VOLUME,TURNOVER,OI,PRECLOSE,TIME,DATE,\
-                        LIMIT_UP,LIMIT_DOWN"
-            fields = fields.replace(' ', '').lower()
-            df, msg = dApi.quote(symbol=symbol, fields=fields)
-            if df.empty:
-                response['msg'] = 'wrong symbol of stock'
-                response['error_num'] = 1
-            else:
-                result = df.to_json(orient='records')
-                response['result'] = result
-                response['msg'] = 'success'
-                response['error_num'] = 0
+            return JsonResponse(response)
+
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        orderList = tradeGateway.qryOrder()
+        result = json.loads(serializers.serialize("json", orderList))
+        print (result)
+        response['result'] = result
+        response['msg'] = 'success'
+        response['error_num'] = 0
+    except  Exception,e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+@require_http_methods(["GET"])
+def queryTrade(request, symbol):
+    response = {}
+    setting = {}
+    try:
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        tradeList = tradeGateway.qryTrade()
+        result = json.loads(serializers.serialize("json", tradeList))
+        print (result)
+        response['result'] = result
+        response['msg'] = 'success'
+        response['error_num'] = 0
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2

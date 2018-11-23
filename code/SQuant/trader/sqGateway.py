@@ -214,7 +214,7 @@ class SqErrorData(SqBaseData):
     # ----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        super(VtErrorData, self).__init__()
+        super(SqErrorData, self).__init__()
 
         self.errorID = EMPTY_STRING  # 错误代码
         self.errorMsg = EMPTY_UNICODE  # 错误信息
