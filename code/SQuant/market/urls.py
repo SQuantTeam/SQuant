@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'market/connect$', views.connect, ),
     url(r'market/quote/(?P<symbol>[0-9]{6}\.S[HZ])$', views.quote, ),
     url(r'market/placeOrder$', views.placeOrder, ),
-    url(r'market/qryPosition$', views.qryPosition, ),
-    url(r'market/qryOrder$', views.qryOrder, ),
-    url(r'market/qryTrade$', views.qryTrade, ),
+    url(r'market/queryPosition$', views.queryPosition, ),
+    url(r'market/queryOrder$', views.queryOrder, ),
+    url(r'market/queryTrade$', views.queryTrade, ),
     ]

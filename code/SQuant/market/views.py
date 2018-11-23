@@ -42,19 +42,19 @@ def connect(request):
             response['error_num'] = 1
             return JsonResponse(response)
         # 查询持仓信息
-        positionList = tradeGateway.tdApi.qryPosition()
+        positionList = tradeGateway.qryPosition()
         contractNameList = []
         for position in positionList:
             contractName = {}
             contractName['symbol'] = position.symbol
             contractName['name'] = position.name
             contractNameList.append(contractName)
+        print(contractNameList)
 
         # 获取用户账户信息
-        account = tradeGateway.tdApi.qryAccount()
-
-        response['contractNameList'] = json.loads(serializers.serialize("json", contractNameList))
-        response['account'] = json.loads(serializers.serialize("json", account))
+        account = tradeGateway.qryAccount()
+        response['contractNameList'] = json.dumps(contractNameList, ensure_ascii=False)
+        response['account'] = json.dumps(account, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['msg'] = 'successfully connected'
         response['error_num'] = 0
 
@@ -87,15 +87,11 @@ def quote(request, symbol):
             response['msg'] = "failed to connect"
             response['error_num'] = 1
         else:
-            df = tradeGateway.qryQuote(instcode=symbol)
-            if df.empty:
-                response['msg'] = 'wrong symbol of stock'
-                response['error_num'] = 1
-            else:
-                result = df.to_json(orient='records')
-                response['result'] = result
-                response['msg'] = 'success'
-                response['error_num'] = 0
+            tick = tradeGateway.qryQuote(instcode=symbol)
+            result = json.dumps(tick, default=lambda obj: obj.__dict__, ensure_ascii=False)
+            response['result'] = result
+            response['msg'] = 'success'
+            response['error_num'] = 0
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -158,7 +154,7 @@ def queryPosition(request):
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
         positionList = tradeGateway.qryPosition()
-        result = json.loads(serializers.serialize("json", positionList))
+        result = json.dumps(positionList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         print (result)
         response['result'] = result
         response['msg'] = 'success'
@@ -188,7 +184,7 @@ def queryOrder(request, symbol):
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
         orderList = tradeGateway.qryOrder()
-        result = json.loads(serializers.serialize("json", orderList))
+        result = json.dumps(orderList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         print (result)
         response['result'] = result
         response['msg'] = 'success'
@@ -218,7 +214,7 @@ def queryTrade(request, symbol):
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
         tradeList = tradeGateway.qryTrade()
-        result = json.loads(serializers.serialize("json", tradeList))
+        result = json.dumps(tradeList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         print (result)
         response['result'] = result
         response['msg'] = 'success'

@@ -196,6 +196,12 @@ class TradeGateway(object):
         return self.tdApi.qryTrade()
 
     # ----------------------------------------------------------------------
+    def qryOrder(self):
+        """查询持仓"""
+        return self.tdApi.qryOrder()
+
+
+    # ----------------------------------------------------------------------
     def close(self):
         """关闭"""
         pass
@@ -231,7 +237,6 @@ class SQuantTdApi(object):
         pf, msg = self.api.query_universe()
 
         if not check_return_error(pf, msg):
-            self.writeLog(u'查询合约失败，错误信息：{}'.format(msg))
             return False
 
         symbols = ''
@@ -242,7 +247,7 @@ class SQuantTdApi(object):
 
         instruments = self.gateway.mdApi.qryInstruments(symbols)
 
-        for k, d in instruments.items():
+        for k, d in instruments.iterrows():
             contract = SqContractData()
             contract.gatewayName = self.gatewayName
 
@@ -521,7 +526,10 @@ class SQuantTdApi(object):
 
             code, jzExchange = data['security'].split('.')
             position.symbol = data['security']
-            position.name = data['security']
+
+            instruments = self.gateway.mdApi.qryInstruments(position.symbol)   # only one symbol here
+            position.name = instruments.loc[0, 'name']
+
             position.exchange = exchangeMapReverse.get(jzExchange, EXCHANGE_UNKNOWN)
 
             position.direction = sideMapReverse.get(data['side'], DIRECTION_UNKNOWN)
@@ -542,7 +550,6 @@ class SQuantTdApi(object):
             position.last = data['last_price']
 
             if (position.position > 0):
-                instruments = self.gateway.mdApi.qryInstruments(position.symbol)
                 if not instruments.empty:
                     # instruments.loc[0, "multiplier"] is the same as "contract.size"
                     position.mktval = data['last_price'] * position.position * instruments.loc[0, "multiplier"]
@@ -556,7 +563,6 @@ class SQuantTdApi(object):
     def qryAccount(self):
 
         df, msg = self.api.query_account()
-        print df
         account = SqAccountData()
         if df is None:
             return account
@@ -584,8 +590,7 @@ class SQuantTdApi(object):
         orderList = []
 
         if not check_return_error(df, msg):
-            self.writeLog(u'查询委托失败，错误信息：%s' % msg)
-            return False
+            return orderList
 
         for index, data in df.iterrows():
             order = self.onOrderStatus(data)
@@ -600,8 +605,7 @@ class SQuantTdApi(object):
         tradeList = []
 
         if not check_return_error(df, msg):
-            self.writeLog(u'查询成交失败，错误信息：%s' % msg)
-            return False
+            return tradeList
 
         for index, data in df.iterrows():
             trade = self.onTrade(data)
@@ -623,8 +627,9 @@ class SQuantMdApi(object):
 
         self.api = None
 
-        self.fields = "OPEN,CLOSE,HIGH,LOW,LAST,\
+        self.fields = "SYMBOL,OPEN,CLOSE,HIGH,LOW,LAST,\
         VOLUME,TURNOVER,OI,PRECLOSE,TIME,DATE,\
+        TRADE_DATE,VWAP,SETTLE,IOPV,PRESETTLE,PREOI,\
         ASKPRICE1,ASKPRICE2,ASKPRICE3,ASKPRICE4,ASKPRICE5,\
         BIDPRICE1,BIDPRICE2,BIDPRICE3,BIDPRICE4,BIDPRICE5,\
         ASKVOLUME1,ASKVOLUME2,ASKVOLUME3,ASKVOLUME4,ASKVOLUME5,\
@@ -739,7 +744,73 @@ class SQuantMdApi(object):
     def qryQuote(self, instcode):
 
         df, msg = self.api.quote(fields=self.fields, symbol=instcode)
-        return df
+        df.to_csv('test_quote.csv')
+        tick = SqTickData()
+        if df.empty:
+            return tick
+        for index, d in df.iterrows():
+            instruments = self.gateway.mdApi.qryInstruments(d['symbol'])
+            tick.name = instruments.loc[0, "name"]
+            tick.gatewayName = self.gatewayName
+
+            symbol = d['symbol']
+            code, jzExchange = instcode.split('.')
+            tick.symbol = symbol
+            tick.exchange = exchangeMapReverse[jzExchange]
+
+            tick.openPrice = d['open']
+            tick.highPrice = d['high']
+            tick.lowPrice = d['low']
+            tick.volume = d['volume']
+            tick.lastVolume = 0
+            tick.volchg = 0
+            tick.turnover = d['turnover'] if 'turnover' in d else 0
+            tick.lastPrice = d['last']
+
+            tick.openInterest = d['oi'] if 'oi' in d else 0
+            tick.preClosePrice = d['preclose'] if 'preclose' in d else 0
+            tick.date = str(d['date'])
+            tick.tradeDate = str(d['trade_date'])
+
+            tick.settlePrice = d['settle']
+            tick.preSettlePrice = d['presettle']
+            tick.preOpenInterest = d['preoi']
+            tick.closePrice = d['close']
+            tick.vwap = d['vwap']
+            tick.iopv = d['iopv'] if 'iopv' in d else 0
+
+            t = str(d['time'])
+            t = t.rjust(9, '0')
+            tick.time = '%s:%s:%s.%s' % (t[0:2], t[2:4], t[4:6], t[6:])
+
+            tick.bidPrice1 = d['bidprice1']
+            tick.bidPrice2 = d['bidprice2']
+            tick.bidPrice3 = d['bidprice3']
+            tick.bidPrice4 = d['bidprice4']
+            tick.bidPrice5 = d['bidprice5']
+
+            tick.askPrice1 = d['askprice1']
+            tick.askPrice2 = d['askprice2']
+            tick.askPrice3 = d['askprice3']
+            tick.askPrice4 = d['askprice4']
+            tick.askPrice5 = d['askprice5']
+
+            tick.bidVolume1 = d['bidvolume1']
+            tick.bidVolume2 = d['bidvolume2']
+            tick.bidVolume3 = d['bidvolume3']
+            tick.bidVolume4 = d['bidvolume4']
+            tick.bidVolume5 = d['bidvolume5']
+
+            tick.askVolume1 = d['askvolume1']
+            tick.askVolume2 = d['askvolume2']
+            tick.askVolume3 = d['askvolume3']
+            tick.askVolume4 = d['askvolume4']
+            tick.askVolume5 = d['askvolume5']
+
+            tick.upperLimit = d['limit_up'] if 'limit_up' in d else 0
+            tick.lowerLimit = d['limit_down'] if 'limit_down' in d else 0
+
+        return tick
 
 
 ########################################################################
@@ -775,10 +846,11 @@ if __name__ == '__main__':
     tradeG = TradeGateway(setting, gatewayName="SQuant")
     print (tradeG.loginStatus)
     # tradeG.login(setting['username'], setting['token'])
-    # print(tradeG.qryQuote("000001.SH"))
 
-    account = tradeG.qryAccount()
-    print (account.vtAccountID)
+    print(tradeG.qryQuote("000001.SH").name)
+
+    # account = tradeG.qryAccount()
+    # print (account.vtAccountID)
 
     # print(tradeG.mdApi.queryInstruments("000001.SH").loc[0, "name"])
     # print (tradeG.tdApi.qryAccount().accountID)

@@ -43,13 +43,22 @@ class SqTickData(SqBaseData):
         self.turnover = EMPTY_LONG  # 今天总成交额
         self.openInterest = EMPTY_INT  # 持仓量
         self.time = EMPTY_STRING  # 时间 11:20:56.5
-        self.date = EMPTY_STRING  # 日期 20151009
+        self.date = EMPTY_STRING  # 日期 20181009
+        self.tradeDate = EMPTY_STRING  # 日期 20181009
+
+        self.settlePrice = EMPTY_FLOAT  # 今结算价
+        self.preSettlePrice = EMPTY_FLOAT  # 昨结算价
+        self.preOpenInterest = EMPTY_FLOAT  #昨持仓
 
         # 常规行情
         self.openPrice = EMPTY_FLOAT  # 今日开盘价
         self.highPrice = EMPTY_FLOAT  # 今日最高价
         self.lowPrice = EMPTY_FLOAT  # 今日最低价
         self.preClosePrice = EMPTY_FLOAT
+
+        self.closePrice = EMPTY_FLOAT  # 收盘价
+        self.vwap = EMPTY_FLOAT  # 当日平均成交均价，计算公式为成交金额除以成交量
+        self.iopv = EMPTY_FLOAT  # IOPV净值估值（基金概念）
 
         self.upperLimit = EMPTY_FLOAT  # 涨停价
         self.lowerLimit = EMPTY_FLOAT  # 跌停价
