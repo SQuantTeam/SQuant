@@ -14,6 +14,8 @@ from django.db import models
 class User(models.Model):
     email=models.CharField(max_length=64,primary_key=True,unique=True,null=False,blank=False)
     password=models.CharField(max_length=255,null=True,blank=True,default='')
+    phone=models.CharField(max_length=64,null=True,unique=True)
+    api_key=models.CharField(max_length=255,null=True)
     # 0 for admin,1 for normal
     user_type=models.SmallIntegerField(default=1)
 

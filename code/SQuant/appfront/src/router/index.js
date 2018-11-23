@@ -5,6 +5,7 @@ import signup from '@/components/signup'
 import signin from '@/components/signin'
 import details from '@/components/details'
 import profile from '@/components/profile'
+import holdPosition from '@/components/holdPosition'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/profile',
       name: 'profile',
       component: profile
-    }
+    },
+    {
+      path: '/holdPosition',
+      name: 'holdPosition',
+      component: holdPosition
+    },
   ]
 })
