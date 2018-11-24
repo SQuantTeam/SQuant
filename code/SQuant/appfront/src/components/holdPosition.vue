@@ -40,7 +40,7 @@
                                     <div class="ant-card-head-title text-bold ">持仓信息</div>
                                 </div>
                             </div>
-                            <div class="ant-card-body">
+                            <div class="ant-card-body" v-cloak>
                                 <div class="ant-table-wrapper">
                                     <div class="ant-spin-nested-loading">
                                         <div class="ant-spin-container">
@@ -61,7 +61,6 @@
                                                                     </th>
                                                                 </tr>
                                                             </thead>
-                                                            <!-- 持仓信息 -->
                                                             <tbody class="ant-table-tbody">
                                                                 <tr v-for="item in holdPositionJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
@@ -101,10 +100,18 @@
                                                                 </tr>
                                                             </tbody>
                                                         </table>
+                                                        <!-- <el-table :data="holdPositionJson" stripe style="width: 100%">
+                                                            <div v-for="item in holdPostionItems" v-bind:key="item.index">
+                                                                <el-table-column class="text-center  text-bold" v-bind:prop="item.prop" v-bind:label="item.name">
+                                                                </el-table-column>
+                                                            </div>
+                                                        </el-table> -->
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -117,7 +124,7 @@
                                     <div class="ant-card-head-title text-bold ">委托信息</div>
                                 </div>
                             </div>
-                            <div class="ant-card-body">
+                            <div class="ant-card-body" v-cloak>
                                 <div class="ant-table-wrapper">
                                     <div class="ant-spin-nested-loading">
                                         <div class="ant-spin-container">
@@ -140,7 +147,7 @@
                                                             </thead>
                                                             <!-- 委托信息 -->
                                                             <tbody class="ant-table-tbody">
-                                                                <tr v-for="item in orderData" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
+                                                                <tr v-for="item in orderData" v-bind:key="item.taskID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
                                                                         <span style="font-weight: 700;">{{(new Date()).toLocaleDateString()}}</span>
@@ -194,7 +201,7 @@
                                     <div class="ant-card-head-title text-bold ">成交信息</div>
                                 </div>
                             </div>
-                            <div class="ant-card-body">
+                            <div class="ant-card-body" v-cloak>
                                 <div class="ant-table-wrapper">
                                     <div class="ant-spin-nested-loading">
                                         <div class="ant-spin-container">
@@ -217,7 +224,7 @@
                                                             </thead>
                                                             <!-- 成交信息 -->
                                                             <tbody class="ant-table-tbody">
-                                                                <tr v-for="item in transcationData" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
+                                                                <tr v-for="item in transcationData" v-bind:key="item.orderID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
                                                                         <span style="font-weight: 700;">{{(new Date()).toLocaleDateString()}}</span>
@@ -305,58 +312,21 @@ body {
 .el-table .decrease_stock {
   background-color: green;
 }
+
+[v-cloak] {
+  display: none;
+}
 </style>
 
 <script>
+import axios from 'axios'
+import '../global.js'
+// import Toast from 'toast/Toast.vue'
 export default {
     data() {
         return {
             activeIndex: "1",
             isCollapse: true,
-            stock_id: '',
-            stock_list_data: [
-                {
-                    stock_code: '600030.SH',
-                    lasted_price: '8.06',
-                    stock_change: '1.87%',
-                    stock_rise_fall: '+0.26',
-                    stock_up_down: '+1.52%'
-                },
-                {
-                    stock_code: '000651.SZ',
-                    lasted_price: '8.06',
-                    stock_change: '1.87%',
-                    stock_rise_fall: '+0.26',
-                    stock_up_down: '+1.52%'
-                },
-                {
-                    stock_code: '601857.SH',
-                    lasted_price: '8.06',
-                    stock_change: '1.87%',
-                    stock_rise_fall: '-0.26',
-                    stock_up_down: '-1.52%'
-                }],
-            stock_details: {
-                code: '000001.SH',
-                close: '2668.1704',
-                date: '20181115',
-                high: '2668.1704',
-                last: '2668.1704',
-                limit_down: '0.0',
-                limit_up: '0.0',
-                low: '2631.8875',
-                oi: '0',
-                open: '2632.1379',
-                preclose: '2632.24249',
-                symbol: '000001.SH',
-                time: '150050000',
-                turnover: '171882491635.5',
-                volume: '207848721'
-            },
-            yesterdayProfit: 10,
-            curMonthProfit: 100,
-            allProfit: 300,
-            allAsset: 10000,
             pickerOptions1: {
                 disabledDate(time) {
                     return time.getTime() > Date.now() - 86400000;
@@ -378,14 +348,30 @@ export default {
                 }]
             },
             value2: Date.now() - 86400000,
-            holdPostionItems: [{ name: "交易日" }, { name: "证券代码" }, { name: "证券名称" }, { name: "持仓方向" }, { name: "持有成本" }, { name: "总持仓" }, { name: "昨日持仓" }, { name: "今日持仓" }, { name: "可用持仓" }, { name: "持仓盈亏" }, { name: "交易盈亏" },],
+            holdPostionItems: [
+                { name: "交易日", prop: "date" },
+                { name: "证券代码", prop: "symbol" },
+                { name: "证券名称", prop: "name" },
+                { name: "持仓方向", prop: "direction" },
+                { name: "持有成本", prop: "price" },
+                { name: "总持仓", prop: "position" },
+                { name: "昨日持仓", prop: "ydPosition" },
+                { name: "今日持仓", prop: "tdPosition" },
+                { name: "可用持仓", prop: "enable" },
+                { name: "持仓盈亏", prop: "allProfit" },
+                { name: "交易盈亏", prop: "tradeProfit" },
+            ],
             orderItems: [{ name: "交易日" }, { name: "任务编号" }, { name: "证券代码" }, { name: "证券名称" }, { name: "委托行为" }, { name: "委托价格" }, { name: "委托数量" }, { name: "成交价格" }, { name: "成交数量" }, { name: "下单时间" }, { name: "订单状态" },],
             transctionItems: [{ name: "交易日" }, { name: "任务编号" }, { name: "证券代码" }, { name: "证券名称" }, { name: "交易行为" }, { name: "成交数量" }, { name: "成交价格" }, { name: "成交时间" },],
-            holdPositionJson: '',
-            orderData: '',
-            transcationData: '',
+            holdPositionJson: [],
+            orderData: [],
+            transcationData: [],
+            // holdPositionJson: [{ "direction": "long", "enable": 300, "gatewayName": "SQuant", "name": "苏宁环球", "mktval": 930.0, "exchange": "SZ", "frozen": 0, "symbol": "000718.SZ", "ydPosition": 300, "last": 3.1, "commission": 0.0, "trading": 0.0, "tdPosition": 0, "vtPositionName": "000718.SZ.long", "rawData": null, "want": 1200, "holding": -45.0, "position": 300, "price": 3.2033, "initPosition": 300, "date": "2018-11-24", "allProfit": 30, "tradeProfit": 20, }],
+            // orderData: eval('[{\"orderID\": \"148681123000001\", \"status\": \"filled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"exchange\": \"SZ\", \"symbol\": \"000718.SZ\", \"tradedVolume\": 100, \"orderTime\": \"21:17:58986\", \"tradePrice\": 3.21, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000001\", \"offset\": \"open\", \"vtOrderID\": \"148681123000001\", \"price\": 3.21, \"priceType\": \"\", \"totalVolume\": 100}, {\"orderID\": \"148681123000004\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:04:38806\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000003\", \"offset\": \"open\", \"vtOrderID\": \"148681123000004\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}, {\"orderID\": \"148681123000002\", \"status\": \"cancelled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"中信证券\", \"exchange\": \"SH\", \"symbol\": \"600030.SH\", \"tradedVolume\": 0, \"orderTime\": \"21:17:59220\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000002\", \"offset\": \"open\", \"vtOrderID\": \"148681123000002\", \"price\": 16.0, \"priceType\": \"\", \"totalVolume\": 1000}, {\"orderID\": \"148681123000005\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:18:11182\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000004\", \"offset\": \"open\", \"vtOrderID\": \"148681123000005\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}]'),
+            // transcationData: eval('[{\"orderID\": \"148681123000001\", \"direction\": \"long\", \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"tradeID\": \"148681123000001\", \"exchange\": \"SZ\", \"symbol\": \"000718.SZ\", \"volume\": 100, \"taskID\": \"148681123000001\", \"tradeTime\": \"94:21:9422\", \"rawData\": null, \"vtTradeID\": \"148681123000001\", \"offset\": \"open\", \"vtOrderID\": \"148681123000001\", \"price\": 3.21}]'),
         };
     },
+
     methods: {
         stock_color({ row, rowIndex }) {
             if (row.stock_rise_fall[0] === '+') {
@@ -398,20 +384,60 @@ export default {
         },
         handleOpen(key, keyPath) {
             console.log(key, keyPath);
+            getHoldPositonJson();
         },
         handleClose(key, keyPath) {
             console.log(key, keyPath);
+
         },
-        getHoldPositonJson() {
-            var holdPositionJson = eval('[{\"direction\": \"long\", \"enable\": 200, \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"mktval\": 930.0, \"exchange\": \"SZ\", \"frozen\": 0, \"symbol\": \"000718.SZ\", \"ydPosition\": 200, \"commission\": 0.08, \"trading\": -11.0, \"tdPosition\": 100, \"vtPositionName\": \"000718.SZ.long\", \"rawData\": null, \"want\": 0, \"holding\": -30.0, \"position\": 300, \"last\": 3.1, \"price\": 3.2033, \"initPosition\": 200}, {\"direction\": \"long\", \"enable\": 0, \"gatewayName\": \"SQuant\", \"name\": \"中信证券\", \"mktval\": 0.0, \"exchange\": \"SH\", \"frozen\": 0, \"symbol\": \"600030.SH\", \"ydPosition\": 0, \"commission\": 0.0, \"trading\": 0.0, \"tdPosition\": 0, \"vtPositionName\": \"600030.SH.long\", \"rawData\": null, \"want\": 0, \"holding\": 0.0, \"position\": 0, \"last\": 16.6, \"price\": 0.0, \"initPosition\": 0}, {\"direction\": \"long\", \"enable\": 0, \"gatewayName\": \"SQuant\", \"name\": \"贵州茅台\", \"mktval\": 0.0, \"exchange\": \"SH\", \"frozen\": 0, \"symbol\": \"600519.SH\", \"ydPosition\": 0, \"commission\": 0.0, \"trading\": 0.0, \"tdPosition\": 0, \"vtPositionName\": \"600519.SH.long\", \"rawData\": null, \"want\": 0, \"holding\": 0.0, \"position\": 0, \"last\": 556.9, \"price\": 0.0, \"initPosition\": 0}]');
-            this.holdPositionJson = holdPositionJson;
-        },
-        getOrderData() {
-            return eval('[{\"orderID\": \"148681123000001\", \"status\": \"filled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"exchange\": \"SZ\", \"symbol\": \"000718.SZ\", \"tradedVolume\": 100, \"orderTime\": \"21:17:58986\", \"tradePrice\": 3.21, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000001\", \"offset\": \"open\", \"vtOrderID\": \"148681123000001\", \"price\": 3.21, \"priceType\": \"\", \"totalVolume\": 100}, {\"orderID\": \"148681123000004\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:04:38806\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000003\", \"offset\": \"open\", \"vtOrderID\": \"148681123000004\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}, {\"orderID\": \"148681123000002\", \"status\": \"cancelled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"中信证券\", \"exchange\": \"SH\", \"symbol\": \"600030.SH\", \"tradedVolume\": 0, \"orderTime\": \"21:17:59220\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000002\", \"offset\": \"open\", \"vtOrderID\": \"148681123000002\", \"price\": 16.0, \"priceType\": \"\", \"totalVolume\": 1000}, {\"orderID\": \"148681123000005\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:18:11182\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000004\", \"offset\": \"open\", \"vtOrderID\": \"148681123000005\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}]');
-        },
-        getTranscationData() {
-            return eval('[{\"orderID\": \"148681123000001\", \"direction\": \"long\", \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"tradeID\": \"148681123000001\", \"exchange\": \"SZ\", \"symbol\": \"000718.SZ\", \"volume\": 100, \"taskID\": \"148681123000001\", \"tradeTime\": \"94:21:9422\", \"rawData\": null, \"vtTradeID\": \"148681123000001\", \"offset\": \"open\", \"vtOrderID\": \"148681123000001\", \"price\": 3.21}]');
-        },
+    },
+    mounted() {
+        console.log(window.baseUrl);
+        // 持仓信息
+        axios.get(window.baseUrl + "market/queryPosition")
+            .then(response => {
+                console.log(response);
+                if (response.data.error_num == 0) {
+                    this.holdPositionJson = eval(response.data.result);
+                    console.log(this.holdPositionJson);
+                } else {
+                    alert("获取持仓信息错误：" + response.data.msg);
+                    console.log(response.data.error_num + ":" + response.data.msg);
+                }
+            }).catch(function (error) {
+                // alert(error);
+                console.log(error);
+            });
+        // 交易信息
+        axios.get(window.baseUrl + "market/queryOrder")
+            .then(response => {
+                console.log(response);
+                if (response.data.error_num == 0) {
+                    this.orderData = eval(response.data.result);
+                    console.log(this.orderData);
+                } else {
+                    alert("获取委托信息错误：" + response.data.msg);
+                    console.log(response.data.error_num + ":" + response.data.msg);
+                }
+            }).catch(function (error) {
+                alert(error);
+                console.log(error);
+            });
+        // 成交信息
+        axios.get(window.baseUrl + "market/queryTrade")
+            .then(response => {
+                console.log(response);
+                if (response.data.error_num == 0) {
+                    this.transcationData = eval(response.data.result);
+                    console.log(this.transcationData);
+                } else {
+                    alert("获取成交信息错误：" + response.data.msg);
+                    console.log(response.data.error_num + ":" + response.data.msg);
+                }
+            }).catch(function (error) {
+                alert(error);
+                console.log(error);
+            });
     },
 
 }
