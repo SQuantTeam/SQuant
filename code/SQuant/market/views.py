@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.core import serializers
 import json
 
-from trader.sqSetting import MdAddress, TdAddress
+from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
 from trader.gateway.tradeGateway import TradeGateway
 from trader.sqConstant import *
 from trader.sqGateway import *
@@ -75,10 +75,12 @@ def quote(request, symbol):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
-
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
@@ -110,10 +112,12 @@ def bar(request, symbol, trade_date):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
-
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
@@ -149,10 +153,12 @@ def daily(request, symbol, start_date, end_date):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
-
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
@@ -203,9 +209,11 @@ def placeOrder(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
 
         # 连接交易平台
         setting['mdAddress'] = MdAddress
@@ -243,10 +251,13 @@ def queryPosition(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
 
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
@@ -274,10 +285,13 @@ def queryOrder(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
 
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
@@ -305,10 +319,13 @@ def queryTrade(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            response['msg'] = 'no connection'
-            response['error_num'] = 1
-            return JsonResponse(response)
-
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+            
+        # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
         setting['username'] = phone

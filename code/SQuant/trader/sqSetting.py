@@ -4,6 +4,11 @@ from trader.sqConstant import *
 MdAddress = 'tcp://data.quantos.org:8910'
 # 交易地址
 TdAddress = 'tcp://gw.quantos.org:8901'
+#默认用户
+DefaultPhone = '15827606670'
+#默认用户的token
+DefaultToken = 'eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4'\
+    'Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k'
 
 # functions for generating algo parameters
 
