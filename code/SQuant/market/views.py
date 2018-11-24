@@ -251,6 +251,49 @@ def placeOrder(request):
     return JsonResponse(response)
 
 
+@require_http_methods(["POST"])
+def cancelPortfolioOrder(request):
+    '''一键撤单'''
+    response = {}
+    setting = {}
+    try:
+        # 从session中获取用户账号信息
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+
+        # 连接交易平台
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            # 释放连接资源
+            tradeGateway.close()
+            return JsonResponse(response)
+
+        # 下单操作
+        result, msg = tradeGateway.cancelPortfolioOrder()
+        response['msg'] = msg
+        response['result'] = result
+        response['error_num'] = 0
+        # 释放链接资源
+        tradeGateway.close()
+    except Exception as e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
 @require_http_methods(["GET"])
 def queryPosition(request):
     '''查询持仓信息'''
