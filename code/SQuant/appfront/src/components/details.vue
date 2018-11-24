@@ -3460,22 +3460,15 @@ export default {
         
         axios.get("http://114.115.137.173:8000/squant/market/quote/000001.SH", {
         }).then(function (response) {
-          alert('success')
         // 　　alert(''.concat(response.data, '\r\n', response.status, '\r\n', response.statusText, '\r\n', response.headers, '\r\n', response.config));
           console.log(response.data);
         }).catch(function (error) {
         　　alert(error);
         });
 
-        if (this.stock_list_data_symbol.indexOf(item.stock_code) > 0) {
+        if (this.stock_list_data_symbol.indexOf(item.stock_code) < 0) {
           this.stock_list_data_symbol.push(item.stock_code);
-          this.stock_list_data.push(
-          {
-            stock_code: item.stock_code,
-            lasted_price: '8.06',
-            stock_rise_fall: '+0.26',
-            stock_up_down: '+1.52%'
-          });
+          this.update_contract_list_and_details(item.stock_code);
         }
         this.stock_search_selected = '';
       },
@@ -3545,6 +3538,7 @@ export default {
             console.log(error);
           });
           this.refresh_kline();
+          
       },
       set_current_selected_stock(row, event, column) {
         this.$refs.stock_list_table.setCurrentRow(row);
