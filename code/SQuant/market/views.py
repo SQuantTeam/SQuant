@@ -125,6 +125,10 @@ def bar(request, symbol, trade_date):
             response['error_num'] = 1
         else:
             df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date)
+            if df is None:
+                response['msg'] = msg
+                response['error_num'] = 0
+                return JsonResponse(response)
             result = df.to_json(orient='records')
             response['result'] = result
             response['msg'] = msg
@@ -160,6 +164,10 @@ def daily(request, symbol, start_date, end_date):
             response['error_num'] = 1
         else:
             df, msg = tradeGateway.qryQuoteDaily(symbol=symbol, start_date=start_date, end_date=end_date)
+            if df is None:
+                response['msg'] = msg
+                response['error_num'] = 0
+                return JsonResponse(response)
             result = df.to_json(orient='records')
             response['result'] = result
             response['msg'] = msg
