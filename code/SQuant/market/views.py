@@ -41,6 +41,7 @@ def connect(request):
         if tradeGateway.loginStatus == False:
             response['msg'] = "failed to connect"
             response['error_num'] = 1
+            tradeGateway.close()
             return JsonResponse(response)
         # 查询持仓信息
         positionList = tradeGateway.qryPosition()
@@ -50,7 +51,6 @@ def connect(request):
             contractName['symbol'] = position.symbol
             contractName['name'] = position.name
             contractNameList.append(contractName)
-        print(contractNameList)
 
         # 获取用户账户信息
         account = tradeGateway.qryAccount()
@@ -58,7 +58,7 @@ def connect(request):
         response['account'] = json.dumps(account, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['msg'] = 'successfully connected'
         response['error_num'] = 0
-
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -96,6 +96,8 @@ def quote(request, symbol):
             response['result'] = result
             response['msg'] = 'success'
             response['error_num'] = 0
+        # 释放资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -137,6 +139,8 @@ def bar(request, symbol, trade_date):
             response['result'] = result
             response['msg'] = msg
             response['error_num'] = 0
+        # 释放资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -178,6 +182,8 @@ def daily(request, symbol, start_date, end_date):
             response['result'] = result
             response['msg'] = msg
             response['error_num'] = 0
+        # 释放资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -225,6 +231,8 @@ def placeOrder(request):
         if tradeGateway.loginStatus == False:
             response['msg'] = "failed to connect"
             response['error_num'] = 1
+            # 释放连接资源
+            tradeGateway.close()
             return JsonResponse(response)
 
         # 下单操作
@@ -234,7 +242,8 @@ def placeOrder(request):
             response['error_num'] = 1
         else:
             response['error_num'] = 0
-
+        # 释放链接资源
+        tradeGateway.close()
     except Exception as e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -269,6 +278,8 @@ def queryPosition(request):
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
+        # 释放连接资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -303,6 +314,8 @@ def queryOrder(request):
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
+        # 释放连接资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
@@ -324,7 +337,7 @@ def queryTrade(request):
             # return JsonResponse(response)
             phone = DefaultPhone
             token = DefaultToken
-            
+
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
@@ -337,6 +350,8 @@ def queryTrade(request):
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
+        # 释放连接资源
+        tradeGateway.close()
     except  Exception,e:
         response['msg'] = str(e)
         response['error_num'] = 2
