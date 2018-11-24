@@ -174,9 +174,8 @@ class SqPositionData(SqBaseData):
         self.position = EMPTY_INT  # 持仓量
         self.frozen = EMPTY_INT  # 冻结数量
         self.price = EMPTY_FLOAT  # 持仓均价
-        self.vtPositionName = EMPTY_STRING  # 持仓在vt系统中的唯一代码，symbol.方向
+        self.vtPositionName = EMPTY_STRING  # 持仓在系统中的唯一代码，symbol.方向
 
-        # 20151020添加
         self.ydPosition = EMPTY_INT  # 昨持仓
         self.tdPosition = EMPTY_INT  # 今持仓
 
@@ -300,7 +299,7 @@ class SqOrderReq(object):
         self.volume = EMPTY_INT  # 数量
         self.urgency = EMPTY_INT
 
-        self.priceType = EMPTY_STRING  # 价格类型
+        self.priceType = EMPTY_STRING  # 价格类型（'', 'vwap', 'twap')
         self.direction = EMPTY_STRING  # 买卖
         self.offset = EMPTY_STRING  # 开平
 

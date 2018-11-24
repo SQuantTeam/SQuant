@@ -8,115 +8,18 @@ from builtins import object
 import time
 import traceback
 
-from trader.sqGateway import *
 from trader.data.dataapi import DataApi
 from trader.trade.tradeapi import TradeApi
 from trader.sqGateway import *
+from trader.sqSetting import *
 
-# 行情地址
-MdAddress = 'tcp://data.quantos.org:8910'
-# 交易地址
-TdAddress = 'tcp://gw.quantos.org:8901'
-
+# 检查返回值的函数
 def check_return_error(res, err_msg):
     if res is None:
         return False
     else:
         return True
 
-# functions for generating algo parameters
-
-#----------------------------------------------------------------------
-def generateEmptyParams(security, urgency):
-    """generate empty dict"""
-    return {}
-
-#----------------------------------------------------------------------
-def generateVwapParams(security, urgency):
-    """generate params for vwap algo"""
-    params = {}
-    params['urgency'] = {security: urgency}               # bid + 0.25 * bid_ask_spread
-    params['participate_rate'] = {security: 0.1}
-    params['price_range_factor'] = 0.1
-    params['lifetime'] = 600000                     # 10 minutes
-    return params
-
-#----------------------------------------------------------------------
-def generateTwapParams(security, urgency):
-    """generate params for twap algo"""
-    params = {}
-    params['urgency'] = {security: urgency}               # bid + 0.25 * bid_ask_spread
-    params['price_range_factor'] = 0.1
-    params['cycle'] = 1000
-    params['lifetime'] = 60000                     # 10 minutes
-    return params
-
-# 以下为一些VT类型和quantos类型的映射字典
-# 价格类型映射
-priceTypeMap = {}
-priceTypeMap[PRICETYPE_LIMITPRICE] = ('', generateEmptyParams)
-priceTypeMap[PRICETYPE_VWAP] = ('vwap', generateVwapParams)
-priceTypeMap[PRICETYPE_TWAP] = ('twap', generateTwapParams)
-
-# 动作印射
-actionMap = {}
-actionMap[(DIRECTION_LONG, OFFSET_OPEN)] = "Buy"
-actionMap[(DIRECTION_SHORT, OFFSET_OPEN)] = "Short"
-actionMap[(DIRECTION_LONG, OFFSET_CLOSE)] = "Cover"
-actionMap[(DIRECTION_SHORT, OFFSET_CLOSE)] = "Sell"
-actionMap[(DIRECTION_LONG, OFFSET_CLOSEYESTERDAY)] = "CoverYesterday"
-actionMap[(DIRECTION_SHORT, OFFSET_CLOSEYESTERDAY)] = "SellYesterday"
-actionMap[(DIRECTION_LONG, OFFSET_CLOSETODAY)] = "CoverToday"
-actionMap[(DIRECTION_SHORT, OFFSET_CLOSETODAY)] = "SellToday"
-actionMap[(DIRECTION_LONG, OFFSET_UNKNOWN)] = "AutoLong"
-actionMap[(DIRECTION_SHORT, OFFSET_UNKNOWN)] = "AutoShort"
-actionMapReverse = {v: k for k, v in list(actionMap.items())}
-
-# 交易所类型映射
-exchangeMap = {}
-exchangeMap[EXCHANGE_CFFEX] = 'CFE'
-exchangeMap[EXCHANGE_SHFE] = 'SHF'
-exchangeMap[EXCHANGE_CZCE] = 'CZC'
-exchangeMap[EXCHANGE_DCE] = 'DCE'
-exchangeMap[EXCHANGE_SSE] = 'SH'
-exchangeMap[EXCHANGE_SZSE] = 'SZ'
-exchangeMap[EXCHANGE_SGE] = 'SGE'
-exchangeMap[EXCHANGE_CSI] = 'CSI'
-exchangeMap[EXCHANGE_HKS] = 'HKS'
-exchangeMap[EXCHANGE_HKH] = 'HKH'
-exchangeMap[EXCHANGE_JZ] = 'JZ'
-exchangeMap[EXCHANGE_SPOT] = 'SPOT'
-exchangeMap[EXCHANGE_IB] = 'IB'
-exchangeMap[EXCHANGE_FX] = 'FX'
-exchangeMap[EXCHANGE_INE] = 'INE'
-
-exchangeMapReverse = {v:k for k,v in list(exchangeMap.items())}
-
-# 持仓类型映射
-sideMap = {}
-sideMap[DIRECTION_LONG] = 'Long'
-sideMap[DIRECTION_SHORT] = 'Short'
-sideMapReverse = {v:k for k,v in list(sideMap.items())}
-
-# 产品类型映射
-productClassMapReverse = {}
-productClassMapReverse[1] = PRODUCT_EQUITY
-productClassMapReverse[3] = PRODUCT_EQUITY
-productClassMapReverse[4] = PRODUCT_EQUITY
-productClassMapReverse[5] = PRODUCT_EQUITY
-productClassMapReverse[8] = PRODUCT_BOND
-productClassMapReverse[17] = PRODUCT_BOND
-productClassMapReverse[101] = PRODUCT_FUTURES
-productClassMapReverse[102] = PRODUCT_FUTURES
-productClassMapReverse[103] = PRODUCT_FUTURES
-
-# 委托状态映射
-statusMapReverse = {}
-statusMapReverse['New'] = STATUS_UNKNOWN
-statusMapReverse['Accepted'] = STATUS_NOTTRADED
-statusMapReverse['Cancelled'] = STATUS_CANCELLED
-statusMapReverse['Filled'] = STATUS_ALLTRADED
-statusMapReverse['Rejected'] = STATUS_REJECTED
 
 class TradeGateway(object):
     # ----------------------------------------------------------------------
@@ -124,17 +27,18 @@ class TradeGateway(object):
         """Constructor"""
         super(TradeGateway, self).__init__()
         self.gatewayName = gatewayName
+        self.loginStatus = False  # 标记是否已连接到第三方交易平台
         self.mdApi = SQuantMdApi(self, setting)  # 行情
         self.tdApi = SQuantTdApi(self, setting)  # 交易
-        self.loginStatus = self.login(setting['username'], setting['token'])
+        self.login(setting['username'], setting['token'])
 
         # self.qryEnabled = False  # 是否要启动循环查询
 
     def connect(self):
         """To Do"""
 
-    def getStrategyList(self, userName, password):
-        return self.tdApi.getStrategyList(userName, password)
+    def getStrategyList(self, username, password):
+        return self.tdApi.getStrategyList(username, password)
 
     # ----------------------------------------------------------------------
     def login(self, username, token):
@@ -144,16 +48,29 @@ class TradeGateway(object):
             info = self.mdApi.connect(username, token)
             userInfo = self.tdApi.connect(username, token)
             if info is None or userInfo is None:
-                return False
-            return True
+                self.loginStatus = False
+                return
+            self.loginStatus = True
 
         except:
+            self.loginStatus = False
             traceback.print_exc()
 
     # ----------------------------------------------------------------------
     def qryQuote(self, instcode):
         """查询行情"""
         return self.mdApi.qryQuote(instcode=instcode)
+
+    # ----------------------------------------------------------------------
+    def qryQuoteBar(self, symbol, trade_date, freq="5M", start_time=0, end_time=160000, fields=""):
+        """查询行情"""
+        return self.mdApi.qryQuoteBar(symbol=symbol, trade_date=trade_date, freq=freq, start_time=start_time, end_time=end_time, fields="")
+
+    # ----------------------------------------------------------------------
+    def qryQuoteDaily(self, symbol, start_date, end_date, freq="1d", adjust_mode="post", fields=""):
+
+        df, msg = self.mdApi.qryQuoteDaily(symbol=symbol, start_date=start_date, end_date=end_date, freq=freq, adjust_mode=adjust_mode, fields="")
+        return df, msg
 
     # ----------------------------------------------------------------------
     def subscribe(self, symbols):
@@ -347,7 +264,9 @@ class SQuantTdApi(object):
 
         code, exchange = data['security'].split('.')
         order.symbol = data['security']
-        order.name = data['security']
+
+        instruments = self.gateway.mdApi.qryInstruments(order.symbol)  # only one symbol here
+        order.name = instruments.loc[0, 'name']
         order.exchange = exchangeMapReverse.get(exchange, EXCHANGE_UNKNOWN)
 
         order.orderID = str(data['entrust_no'])
@@ -383,7 +302,9 @@ class SQuantTdApi(object):
 
         code, jzExchange = data['security'].split('.')
         trade.symbol = data['security']
-        trade.name = data['security']
+
+        instruments = self.gateway.mdApi.qryInstruments(trade.symbol)  # only one symbol here
+        trade.name = instruments.loc[0, 'name']
         trade.exchange = exchangeMapReverse.get(jzExchange, EXCHANGE_UNKNOWN)
 
         trade.direction, trade.offset = actionMapReverse.get(data['entrust_action'],
@@ -447,8 +368,9 @@ class SQuantTdApi(object):
         userInfo, msg = self.api.login(username, password)
         if userInfo is None:
             return userInfo
-        user_strats = userInfo['strategies']
-        sid, msg = self.api.use_strategy(user_strats[0])
+        userStrats = userInfo['strategies']
+        # print (userStrats)
+        sid, msg = self.api.use_strategy(userStrats[0])
         return userInfo
 
 
@@ -467,7 +389,7 @@ class SQuantTdApi(object):
     # ----------------------------------------------------------------------
     def sendOrder(self, orderReq):
         """发单"""
-        security = '.'.join([orderReq.symbol, exchangeMap.get(orderReq.exchange, '')])
+        security = orderReq.symbol
         urgency = orderReq.urgency
         algo, paramsFunction = priceTypeMap[orderReq.priceType]
 
@@ -478,16 +400,12 @@ class SQuantTdApi(object):
                                                    paramsFunction(security, urgency))
             else:
                 taskid, msg = self.api.place_order(security, action, orderReq.price, int(orderReq.volume))
-
-            if not check_return_error(taskid, msg):
-                self.writeLog(u'委托失败，错误信息：%s' % msg)
         else:
             inc_size = int(orderReq.volume) if orderReq.direction == DIRECTION_LONG else int(orderReq.volume) * -1
 
             taskid, msg = self.api.batch_order([{"security": security, "price": orderReq.price, "size": inc_size}],
                                                algo, paramsFunction(security, urgency))
-            if not check_return_error(taskid, msg):
-                self.writeLog(u'篮子委托失败，错误信息：%s' % msg)
+        return taskid, msg
 
     # ----------------------------------------------------------------------
     def sendBasketOrder(self, req):
@@ -519,6 +437,8 @@ class SQuantTdApi(object):
         """查询持仓"""
         df, msg = self.api.query_position()
         positionList = []
+        if df is None:
+            return positionList
 
         for index, data in df.iterrows():
             position = SqPositionData()
@@ -744,7 +664,6 @@ class SQuantMdApi(object):
     def qryQuote(self, instcode):
 
         df, msg = self.api.quote(fields=self.fields, symbol=instcode)
-        df.to_csv('test_quote.csv')
         tick = SqTickData()
         if df.empty:
             return tick
@@ -812,6 +731,17 @@ class SQuantMdApi(object):
 
         return tick
 
+    # ----------------------------------------------------------------------
+    def qryQuoteBar(self, symbol, trade_date, freq="5M", start_time=0, end_time=160000, fields=""):
+
+        df, msg = self.api.bar(symbol=symbol, trade_date=trade_date, freq=freq, start_time=start_time, end_time=end_time, fields="")
+        return df, msg
+
+    # ----------------------------------------------------------------------
+    def qryQuoteDaily(self, symbol, start_date, end_date, freq="1d", adjust_mode="post", fields=""):
+
+        df, msg = self.api.daily(symbol=symbol, start_date=start_date, end_date=end_date, freq=freq, adjust_mode=adjust_mode, fields="")
+        return df, msg
 
 ########################################################################
     # TradeApi通过回调函数方式通知用户事件。事件包括三种：订单状态、成交回报、委托任务执行状态。
@@ -844,10 +774,10 @@ if __name__ == '__main__':
     setting['token'] = 'eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkI' \
                         'joiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k'
     tradeG = TradeGateway(setting, gatewayName="SQuant")
-    print (tradeG.loginStatus)
+    # print (tradeG.loginStatus)
     # tradeG.login(setting['username'], setting['token'])
 
-    print(tradeG.qryQuote("000001.SH").name)
+    # print(tradeG.qryQuote("000001.SH").name)
 
     # account = tradeG.qryAccount()
     # print (account.vtAccountID)
@@ -859,10 +789,31 @@ if __name__ == '__main__':
     # for i in positionList:
     #     print i.mktval
 
-    # orderList = tradeG.tdApi.qryOrder()
+    # orderList = tradeG.qryOrder()
     # for i in orderList:
-    #     print i.orderID
+    #     print i.name
 
     # tradeList = tradeG.tdApi.qryTrade()
     # for i in tradeList:
     #     print i.orderID
+
+    # orderReq = SqOrderReq()
+    # orderReq.symbol = '000001.SH'
+    # code, exchange = orderReq.symbol.split('.')
+    # orderReq.exchange = exchange
+    # orderReq.price = 2643.0001
+    # orderReq.volume = 400
+    # orderReq.urgency = 0
+    # orderReq.priceType = PRICETYPE_LIMITPRICE
+    # orderReq.direction = DIRECTION_LONG
+    # orderReq.offset = OFFSET_OPEN
+    #
+    # taskid, msg = tradeG.sendOrder(orderReq)
+    # print (taskid, msg)
+
+    # df, msg = tradeG.qryQuoteBar(symbol='000001.SH', trade_date='2018-11-23')
+    # print (df)
+
+    df, msg = tradeG.qryQuoteDaily(symbol='000001.SH', start_date='2018-11-01', end_date='2018-11-20')
+    print (df)
+

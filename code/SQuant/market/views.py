@@ -4,14 +4,15 @@ from django.views.decorators.http import require_http_methods
 from django.core import serializers
 import json
 
-from trader.data.dataapi import DataApi
-from trader.trade.tradeapi import TradeApi
 from trader.sqSetting import MdAddress, TdAddress
 from trader.gateway.tradeGateway import TradeGateway
+from trader.sqConstant import *
+from trader.sqGateway import *
 
 # Create your views here.
 @require_http_methods(["POST"])
 def connect(request):
+    '''连接数据源和第三方交易平台'''
     response = {}
     setting = {}
     try:
@@ -67,6 +68,7 @@ def connect(request):
 
 @require_http_methods(["GET"])
 def quote(request, symbol):
+    '''查询实时行情'''
     response = {}
     setting = {}
     try:
@@ -99,13 +101,12 @@ def quote(request, symbol):
     return JsonResponse(response)
 
 
-@require_http_methods(["POST"])
-def placeOrder(request):
+@require_http_methods(["GET"])
+def bar(request, symbol, trade_date):
+    '''查询分钟线数据，默认频率为5分钟一次'''
     response = {}
     setting = {}
     try:
-        #get data from POST request
-        userData = json.loads(request.body)
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
@@ -122,12 +123,101 @@ def placeOrder(request):
         if tradeGateway.loginStatus == False:
             response['msg'] = "failed to connect"
             response['error_num'] = 1
+        else:
+            df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date)
+            result = df.to_json(orient='records')
+            response['result'] = result
+            response['msg'] = msg
+            response['error_num'] = 0
+    except  Exception,e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+
+@require_http_methods(["GET"])
+def daily(request, symbol, start_date, end_date):
+    '''查询日线数据，默认频率为一天一次'''
+    response = {}
+    setting = {}
+    try:
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
             return JsonResponse(response)
 
-        response['msg'] = 'successfully connected'
-        response['error_num'] = 0
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+        else:
+            df, msg = tradeGateway.qryQuoteDaily(symbol=symbol, start_date=start_date, end_date=end_date)
+            result = df.to_json(orient='records')
+            response['result'] = result
+            response['msg'] = msg
+            response['error_num'] = 0
+    except  Exception,e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
 
+    return JsonResponse(response)
+
+@require_http_methods(["POST"])
+def placeOrder(request):
+    '''单标的下单操作'''
+    response = {}
+    setting = {}
+    try:
+        #get data from POST request
+        userData = json.loads(request.body)
+
+        # 获取用户下单信息
+        orderReq = SqOrderReq()
+        orderReq.symbol = userData['symbol']
+        code, exchange = orderReq.symbol.split('.')
+        orderReq.exchange = exchange
+        orderReq.price = userData['price']
+        orderReq.volume = userData['volume']
+        orderReq.urgency = 0
+        orderReq.priceType = userData['priceType']
+        orderReq.direction = userData['direction']
+        orderReq.offset = userData['offset']
+
+        # 从session中获取用户账号信息
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+
+        # 连接交易平台
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            return JsonResponse(response)
+
+        # 下单操作
+        taskid, msg = tradeGateway.sendOrder(orderReq)
+        response['msg'] = msg
+        if taskid is None:
+            response['error_num'] = 1
+        else:
+            response['error_num'] = 0
 
     except Exception as e:
         response['msg'] = str(e)
@@ -135,8 +225,10 @@ def placeOrder(request):
 
     return JsonResponse(response)
 
+
 @require_http_methods(["GET"])
 def queryPosition(request):
+    '''查询持仓信息'''
     response = {}
     setting = {}
     try:
@@ -155,7 +247,6 @@ def queryPosition(request):
 
         positionList = tradeGateway.qryPosition()
         result = json.dumps(positionList, default=lambda obj: obj.__dict__, ensure_ascii=False)
-        print (result)
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
@@ -165,8 +256,10 @@ def queryPosition(request):
 
     return JsonResponse(response)
 
+
 @require_http_methods(["GET"])
-def queryOrder(request, symbol):
+def queryOrder(request):
+    '''查询交易订单'''
     response = {}
     setting = {}
     try:
@@ -185,7 +278,6 @@ def queryOrder(request, symbol):
 
         orderList = tradeGateway.qryOrder()
         result = json.dumps(orderList, default=lambda obj: obj.__dict__, ensure_ascii=False)
-        print (result)
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
@@ -195,8 +287,10 @@ def queryOrder(request, symbol):
 
     return JsonResponse(response)
 
+
 @require_http_methods(["GET"])
-def queryTrade(request, symbol):
+def queryTrade(request):
+    '''查询成交信息'''
     response = {}
     setting = {}
     try:
@@ -215,7 +309,6 @@ def queryTrade(request, symbol):
 
         tradeList = tradeGateway.qryTrade()
         result = json.dumps(tradeList, default=lambda obj: obj.__dict__, ensure_ascii=False)
-        print (result)
         response['result'] = result
         response['msg'] = 'success'
         response['error_num'] = 0
