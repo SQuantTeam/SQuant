@@ -44,6 +44,7 @@ class TradeApi(object):
                     import jrpc
                     self._remote = jrpc.JsonRpcClient()
                 else:
+                    from . import jrpc_py
                     self._remote = jrpc_py.JRpcClient(data_format="msgpack")
             except Exception as e:
                 print("Exception", e)
