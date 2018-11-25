@@ -16,7 +16,8 @@ urlpatterns = [
     url(r'market/queryPosition$', views.queryPosition, ),
     url(r'market/queryOrder$', views.queryOrder, ),
     url(r'market/queryTrade$', views.queryTrade, ),
-    url(r'market/bar/(?P<symbol>[0-9]{6}\.S[HZ])/(?P<trade_date>[0-9]{4}\-[0-9]{2}\-[0-9]{2})$', views.bar, ),
+    url(r'market/queryTotal$', views.queryTotal, ),
+    url(r'market/bar/(?P<symbol>[0-9]{6}\.S[HZ])/(?P<trade_date>[0-9]{4}\-[0-9]{2}\-[0-9]{2})/(?P<freq>[15]M)$', views.bar, ),
     url(r'market/daily/(?P<symbol>[0-9]{6}\.S[HZ])/(?P<start_date>[0-9]{4}\-[0-9]{2}\-[0-9]{2})/(?P<end_date>'
         r'[0-9]{4}\-[0-9]{2}\-[0-9]{2})$', views.daily, ),
     ]
