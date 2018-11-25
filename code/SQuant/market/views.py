@@ -130,7 +130,7 @@ def bar(request, symbol, trade_date, freq):
             response['msg'] = "failed to connect"
             response['error_num'] = 1
         else:
-            if freq is not "5M" or freq is not "1M":
+            if not cmp(freq, "5M") and not cmp(freq, "1M"):
                 freq = "5M"
             df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date, freq=freq)
             if df is None:
