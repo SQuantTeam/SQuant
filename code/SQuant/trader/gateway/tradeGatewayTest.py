@@ -32,8 +32,8 @@ if __name__ == '__main__':
     # print ((endTime-startTime).seconds)
     # tradeG.close()
 
-    result, msg = tradeG.cancelPortfolioOrder()
-    print (result, msg)
+    # result, msg = tradeG.cancelPortfolioOrder()
+    # print (result, msg)
 
     # tradeList = tradeG.tdApi.qryTrade()
     # for i in tradeList:
@@ -53,8 +53,8 @@ if __name__ == '__main__':
     # taskid, msg = tradeG.sendOrder(orderReq)
     # print (taskid, msg)
 
-    # df, msg = tradeG.qryQuoteBar(symbol='000001.SH', trade_date='2018-11-23')
-    # print (df)
+    df, msg = tradeG.qryQuoteBar(symbol='000001.SH', trade_date='2018-11-23')
+    print (df)
 
     # df, msg = tradeG.qryQuoteDaily(symbol='000001.SH', start_date='2018-11-01', end_date='2018-11-20')
     # print (df)
