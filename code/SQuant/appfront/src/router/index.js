@@ -4,7 +4,7 @@ import HP from '@/components/HP'
 import signup from '@/components/signup'
 import signin from '@/components/signin'
 import details from '@/components/details'
-import profile from '@/components/profile'
+import more from '@/components/more'
 import holdPosition from '@/components/holdPosition'
 
 Vue.use(Router)
@@ -32,14 +32,14 @@ export default new Router({
       component: details
     },
     {
-      path: '/profile',
-      name: 'profile',
-      component: profile
-    },
-    {
       path: '/holdPosition',
       name: 'holdPosition',
       component: holdPosition
+    },
+    {
+      path: '/more',
+      name: 'more',
+      component: more
     },
   ]
 })
