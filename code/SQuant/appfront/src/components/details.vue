@@ -343,11 +343,11 @@ import echarts from 'echarts'
 export default {
     data() {
       return {
-        kline_types: ['5M', '1D'],
+        kline_types: ['1M', '5M', '1D'],
         activeIndex: "1",
         isCollapse: true,
         stock_id: '',
-        kline_type: '5M',
+        kline_type: '1M',
         stock_color: 'red',
         sell_buy_limit: 11.9,
         sell_buy_hand: 200,
@@ -3514,7 +3514,7 @@ export default {
                 symbol: symbol,
                 name: details[0].name, //代码名称
                 last: details[0].lastPrice,
-                open: details[0].openPrice, //金开
+                open: details[0].openPrice, //今开
                 close: details[0].preSettlePrice, //昨收
                 volume: details[0].volume, //成交量
                 turnover: details[0].turnover, //成交额
