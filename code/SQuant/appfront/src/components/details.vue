@@ -112,7 +112,7 @@
 
         <!-- v-show="stock_list_current_row != null && stock_details != null" -->
         <!-- v-show="stock_details.is_show == true" -->
-        <div style="width: 55%; position: absolute; left: 40%; top: 9%;" v-show="stock_details.is_show == true">
+        <div style="width: 55%; position: absolute; left: 40%; top: 9%;">
           <div id="about_stock_basic_info">
             <!-- example
             {
@@ -231,6 +231,8 @@
 <style <style scoped>
 body {
     background: red;
+    /* font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","\5FAE\8F6F\96C5\9ED1",Arial,sans-serif !important; */
+    /* font-size: 16px !important; */
 }
 
 #nav_logo_collapsed {
@@ -272,7 +274,7 @@ body {
 #stock_details_others  h5{
   display: block;
   float: left; 
-  width:70px;
+  width: 90px;
   padding-right:20px;
 }
 
@@ -294,6 +296,44 @@ body {
 .stock_autocomplete li .highlighted .stock_code {
   color: #ddd;
 }
+
+h5 {
+    display: block;
+    font-size: 13.28px;
+    margin-block-start: 1.67em;
+    margin-block-end: 1.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+h2 {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h1 {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+h4 {
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", 微软雅黑, Arial, sans-serif;
+  font-weight:700;
+  height:19px;
+  margin-block-end:21.28px;
+  margin-block-start:-14.2031px;
+  margin-inline-end:0px;
+  position:absolute;
+  text-align:center;
+  width:400px;
+  -webkit-font-smoothing:antialiased;
+}
+
+
 
 </style>
 
@@ -354,7 +394,7 @@ export default {
           is_show: false,
           code: '600030.SH',
           close: '2668.1704',
-          date: '20181115',
+          date: '20181123',
           high: '2668.1704',
           last: '2668.1704',
           limit_down: '0.0',
@@ -387,115 +427,63 @@ export default {
               'Content-Type': 'multipart/form-data'
           }
         };
-        axios.post("http://114.115.137.173:8000/squant/market/cancelPortfolioOrder", order_json, config).then(function(response) {
+        axios.post("http://127.0.0.1:8000/squant/market/cancelPortfolioOrder", order_json, config).then(function(response) {
+          alert('一键撤单成功！');
           console.log(response);
         });
       },
-      handleOpen(key, keyPath) {
-        console.log(key, keyPath);
-      },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
-      },
       refresh_kline(tab, event) {
+        var self = this;
         var type = this.kline_type;
         var date = this.get_date(false);
         var trade_data = [];
         var x_data = [];
-        if (type == "5M") {
-          console.log("http://114.115.137.173:8000/squant/market/bar/"+this.stock_details.code+"/"+date)
-          var fake_data = [{
-              date: '2017-01-10',
-              time: '142105330',
-              open: 1510.00,
-              high: 1515.00,
-              low: 1310.00,
-              close: 1320.00
-            },{
-              date: '2017-01-11',
-              time: '142105330',
-              open: 1330.00,
-              high: 1500.00,
-              low: 1320.00,
-              close: 1310.00
-            },{
-              date: '2017-01-12',
-              time: '142105330',
-              open: 1340.00,
-              high: 1415.00,
-              low: 1310.00,
-              close: 1330.00
-            },{
-              date: '2017-01-13',
-              time: '142105330',
-              open: 1390.00,
-              high: 1515.00,
-              low: 1310.00,
-              close: 1420.00
-            },{
-              date: '2017-01-14',
-              time: '142105330',
-              open: 1410.00,
-              high: 1415.00,
-              low: 1310.00,
-              close: 1320.00
-            }];
-          for (var index in fake_data) {
-            x_data.push(fake_data[index].date + " " + fake_data[index].time);
-            trade_data.push([fake_data[index].open,fake_data[index].close,fake_data[index].low,fake_data[index].high]);
-          }
-          this.kline_init(x_data, trade_data);
-          // axios.get("http://114.115.137.173:8000/squant/market/bar/"+this.stock_details.code+"/"+date, {
-          //   }).then(function (response) {
-
-          //     console.log(response.data);
-          //   }).catch(function (error) {
-          //   　　alert(error);
-          //   });
+        if (type == "1M") {
+          console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/1M')
+          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/2018-11-23/1M", {
+            }).then(function (response) {
+              var fake_data = JSON.parse(response.data.result)
+              for (var index in fake_data) {
+                var time = self.msToTime(fake_data[index].time);
+                if (self.get_time() > time) {
+                  x_data.push(fake_data[index].date + " " + time);
+                  trade_data.push([fake_data[index].open,fake_data[index].close,fake_data[index].low,fake_data[index].high]);
+                }
+              }
+              self.kline_init(x_data, trade_data);
+            }).catch(function (error) {
+              console.log(error);
+            });
+        }else if (type == "5M") {
+          console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/5M')
+          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/2018-11-23/5M", {
+            }).then(function (response) {
+              var fake_data = JSON.parse(response.data.result)
+              for (var index in fake_data) {
+                var time = self.msToTime(fake_data[index].time);
+                if (self.get_time() > time) {
+                  x_data.push(fake_data[index].date + " " + time);
+                  trade_data.push([fake_data[index].open,fake_data[index].close,fake_data[index].low,fake_data[index].high]);
+                }
+              }
+              self.kline_init(x_data, trade_data);
+            }).catch(function (error) {
+              console.log(error);
+            });
         } else {
-          var last_10_date = this.get_date(true);
-          console.log("http://114.115.137.173:8000/squant/market/daily/"+this.stock_details.code+"/"+last_10_date+"/"+date)
-          var fake_data = [{
-              date: '2018-01-10',
-              time: '142105330',
-              open: 1510.00,
-              high: 1515.00,
-              low: 1310.00,
-              close: 1320.00
-            },{
-              date: '2018-01-11',
-              time: '142105330',
-              open: 1330.00,
-              high: 1500.00,
-              low: 1320.00,
-              close: 1310.00
-            },{
-              date: '2018-01-12',
-              time: '142105330',
-              open: 1340.00,
-              high: 1415.00,
-              low: 1310.00,
-              close: 1330.00
-            },{
-              date: '2018-01-13',
-              time: '142105330',
-              open: 1390.00,
-              high: 1515.00,
-              low: 1310.00,
-              close: 1420.00
-            },{
-              date: '2018-01-14',
-              time: '142105330',
-              open: 1410.00,
-              high: 1415.00,
-              low: 1310.00,
-              close: 1320.00
-            }];
-          for (var index in fake_data) {
-            x_data.push(fake_data[index].date + " " + fake_data[index].time);
-            trade_data.push([fake_data[index].open,fake_data[index].close,fake_data[index].low,fake_data[index].high]);
-          }
-          this.kline_init(x_data, trade_data);
+          var last_20_date = this.get_date(true);
+          console.log("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+"2018-11-03"+"/"+"2018-11-22");
+          axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+"2018-11-03"+"/"+"2018-11-22", {
+            }).then(function (response) {
+              var fake_data = JSON.parse(response.data.result)
+              for (var index in fake_data) {
+                x_data.push(fake_data[index].trade_date);
+                trade_data.push([fake_data[index].open,fake_data[index].close,fake_data[index].low,fake_data[index].high]);
+              }
+              self.kline_init(x_data, trade_data);
+            }).catch(function (error) {
+              console.log(error);
+            });
         }
       },
       kline_init(x_data, trade_data) {
@@ -575,11 +563,25 @@ export default {
           var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
           return year+"-"+month+"-"+day;
         }else{
-          var day=date.getDate()-10<10 ? "0"+date.getDate()-10 : date.getDate()-10;
+          var day=date.getDate()-20<10 ? "0"+String(date.getDate()-20) : date.getDate()-20;
           return year+"-"+month+"-"+day;
         }
-        
-        
+      },
+      get_time() {
+        var date = new Date();
+        var hours = date.getHours();
+        var minutes = date.getMinutes()<10? "0" + String(date.getMinutes()<10) : date.getMinutes();
+        var seconds = date.getSeconds() < 10 ? "0" + String(date.getSeconds()) : date.getSeconds();
+        return hours + ":" + minutes + ":" + seconds;
+      },
+      msToTime(duration) {
+        duration = String(duration);
+        duration = duration.length == 5? "0"+ duration:duration
+
+        var hours = duration.slice(0,2);
+        var minutes = duration.slice(2,4);
+        var seconds = duration.slice(4,6);
+        return hours + ":" + minutes + ":" + seconds;
       },
       deleteRow(index, rows) {
         rows.splice(index, 1);
@@ -3456,16 +3458,7 @@ export default {
           ];
       },
       stock_basic_select(item) {
-        // console.log("http://114.115.137.173:8000/squant/market/quote/"+item.stock_code);
-        
-        axios.get("http://114.115.137.173:8000/squant/market/quote/000001.SH", {
-        }).then(function (response) {
-        // 　　alert(''.concat(response.data, '\r\n', response.status, '\r\n', response.statusText, '\r\n', response.headers, '\r\n', response.config));
-          console.log(response.data);
-        }).catch(function (error) {
-        　　alert(error);
-        });
-
+        // console.log("http://127.0.0.1:8000/squant/market/quote/"+item.stock_code);
         if (this.stock_list_data_symbol.indexOf(item.stock_code) < 0) {
           this.stock_list_data_symbol.push(item.stock_code);
           this.update_contract_list_and_details(item.stock_code);
@@ -3474,14 +3467,12 @@ export default {
       },
       update_contract_list_and_details(symbol) {
         var self = this;
-        console.log("http://114.115.137.173:8000/squant/market/quote/"+symbol)
-        axios.get("http://114.115.137.173:8000/squant/market/quote/"+symbol, {
+        console.log("http://127.0.0.1:8000/squant/market/quote/"+symbol)
+        axios.get("http://127.0.0.1:8000/squant/market/quote/"+symbol, {
           }).then(function (response) {
             var details = JSON.parse('['+response.data.result+']');
-            var stock_index = self.stock_list_data_symbol.indexOf(symbol)
+            var stock_index = self.stock_list_data_symbol.indexOf(symbol);
             if (stock_index >= self.stock_list_data.length) {
-              console.log(self.stock_list_data);
-              console.log(stock_index + ' ' + symbol)
               if (details[0].time == "") {
                 self.stock_list_data.push({
                   stock_code: symbol,
@@ -3531,18 +3522,16 @@ export default {
                 low: details[0].lowPrice, //最低
                 time: details[0].time
               }
-              console.log(self.stock_details);
               self.sell_buy_limit = details[0].time==""?15.9:details[0].lastPrice
+              self.refresh_kline();
             }
+
           }).catch(function (error) {
             console.log(error);
           });
-          this.refresh_kline();
-          
       },
       set_current_selected_stock(row, event, column) {
         this.$refs.stock_list_table.setCurrentRow(row);
-        // this.stock_list_data = [];
         for (var index in this.stock_list_data_symbol) {
           this.update_contract_list_and_details(this.stock_list_data_symbol[index]);
         }
@@ -3564,8 +3553,15 @@ export default {
               'Content-Type': 'multipart/form-data'
           }
         };
+        console.log("http://127.0.0.1:8000/squant/market/placeOrder");
         console.log(order_json);
-        axios.post("http://114.115.137.173:8000/squant/market/placeOrder", order_json, config).then(function(response) {
+        axios.post("http://127.0.0.1:8000/squant/market/placeOrder", order_json, config).then(function(response) {
+          if (response.data.error_num == 0) {
+            alert('委托成功');
+          } else {
+            alert('委托失败：'+response.data.msg);
+          }
+          
           console.log(response);
         });
       }
@@ -3582,15 +3578,15 @@ export default {
           }
       };
       var self = this;
-      axios.post("http://114.115.137.173:8000/squant/market/connect", user_info, config).then(function(response) {
-          console.log(response);
-          self.user_contract_list = JSON.parse(response.data.contractNameList);
-          self.stock_list_data = []
-          for (var index in self.user_contract_list) {
-            self.stock_list_data_symbol.push(self.user_contract_list[index].symbol);
-            self.update_contract_list_and_details(self.user_contract_list[index].symbol);
-          }
-      });
+      // axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
+      //     console.log(response);
+      //     self.user_contract_list = JSON.parse(response.data.contractNameList);
+      //     self.stock_list_data = []
+      //     for (var index in self.user_contract_list) {
+      //       self.stock_list_data_symbol.push(self.user_contract_list[index].symbol);
+      //       self.update_contract_list_and_details(self.user_contract_list[index].symbol);
+      //     }
+      // });
     }
   }
 </script>
