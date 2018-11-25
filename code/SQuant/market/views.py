@@ -402,3 +402,44 @@ def queryTrade(request):
         response['error_num'] = 2
 
     return JsonResponse(response)
+
+@require_http_methods(["GET"])
+def queryTotal(request):
+    '''查询所有订单相关信息'''
+    response = {}
+    setting = {}
+    try:
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        if phone is None or token is None:
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+
+        # 构造连接第三方数据和交易平台的类
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        tradeList = tradeGateway.qryTrade()
+        tradeResult = json.dumps(tradeList, default=lambda obj: obj.__dict__, ensure_ascii=False)
+        orderList = tradeGateway.qryOrder()
+        orderResult = json.dumps(orderList, default=lambda obj: obj.__dict__, ensure_ascii=False)
+        positionList = tradeGateway.qryPosition()
+        positionResult = json.dumps(positionList, default=lambda obj: obj.__dict__, ensure_ascii=False)
+        response['tradeResult'] = tradeResult
+        response['orderResult'] = orderResult
+        response['positionResult'] = positionResult
+        response['msg'] = 'success'
+        response['error_num'] = 0
+        # 释放连接资源
+        tradeGateway.close()
+    except  Exception,e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
