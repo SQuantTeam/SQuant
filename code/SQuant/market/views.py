@@ -106,7 +106,7 @@ def quote(request, symbol):
 
 
 @require_http_methods(["GET"])
-def bar(request, symbol, trade_date):
+def bar(request, symbol, trade_date, freq):
     '''查询分钟线数据，默认频率为5分钟一次'''
     response = {}
     setting = {}
@@ -130,7 +130,9 @@ def bar(request, symbol, trade_date):
             response['msg'] = "failed to connect"
             response['error_num'] = 1
         else:
-            df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date)
+            if freq is not "5M" or freq is not "1M":
+                freq = "5M"
+            df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date, freq=freq)
             if df is None:
                 response['msg'] = msg
                 response['error_num'] = 0
