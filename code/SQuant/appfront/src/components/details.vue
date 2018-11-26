@@ -440,7 +440,7 @@ export default {
         var x_data = [];
         if (type == "1M") {
           console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/1M')
-          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/2018-11-23/1M", {
+          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/1M", {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
@@ -456,7 +456,7 @@ export default {
             });
         }else if (type == "5M") {
           console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/5M')
-          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/2018-11-23/5M", {
+          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/5M", {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
@@ -473,7 +473,7 @@ export default {
         } else {
           var last_20_date = this.get_date(true);
           console.log("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+"2018-11-03"+"/"+"2018-11-22");
-          axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+"2018-11-03"+"/"+"2018-11-22", {
+          axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date, {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
