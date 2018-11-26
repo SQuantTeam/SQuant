@@ -8,15 +8,11 @@
 
             <el-col :span="12" :offset="15">
                 <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
-                    <!-- <el-menu-item index="1" @click="toHome">SQuant</el-menu-item>
-                    <el-menu-item index="2" @click="toDetails">行情信息</el-menu-item>
-                    <el-menu-item index="3" @click="toHoldPostion">持仓信息</el-menu-item>
-                    <el-menu-item index="4" style="width:80px"><img src="../assets/usr.png" style="width:100%"></el-menu-item> -->
                     <el-menu-item index='/#/'>
                         <a href="./">SQuant</a>
                     </el-menu-item>
-                    <el-menu-item index='/details'>
-                        <a href="/#/details">行情信息</a>
+                    <el-menu-item index='/more'>
+                        <a href="/#/more">行情信息</a>
                     </el-menu-item>
                     <el-menu-item index='/holdPosition'>
                         <a href="/#/holdPosition">持仓信息</a>
@@ -77,7 +73,7 @@
                                                                 <tr v-for="item in holdPositionJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date(Date.now()-86400*2)).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.symbol}}</span>
@@ -162,7 +158,7 @@
                                                                 <tr v-for="item in sliceOrderData" v-bind:key="item.taskID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date(Date.now()-86400*2)).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -244,7 +240,7 @@
                                                                 <tr v-for="item in transcationData" v-bind:key="item.orderID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date(Date.now()-86400*2)).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -465,7 +461,7 @@ export default {
                 if (response.data.error_num == 0) {
                     var temp = eval(response.data.result);
                     console.log(temp);
-                    this.orderData = temp.sort(function (a, b) { return a.orderID.localeCompare(b.orderID) });
+                    this.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
                     console.log(this.orderData);
 
                 } else {

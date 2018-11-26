@@ -107,7 +107,7 @@ export default {
                 .then(response => {
                     console.log("登录信息", response);
                     if (response.data.error_num == 0) {
-                        window.location.href = '/#/details'
+                        window.location.href = '/#/more'
                         // this.transcationData = eval(response.data.result);
                         // console.log(this.transcationData);
                     } else {

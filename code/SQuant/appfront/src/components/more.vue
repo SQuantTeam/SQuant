@@ -10,16 +10,19 @@
                 <div id="nav_logo_collapsed"></div>
             </el-col>
             <el-col :span="12" :offset="15">
-                <el-menu
-                    :default-active="activeIndex"
-                    class="el-menu-demo"
-                    mode="horizontal"
-                    text-color="#fff"
-                    active-text-color="#fff">
-                    <el-menu-item index="1">SQuant</el-menu-item>
-                    <el-menu-item index="2">我的策略</el-menu-item>
-                    <el-menu-item index="3">一二三</el-menu-item>
-                    <el-menu-item index="4" style="width:80px"><img src="../assets/usr.png" style="width:100%"></el-menu-item>
+                <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
+                    <el-menu-item index='/#/'>
+                        <a href="./">SQuant</a>
+                    </el-menu-item>
+                    <el-menu-item index='/more'>
+                        <a href="/#/more">行情信息</a>
+                    </el-menu-item>
+                    <el-menu-item index='/holdPosition'>
+                        <a href="/#/holdPosition">持仓信息</a>
+                    </el-menu-item>
+                    <el-menu-item index="/#/" style="width:80px">
+                        <a href="./"><img src="../assets/usr.png" style="width:100%"></a>
+                    </el-menu-item>
                 </el-menu>
             </el-col>
         </el-row>
@@ -37,7 +40,7 @@
         </el-menu>
 
         <div>
-          <div id="stocks_list" style="position: absolute; width: 28%;left: 6%;top: 10%;padding:10px">
+          <div id="stocks_list" style="position: absolute; width: 30%;left: 6%;top: 10%;padding:10px">
             <!-- <el-input
               placeholder="请输入股票代码"
               size="small"
@@ -70,7 +73,7 @@
               :data="stock_list_data"
               ref="stock_list_table"
               style="width: 100%"
-              height="500"
+              height="520"
               @row-click="set_current_selected_stock"
               highlight-current-row
               @current-change="handle_stock_current_change"
@@ -88,7 +91,7 @@
               <el-table-column
                 prop="stock_rise_fall"
                 label="涨跌额"
-                width="70">
+                width="80">
               </el-table-column>
               <el-table-column
                 prop="stock_up_down"
@@ -106,7 +109,7 @@
             </el-table>
           </div>
           <div style="top: 47%;left: 80%;position:absolute"> 
-            <el-button type="info" plain @click="cancel_all_orders" style="width:150px">一键撤单</el-button>
+            <el-button type="info" plain @click="cancel_all_orders" style="width:150px" v-show="stock_details.is_show == true">一键撤单</el-button>
           </div>
         </div>
 
@@ -3615,8 +3618,12 @@ export default {
         var this_time = this.get_time();
         var details = {};
         
-        for (var index in this.stock_list_data_symbol) {
-          details = this.all_stock_all_info[index];
+        for (var index in this.stock_list_data) {
+          var symbol_index = this.stock_list_data_symbol.indexOf(this.stock_list_data[index].stock_code);
+          details = this.all_stock_all_info[symbol_index];
+          console.log(this.all_stock_all_info);
+          console.log(symbol_index);
+          console.log(this.stock_list_data_symbol);
           // this.all_stock_all_info[index].cur_index = details.cur_index + 1;
           // console.log("details:",details);
           this.stock_list_data[index].lasted_price = (details.lasted_price[details.cur_index]).toFixed(2);
@@ -3631,7 +3638,6 @@ export default {
           // this.all_stock_all_info[index].cur_index = details.cur_index + 1;
 
           if (this.stock_list_current_row != null && this.stock_list_current_row.stock_code == this.stock_list_data_symbol[index]) {
-            console.log('hellp');
             this.set_stock_details_part(this.stock_list_data_symbol[index]);
             this.refresh_kline();
           }
