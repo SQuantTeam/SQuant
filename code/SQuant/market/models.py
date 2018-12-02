@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+from django.utils.encoding import force_text, python_2_unicode_compatible
 # Create your models here.
 # class Book(models.Model):
 #     book_name = models.CharField(max_length=64)
@@ -18,6 +18,15 @@ class User(models.Model):
     api_key=models.CharField(max_length=255,null=True)
     # 0 for admin,1 for normal
     user_type=models.SmallIntegerField(default=1)
+
+    # def __unicode__(self):
+    #     return unicode(self.email)
+    # def __str__(self):
+    #     return force_text(self)
+    #
+    # def __getattr__(self, attr):
+    #
+    #     return self.attr
 
 
 class Order(models.Model):
