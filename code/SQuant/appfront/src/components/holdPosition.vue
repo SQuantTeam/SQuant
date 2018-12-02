@@ -7,11 +7,19 @@
             </el-col>
 
             <el-col :span="12" :offset="15">
-                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
-                    <el-menu-item index="1">SQuant</el-menu-item>
-                    <el-menu-item index="2">我的策略</el-menu-item>
-                    <el-menu-item index="3">一二三</el-menu-item>
-                    <el-menu-item index="4" style="width:80px"><img src="../assets/usr.png" style="width:100%"></el-menu-item>
+                <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
+                    <el-menu-item index='/#/'>
+                        <a href="./">SQuant</a>
+                    </el-menu-item>
+                    <el-menu-item index='/more'>
+                        <a href="/#/more">行情信息</a>
+                    </el-menu-item>
+                    <el-menu-item index='/holdPosition'>
+                        <a href="/#/holdPosition">持仓信息</a>
+                    </el-menu-item>
+                    <el-menu-item index="/#/" style="width:80px">
+                        <a href="./"><img src="../assets/usr.png" style="width:100%"></a>
+                    </el-menu-item>
                 </el-menu>
             </el-col>
         </el-row>
@@ -65,7 +73,7 @@
                                                                 <tr v-for="item in holdPositionJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date()).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.symbol}}</span>
@@ -147,10 +155,10 @@
                                                             </thead>
                                                             <!-- 委托信息 -->
                                                             <tbody class="ant-table-tbody">
-                                                                <tr v-for="item in orderData" v-bind:key="item.taskID" class="ant-table-row  ant-table-row-level-0">
+                                                                <tr v-for="item in sliceOrderData" v-bind:key="item.taskID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date()).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -162,7 +170,7 @@
                                                                         <span style="font-weight: 700;">{{item.name}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':!item.direction==='long'}">{{item.direction==='long'?'买':'卖'}}</span>
+                                                                        <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':(!(item.direction==='long'))}">{{item.direction==='long'?'买':'卖'}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.price}}</span>
@@ -185,6 +193,11 @@
                                                                 </tr>
                                                             </tbody>
                                                         </table>
+
+                                                        <div style="text-align: center;margin-top: 30px;" v-cloak>
+                                                            <el-pagination background layout="prev, pager, next" :total="total" :page-size="pagesize" @current-change="current_change">
+                                                            </el-pagination>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -227,7 +240,7 @@
                                                                 <tr v-for="item in transcationData" v-bind:key="item.orderID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{(new Date()).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -239,7 +252,7 @@
                                                                         <span style="font-weight: 700;">{{item.name}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':!item.direction==='long'}">{{item.direction==='long'?'多':'空'}}</span>
+                                                                        <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':(!(item.direction==='long'))}">{{item.direction==='long'?'多':'空'}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.tradeVolume}}</span>
@@ -347,7 +360,6 @@ export default {
                     }
                 }]
             },
-            value2: Date.now() - 86400000,
             holdPostionItems: [
                 { name: "交易日", prop: "date" },
                 { name: "证券代码", prop: "symbol" },
@@ -365,6 +377,10 @@ export default {
             transctionItems: [{ name: "交易日" }, { name: "任务编号" }, { name: "证券代码" }, { name: "证券名称" }, { name: "交易行为" }, { name: "成交数量" }, { name: "成交价格" }, { name: "成交时间" },],
             holdPositionJson: [],
             orderData: [],
+            total: 10,
+            pagesize: 5,
+            currentpage: 2,
+            sliceOrderData: [],
             transcationData: [],
             // holdPositionJson: [{ "direction": "long", "enable": 300, "gatewayName": "SQuant", "name": "苏宁环球", "mktval": 930.0, "exchange": "SZ", "frozen": 0, "symbol": "000718.SZ", "ydPosition": 300, "last": 3.1, "commission": 0.0, "trading": 0.0, "tdPosition": 0, "vtPositionName": "000718.SZ.long", "rawData": null, "want": 1200, "holding": -45.0, "position": 300, "price": 3.2033, "initPosition": 300, "date": "2018-11-24", "allProfit": 30, "tradeProfit": 20, }],
             // orderData: eval('[{\"orderID\": \"148681123000001\", \"status\": \"filled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"苏宁环球\", \"exchange\": \"SZ\", \"symbol\": \"000718.SZ\", \"tradedVolume\": 100, \"orderTime\": \"21:17:58986\", \"tradePrice\": 3.21, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000001\", \"offset\": \"open\", \"vtOrderID\": \"148681123000001\", \"price\": 3.21, \"priceType\": \"\", \"totalVolume\": 100}, {\"orderID\": \"148681123000004\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:04:38806\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000003\", \"offset\": \"open\", \"vtOrderID\": \"148681123000004\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}, {\"orderID\": \"148681123000002\", \"status\": \"cancelled\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"中信证券\", \"exchange\": \"SH\", \"symbol\": \"600030.SH\", \"tradedVolume\": 0, \"orderTime\": \"21:17:59220\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000002\", \"offset\": \"open\", \"vtOrderID\": \"148681123000002\", \"price\": 16.0, \"priceType\": \"\", \"totalVolume\": 1000}, {\"orderID\": \"148681123000005\", \"status\": \"rejected\", \"direction\": \"long\", \"cancelTime\": \"\", \"gatewayName\": \"SQuant\", \"name\": \"上证指数\", \"exchange\": \"SH\", \"symbol\": \"000001.SH\", \"tradedVolume\": 0, \"orderTime\": \"18:18:11182\", \"tradePrice\": 0.0, \"frontID\": 0, \"sessionID\": 0, \"rawData\": null, \"taskID\": \"148681123000004\", \"offset\": \"open\", \"vtOrderID\": \"148681123000005\", \"price\": 2643.0001, \"priceType\": \"\", \"totalVolume\": 400}]'),
@@ -390,12 +406,41 @@ export default {
             console.log(key, keyPath);
 
         },
+        current_change: function (currentPage) {
+            this.currentPage = currentPage;
+            this.updateOrderData();
+        },
+        updateOrderData() {
+            this.sliceOrderData = this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+        }
     },
+    watch: {
+        currentPage: function (curVal, oldVal) {
+            console.log("currentPage watch", curVal, oldVal);
+            this.sliceOrderData = this.orderData.slice((curVal - 1) * this.pagesize, curVal * this.pagesize);
+        },
+        orderData: function (curVal, oldVal) {
+            console.log("orderata watch", curVal.length, oldVal.length, this.currentPage, this.sliceOrderData.length);
+            this.sliceOrderData = curVal.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+            console.log(this.sliceOrderData.length);
+        }
+    },
+    // computed: {
+    //     sliceOrderData: {
+    //         get: function () {
+    //             return this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+    //         },
+    //         set: function (newValue) {
+    //             return newValue;
+    //         }
+    //     }
+    // },
     mounted() {
         console.log(window.baseUrl);
         // 持仓信息
         axios.get(window.baseUrl + "market/queryPosition")
             .then(response => {
+                console.log("持仓信息");
                 console.log(response);
                 if (response.data.error_num == 0) {
                     this.holdPositionJson = eval(response.data.result);
@@ -408,13 +453,17 @@ export default {
                 // alert(error);
                 console.log(error);
             });
-        // 交易信息
+        // 委托信息
         axios.get(window.baseUrl + "market/queryOrder")
             .then(response => {
+                console.log("委托信息");
                 console.log(response);
                 if (response.data.error_num == 0) {
-                    this.orderData = eval(response.data.result);
+                    var temp = eval(response.data.result);
+                    console.log(temp);
+                    this.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
                     console.log(this.orderData);
+
                 } else {
                     alert("获取委托信息错误：" + response.data.msg);
                     console.log(response.data.error_num + ":" + response.data.msg);
@@ -426,6 +475,7 @@ export default {
         // 成交信息
         axios.get(window.baseUrl + "market/queryTrade")
             .then(response => {
+                console.log("成交信息");
                 console.log(response);
                 if (response.data.error_num == 0) {
                     this.transcationData = eval(response.data.result);
@@ -438,6 +488,8 @@ export default {
                 alert(error);
                 console.log(error);
             });
+        // this.currentpage = 1;
+        this.updateOrderData();
     },
 
 }

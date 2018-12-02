@@ -1,1 +1,2 @@
-window.baseUrl = "http://114.115.137.173:8000/squant/";
+
+window.baseUrl = "http://localhost:8000/squant/";
