@@ -134,15 +134,15 @@
              -->
             <h2>{{ stock_details.code }} {{ stock_details.name }}</h2>
             <div style="color:#da0003;position:relative;margin-left:-80%;margin-top: -2%;">
-              <h1 style="margin-left:5%">{{stock_details.time=="" ?'-':stock_details.last}} </h1> 
-              <h4 style="width: 400px;margin-left: 38%;margin-top: -1%;position: absolute;">{{stock_details.time=="" ?'-':stock_details.last - stock_details.close}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                {{stock_details.time=="" ?'-':((stock_details.last - stock_details.close)/stock_details.close*100+'%')}}</h4>
+              <h1 style="margin-left:5%">{{stock_details.time=="" ?'-':(stock_details.last).toFixed(2)}} </h1> 
+              <h4 style="width: 400px;margin-left: 38%;margin-top: -1%;position: absolute;">{{stock_details.time=="" ?'-':(stock_details.last - stock_details.close).toFixed(2)}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                {{stock_details.time=="" ?'-':(((stock_details.last - stock_details.close)/stock_details.close).toFixed(4)*100+'%')}}</h4>
 
             </div>
             
             <div id="stock_details_others" style="position: relative;margin-left: 0%;margin-top: -10%;padding-left:30%">
-              <h5>今开 <br> {{stock_details.time=="" ?'-':stock_details.open}}</h5>
-              <h5>昨收 <br> {{stock_details.time=="" ?'-':stock_details.close}} </h5>
+              <h5>今开 <br> {{stock_details.time=="" ?'-':(stock_details.open).toFixed(2)}}</h5>
+              <h5>昨收 <br> {{stock_details.time=="" ?'-':(stock_details.close).toFixed(2)}} </h5>
 
               <h5 v-if="stock_details.time==''">成交量 <br> -</h5>
               <h5 v-else-if="stock_details.volume < 10000">成交量 <br> {{parseInt(stock_details.volume/10000)}} </h5>
@@ -153,8 +153,8 @@
               <h5 v-else-if="stock_details.turnover < 10000">成交额 <br> {{parseInt(stock_details.turnover/10000)}} </h5>
               <h5 v-else-if="stock_details.turnover >= 10000 && stock_details.turnover < 100000000">成交额 <br> {{parseInt(stock_details.turnover/10000)}}万 </h5>
               <h5 v-else-if="stock_details.turnover > 100000000">成交额 <br> {{parseInt(stock_details.turnover/100000000)}}亿 </h5>
-              <h5>最高 <br> {{stock_details.time=="" ?'-':stock_details.high}}</h5>
-              <h5>最低 <br> {{stock_details.time=="" ?'-':stock_details.low}} </h5>
+              <h5>最高 <br> {{stock_details.time=="" ?'-':(stock_details.high).toFixed(2)}}</h5>
+              <h5>最低 <br> {{stock_details.time=="" ?'-':(stock_details.low).toFixed(2)}} </h5>
 
             
               <div>
@@ -393,19 +393,19 @@ export default {
         stock_details:  {
           is_show: false,
           code: '600030.SH',
-          close: '2668.1704',
-          date: '20181123',
-          high: '2668.1704',
-          last: '2668.1704',
-          limit_down: '0.0',
-          limit_up: '0.0',
-          low: '2631.8875',
+          close: 2668.1704,
+          date: 20181123,
+          high: 2668.1704,
+          last: 2668.1704,
+          limit_down: 0.0,
+          limit_up: 0.0,
+          low: 2631.8875,
           oi: '0',
-          open: '2632.1379',
-          preclose: '2632.24249',
+          open: 2632.1379,
+          preclose: 2632.24249,
           symbol: '600030.SH',
           time: '150050000',
-          turnover: '171882491635.5',
+          turnover: 171882491635.5,
           volume: 207848721
         }
       };
@@ -3484,9 +3484,9 @@ export default {
                 self.stock_list_data.push(
                 {
                   stock_code: symbol,
-                  lasted_price: details[0].lastPrice,
-                  stock_rise_fall: details[0].lastPrice - details[0].preSettlePrice,
-                  stock_up_down: ((details[0].lastPrice - details[0].preSettlePrice)/(details[0].preSettlePrice>0?details[0].preSettlePrice:1))*100 +'%'
+                  lasted_price: (details[0].lastPrice).toFixed(2),
+                  stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
+                  stock_up_down: (((details[0].lastPrice - details[0].preClosePrice)/(details[0].preClosePrice>0?details[0].preClosePrice:1))*100).toFixed(2) +'%'
                 });
               }
             } else {
@@ -3499,10 +3499,10 @@ export default {
                   }
                 } else{
                   self.stock_list_data[stock_index] = {
-                    stock_code: symbol,
-                    lasted_price: details[0].lastPrice,
-                    stock_rise_fall: details[0].lastPrice - details[0].preSettlePrice,
-                    stock_up_down: ((details[0].lastPrice - details[0].preSettlePrice)/(details[0].preSettlePrice>0?details[0].preSettlePrice:1))*100 +'%'
+                  stock_code: symbol,
+                  lasted_price: (details[0].lastPrice).toFixed(2),
+                  stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
+                  stock_up_down: (((details[0].lastPrice - details[0].preClosePrice)/(details[0].preClosePrice>0?details[0].preClosePrice:1))*100).toFixed(2) +'%'
                   };
                 }
             }
@@ -3515,7 +3515,7 @@ export default {
                 name: details[0].name, //代码名称
                 last: details[0].lastPrice,
                 open: details[0].openPrice, //今开
-                close: details[0].preSettlePrice, //昨收
+                close: details[0].preClosePrice, //昨收
                 volume: details[0].volume, //成交量
                 turnover: details[0].turnover, //成交额
                 high: details[0].highPrice, //最高
@@ -3524,6 +3524,7 @@ export default {
               }
               self.sell_buy_limit = details[0].time==""?15.9:details[0].lastPrice
               self.refresh_kline();
+              console.log(details);
             }
 
           }).catch(function (error) {
@@ -3578,15 +3579,15 @@ export default {
           }
       };
       var self = this;
-      // axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
-      //     console.log(response);
-      //     self.user_contract_list = JSON.parse(response.data.contractNameList);
-      //     self.stock_list_data = []
-      //     for (var index in self.user_contract_list) {
-      //       self.stock_list_data_symbol.push(self.user_contract_list[index].symbol);
-      //       self.update_contract_list_and_details(self.user_contract_list[index].symbol);
-      //     }
-      // });
+      axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
+          console.log(response);
+          self.user_contract_list = JSON.parse(response.data.contractNameList);
+          self.stock_list_data = []
+          for (var index in self.user_contract_list) {
+            self.stock_list_data_symbol.push(self.user_contract_list[index].symbol);
+            self.update_contract_list_and_details(self.user_contract_list[index].symbol);
+          }
+      });
     }
   }
 </script>
