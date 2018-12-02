@@ -425,6 +425,7 @@ def queryTotal(request):
         setting['token'] = token
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
+        # 获取持仓、委托和成交信息
         tradeList = tradeGateway.qryTrade()
         tradeResult = json.dumps(tradeList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         orderList = tradeGateway.qryOrder()
