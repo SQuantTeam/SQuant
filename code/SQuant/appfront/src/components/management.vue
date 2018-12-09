@@ -23,18 +23,49 @@
                 </el-menu>
             </el-col>
         </el-row>
-
-        <el-menu id="vertical-banner" default-active="5" class="el-menu-vertical-demo" :collapse="isCollapse" style="position:absolute;height:90%;width: 63px;">
-            <el-menu-item index="5">
-                <i class="el-icon-menu"></i>
-            </el-menu-item>
-            <el-menu-item index="7">
-                <i class="el-icon-document"></i>
-            </el-menu-item>
-            <el-menu-item index="8">
-                <i class="el-icon-setting"></i>
-            </el-menu-item>
-        </el-menu>
+        <div >
+            <el-card :body-style="{ padding: '20px' }" style="width:68%;position:absolute;left:15%;top:13%;" > 
+            <h5 style="margin-bottom: 0px;margin-top:0px">用户列表</h5>
+            <el-table
+                :data="user_list.filter(data => !user_search || data.user_email.toLowerCase().includes(user_search.toLowerCase()) || (data.user_phone.toLowerCase().includes(user_search.toLowerCase())) || (data.user_type.toLowerCase().includes(user_search.toLowerCase())))"
+                height="580"
+               >
+                <el-table-column
+                prop="user_email"
+                label="用户邮箱"
+                width="250">
+                </el-table-column>
+                <el-table-column
+                prop="user_phone"
+                label="用户手机号码"
+                width="250">
+                </el-table-column>
+                <el-table-column
+                prop="user_type"
+                label="用户类型"
+                width="200">
+                </el-table-column>
+                <el-table-column
+                    align="right">
+                    <template slot="header" slot-scope="scope">
+                        <el-input
+                        v-model="user_search"
+                        size="mini"
+                        placeholder="输入关键字搜索"/>
+                    </template>
+                    <template slot-scope="scope">
+                        <el-button
+                        size="mini"
+                        @click="reset_pwd(scope.$index, scope.row)">重置密码</el-button>
+                        <el-button
+                        size="mini"
+                        type="danger"
+                        @click.native.prevent="delete_usr(scope.$index, user_list)">删除</el-button>
+                    </template>
+                    </el-table-column>
+            </el-table>
+            </el-card>
+        </div>
 
     </div>
 </template>
@@ -90,64 +121,84 @@ body {
 <script>
 import axios from 'axios'
 import '../global.js'
-// import Toast from 'toast/Toast.vue'
 export default {
     data() {
         return {
+            user_search: '',
             user_list: [],
-            };
+        };
     },
 
     methods: {
-        stock_color({ row, rowIndex }) {
-            if (row.stock_rise_fall[0] === '+') {
-                console.log('red')
-                return 'increase_stock'
-            } else if (row.stock_rise_fall[0] === '-') {
-                console.log('green')
-                return 'decrease_stock'
+        load_all_user(){
+            var self = this;
+            axios.get("http://127.0.0.1:8000/squant/user/all", {
+            }).then(function (response) {
+                var user_data = response.data.list;
+                console.log(user_data)
+                for (var index in user_data) {
+                    if (user_data[index].fields.phone == null) {
+                        user_data[index].fields.phone = '18221087302'
+                    }
+                    if (user_data[index].fields.user_type == 1) {
+                        var user = {'user_email': user_data[index].pk, 'user_type': '普通账号', 'user_phone': user_data[index].fields.phone}
+                        self.user_list.push(user);
+                    } else{
+                        var user = {'user_email': user_data[index].pk, 'user_type': '管理员账号', 'user_phone': user_data[index].fields.phone}
+                        self.user_list.push(user);
+                    }
+                    
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        reset_pwd(index, row){
+            console.log(index, row);
+            var self = this;
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            };
+            var u_type = 1;
+            if (row.user_type == "管理员账号") {
+                u_type = 0;
             }
+            var user_json = {
+                "email": row.user_email,
+                "password": "squant12345",
+                "user_type": u_type
+            };
+            console.log(user_json);
+            axios.put("http://127.0.0.1:8000/squant/user/update", user_json, config).then(function(response) {
+                if (response.data.error_num == 0) {
+                    self.$message({
+                        message: '重置密码成功',
+                        type: 'success'
+                    });
+                } else {
+                    self.$message.error('重置密码失败：'+response.data.msg);
+                }
+            });
         },
-        handleOpen(key, keyPath) {
-            console.log(key, keyPath);
-            getHoldPositonJson();
-        },
-        handleClose(key, keyPath) {
-            console.log(key, keyPath);
-
-        },
-        current_change: function (currentPage) {
-            this.currentPage = currentPage;
-            this.updateOrderData();
-        },
-        updateOrderData() {
-            this.sliceOrderData = this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+        delete_usr(index, rows){
+            var self = this;
+            rows.splice(index, 1);
+            axios.delete("http://127.0.0.1:8000/squant/user/delete/"+rows[index].user_email).then(function(response) {
+                if (response.data.error_num == 0) {
+                    self.$message({
+                        message: '删除用户成功',
+                        type: 'success'
+                    });
+                } else {
+                    self.$message.error('删除用户失败：'+response.data.msg);
+                }
+            });
         }
     },
-    watch: {
-        currentPage: function (curVal, oldVal) {
-            console.log("currentPage watch", curVal, oldVal);
-            this.sliceOrderData = this.orderData.slice((curVal - 1) * this.pagesize, curVal * this.pagesize);
-        },
-        orderData: function (curVal, oldVal) {
-            console.log("orderata watch", curVal.length, oldVal.length, this.currentPage, this.sliceOrderData.length);
-            this.sliceOrderData = curVal.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-            console.log(this.sliceOrderData.length);
-        }
-    },
-    // computed: {
-    //     sliceOrderData: {
-    //         get: function () {
-    //             return this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-    //         },
-    //         set: function (newValue) {
-    //             return newValue;
-    //         }
-    //     }
-    // },
     mounted() {
-        console.log(window.baseUrl);
+        this.load_all_user();
     },
-
 }
 </script>
