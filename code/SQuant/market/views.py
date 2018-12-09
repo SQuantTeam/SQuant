@@ -3,11 +3,19 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 import json
+import datetime
 
 from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
 from trader.gateway.tradeGateway import TradeGateway
 from trader.sqConstant import *
 from trader.sqGateway import *
+
+setting = {}
+setting['mdAddress'] = MdAddress
+setting['tdAddress'] = TdAddress
+setting['username'] = DefaultPhone
+setting['token'] = DefaultToken
+# tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
 # Create your views here.
 @require_http_methods(["POST"])
@@ -43,8 +51,14 @@ def connect(request):
             response['error_num'] = 1
             tradeGateway.close()
             return JsonResponse(response)
+
         # 查询持仓信息
-        positionList = tradeGateway.qryPosition()
+        for i in range(1, 10):
+            positionList = tradeGateway.qryPosition()
+            if len(positionList) > 0:
+                break
+
+        # 获取合约中文名
         contractNameList = []
         for position in positionList:
             contractName = {}
@@ -316,9 +330,26 @@ def queryPosition(request):
         setting['tdAddress'] = TdAddress
         setting['username'] = phone
         setting['token'] = token
+        startTime = datetime.datetime.now()
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+        connectTime = datetime.datetime.now()
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            # 释放连接资源
+            tradeGateway.close()
+            return JsonResponse(response)
 
-        positionList = tradeGateway.qryPosition()
+        for i in range(1, 10):
+            positionList = tradeGateway.qryPosition()
+            if len(positionList) > 0:
+                print (i)
+                break
+        fetchTime = datetime.datetime.now()
+
+        print ("con: ", (connectTime-startTime).seconds)
+        print ("fet: ", (fetchTime-connectTime).microseconds)
+
         result = json.dumps(positionList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['result'] = result
         response['msg'] = 'success'
@@ -354,7 +385,18 @@ def queryOrder(request):
         setting['token'] = token
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
-        orderList = tradeGateway.qryOrder()
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            # 释放连接资源
+            tradeGateway.close()
+            return JsonResponse(response)
+
+        for i in range(1, 10):
+            orderList = tradeGateway.qryOrder()
+            if len(orderList) > 0:
+                break
+
         result = json.dumps(orderList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['result'] = result
         response['msg'] = 'success'
@@ -390,7 +432,10 @@ def queryTrade(request):
         setting['token'] = token
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
-        tradeList = tradeGateway.qryTrade()
+        for i in range(1, 10):
+            tradeList = tradeGateway.qryTrade()
+            if len(tradeList) > 0:
+                break
         result = json.dumps(tradeList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['result'] = result
         response['msg'] = 'success'
@@ -424,6 +469,13 @@ def queryTotal(request):
         setting['username'] = phone
         setting['token'] = token
         tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            # 释放连接资源
+            tradeGateway.close()
+            return JsonResponse(response)
 
         # 获取持仓、委托和成交信息
         tradeList = tradeGateway.qryTrade()

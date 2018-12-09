@@ -57,8 +57,17 @@ class TradeGateway(object):
             traceback.print_exc()
 
     # ----------------------------------------------------------------------
-    def qryQuote(self, instcode):
+
+    def getContract(self, symbol):
         """查询行情"""
+        return self.mdApi.getContract(symbol=symbol)
+
+    # ----------------------------------------------------------------------
+    def qryQuote(self, instcode):
+        """
+        查询行情
+        instcode = '000001.SZ, 000001.SZ'的形式
+        """
         return self.mdApi.qryQuote(instcode=instcode)
 
     # ----------------------------------------------------------------------
@@ -123,7 +132,6 @@ class TradeGateway(object):
         """查询持仓"""
         return self.tdApi.qryOrder()
 
-
     # ----------------------------------------------------------------------
     def close(self):
         """关闭"""
@@ -153,10 +161,11 @@ class SQuantTdApi(object):
 
         self.orderPricetypeDict = {}  # key:vtOrderID, value:algoType
 
+
     # ----------------------------------------------------------------------
 
     def loadContracts(self):
-        """"""
+        """加载所有合约"""
         pf, msg = self.api.query_universe()
 
         if not check_return_error(pf, msg):
@@ -189,78 +198,6 @@ class SQuantTdApi(object):
         # self.gateway.subscribe(symbols)
         return True
 
-    def subscribePositionSymbols(self):
-        """"""
-        pf, msg = self.api.query_position()
-
-        if not check_return_error(pf, msg):
-            self.writeLog(u'查询持仓失败，错误信息：{}'.format(msg))
-            return False
-
-        symbols = ''
-        for instcode in pf['security']:
-            symbols += str(instcode)
-            symbols += ","
-
-        quotes = self.gateway.mdApi.qryQuotes(symbols)
-        for k, d in quotes.items():
-            tick = SqTickData()
-            tick.gatewayName = self.gatewayName
-
-            symbol = d['symbol']
-            code, jzExchange = instcode.split('.')
-            tick.symbol = symbol
-            tick.exchange = exchangeMapReverse[jzExchange]
-            tick.name = symbol
-
-            tick.openPrice = d['open']
-            tick.highPrice = d['high']
-            tick.lowPrice = d['low']
-            tick.volume = d['volume']
-            tick.volchg = 0
-            tick.turnover = d['turnover'] if 'turnover' in d else 0
-            tick.lastPrice = d['last']
-
-            tick.openInterest = d['oi'] if 'oi' in d else 0
-            tick.preClosePrice = d['preclose'] if 'preclose' in d else 0
-            tick.date = str(d['date'])
-
-            t = str(d['time'])
-            t = t.rjust(9, '0')
-            tick.time = '%s:%s:%s.%s' % (t[0:2], t[2:4], t[4:6], t[6:])
-
-            tick.bidPrice1 = d['bidprice1']
-            tick.bidPrice2 = d['bidprice2']
-            tick.bidPrice3 = d['bidprice3']
-            tick.bidPrice4 = d['bidprice4']
-            tick.bidPrice5 = d['bidprice5']
-
-            tick.askPrice1 = d['askprice1']
-            tick.askPrice2 = d['askprice2']
-            tick.askPrice3 = d['askprice3']
-            tick.askPrice4 = d['askprice4']
-            tick.askPrice5 = d['askprice5']
-
-            tick.bidVolume1 = d['bidvolume1']
-            tick.bidVolume2 = d['bidvolume2']
-            tick.bidVolume3 = d['bidvolume3']
-            tick.bidVolume4 = d['bidvolume4']
-            tick.bidVolume5 = d['bidvolume5']
-
-            tick.askVolume1 = d['askvolume1']
-            tick.askVolume2 = d['askvolume2']
-            tick.askVolume3 = d['askvolume3']
-            tick.askVolume4 = d['askvolume4']
-            tick.askVolume5 = d['askvolume5']
-
-            tick.upperLimit = d['limit_up'] if 'limit_up' in d else 0
-            tick.lowerLimit = d['limit_down'] if 'limit_down' in d else 0
-
-            self.gateway.onTick(tick)
-
-        self.gateway.subscribe(symbols)
-
-        return True
 
     # ----------------------------------------------------------------------
     def onOrderStatus(self, data):
@@ -465,6 +402,7 @@ class SQuantTdApi(object):
 
             instruments = self.gateway.mdApi.qryInstruments(position.symbol)   # only one symbol here
             position.name = instruments.loc[0, 'name']
+
 
             position.exchange = exchangeMapReverse.get(jzExchange, EXCHANGE_UNKNOWN)
 
@@ -680,6 +618,28 @@ class SQuantMdApi(object):
             df, msg = self.api.query("jz.instrumentInfo",
                                      fields="symbol, name, buylot, selllot, pricetick, multiplier, inst_type", filter=p)
         return df
+
+        # ----------------------------------------------------------------------
+
+    def getContract(self, symbol):
+        """获取指定合约"""
+        instruments = self.qryInstruments(symbol)
+        contract = SqContractData()
+        for k, d in instruments.iterrows():
+            contract.gatewayName = self.gatewayName
+
+            instcode = d['symbol']
+            code, jzExchange = instcode.split('.')
+            contract.symbol = instcode
+            contract.exchange = exchangeMapReverse[jzExchange]
+            contract.name = d['name']
+            contract.priceTick = d['pricetick']
+            contract.size = d['multiplier']
+            contract.lotsize = d['buylot']
+            contract.productClass = productClassMapReverse.get(int(d['inst_type']), PRODUCT_UNKNOWN)
+            break
+
+        return contract
 
     # ----------------------------------------------------------------------
     def qryQuote(self, instcode):
