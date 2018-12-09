@@ -14,11 +14,29 @@ def get_user(request, email):
     response = {}
     try:
         print("email:", email)
-        users = User.objects.filter(email=email)
+        # users = User.objects.filter(email=email)
+        user = User.objects.get(email=email)
+        print(user.toJSON())
+        # response['list'] = json.loads(serializers.serialize("json", users))
+        response['list'] = json.loads(user.toJSON())
+        response['error_num'] = 0
+        response['msg'] = 'success'
+    except Exception, e:
+        response['msg'] = str(e)
+        response['error_num'] = 1
+    return JsonResponse(response)
+
+
+@require_http_methods(["GET"])
+def get_all_user(request):
+    response = {}
+    try:
+        print("get all user info")
+        users = User.objects.all()
         print(users)
         response['list'] = json.loads(serializers.serialize("json", users))
         response['error_num'] = 0
-        response['msg'] = 'success'
+        response['msg'] = 'get all user info success'
     except Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 1
@@ -31,24 +49,21 @@ def login(request):
     try:
         user_data = json.loads(request.body)
         print("user_data:", user_data)
-        users = User.objects.filter(email=user_data['email'])
-        print(users)
-        print("database:" + str(json.loads(serializers.serialize("json", users))))
-        # print(1,str(json.loads(serializers.serialize("json", users[0]))))
-        print(5, force_text(users[0]))
-        print(users[0].pk)
-        print(2, users[0].password)
-        # print(3,users[3])
-        # print(4, users[4])
-        if users.__len__() != 1:
+        user = User.objects.get(email=user_data['email'])
+        # print("database:" + str(json.loads(serializers.serialize("json", users))))
+        if user == None:
             response['msg'] = "用户名或密码错误"
             response['error_num'] = 2
-            # return response
-        elif users[0].password == user_data['password']:
-            print(users[0].email)
-            # getStr= "login sucess:" + str(json.loads(serializers.serialize("json", users[0])))
-            getStr = "login success:" + str(users[0].pk)
+        elif user.password == user_data['password']:
+            getStr = "login success:" + str(user.email)
             print(getStr)
+            print(user.email, user.user_type, user.phone, user.phone, user.api_key)
+            # session中记录登录用户的信息
+            request.session['email'] = user.email
+            request.session['user_type'] = user.user_type
+            request.session['phone'] = user.phone
+            request.session['api_key'] = user.api_key
+
             response['msg'] = getStr
             response['error_num'] = 0
             # return response
@@ -63,9 +78,9 @@ def login(request):
     # response['msg']='success'
 
     except Exception, e:
-            print(e)
-            response['msg'] = str(e)
-            response['error_num'] = 1
+        print(e)
+        response['msg'] = str(e)
+        response['error_num'] = 1
     return JsonResponse(response)
 
 
