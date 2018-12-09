@@ -427,8 +427,12 @@ export default {
               'Content-Type': 'multipart/form-data'
           }
         };
+        var self = this;
         axios.post("http://127.0.0.1:8000/squant/market/cancelPortfolioOrder", order_json, config).then(function(response) {
-          alert('一键撤单成功！');
+          self.$message({
+              message: '一键撤单成功！',
+              type: 'success'
+          });
           console.log(response);
         });
       },
@@ -3554,13 +3558,17 @@ export default {
               'Content-Type': 'multipart/form-data'
           }
         };
+        var self = this;
         console.log("http://127.0.0.1:8000/squant/market/placeOrder");
         console.log(order_json);
         axios.post("http://127.0.0.1:8000/squant/market/placeOrder", order_json, config).then(function(response) {
           if (response.data.error_num == 0) {
-            alert('委托成功');
+            self.$message({
+              message: '委托成功',
+              type: 'success'
+            });
           } else {
-            alert('委托失败：'+response.data.msg);
+            self.$message.error('委托失败：'+response.data.msg);
           }
           
           console.log(response);
