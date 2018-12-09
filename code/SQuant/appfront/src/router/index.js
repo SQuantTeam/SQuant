@@ -6,6 +6,9 @@ import signin from '@/components/signin'
 import details from '@/components/details'
 import holdPosition from '@/components/holdPosition'
 import management from '@/components/management'
+import algorithm from '@/components/algorithm'
+import strategy from '@/components/strategy'
+import control from '@/components/control'
 
 Vue.use(Router)
 
@@ -40,6 +43,21 @@ export default new Router({
       path: '/management',
       name: 'management',
       component: management
+    },
+    {
+      path: '/',
+      name: 'algorithm',
+      component: algorithm
+    },
+    {
+      path: '/',
+      name: 'strategy',
+      component: strategy
+    },
+    {
+      path: '/',
+      name: 'control',
+      component: control
     }
   ]
 })
