@@ -45,17 +45,17 @@ export default new Router({
       component: management
     },
     {
-      path: '/',
+      path: '/algorithm',
       name: 'algorithm',
       component: algorithm
     },
     {
-      path: '/',
+      path: '/strategy',
       name: 'strategy',
       component: strategy
     },
     {
-      path: '/',
+      path: '/control',
       name: 'control',
       component: control
     }

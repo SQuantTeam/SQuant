@@ -1,28 +1,6 @@
 <template>
     <div>
-        <el-row type="flex" class="row-bg" style="background-color:#252a2f;">
-            <el-col :span="3">
-                <!-- <div style="width:65px;height:65px;border:1px solid hsla(0,0%,100%,.15);background-image:url(../assets/logo-sq.png);background-repeat:no-repeat;background-position:center;background-size: 100% 100%;"></div> -->
-                <div id="nav_logo_collapsed"></div>
-            </el-col>
-
-            <el-col :span="12" :offset="15">
-                <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
-                    <el-menu-item index='/#/'>
-                        <a href="./">SQuant</a>
-                    </el-menu-item>
-                    <el-menu-item index='/more'>
-                        <a href="/#/more">行情信息</a>
-                    </el-menu-item>
-                    <el-menu-item index='/holdPosition'>
-                        <a href="/#/holdPosition">持仓信息</a>
-                    </el-menu-item>
-                    <el-menu-item index="/#/" style="width:80px">
-                        <a href="./"><img src="../assets/usr.png" style="width:100%"></a>
-                    </el-menu-item>
-                </el-menu>
-            </el-col>
-        </el-row>
+        <squantheader></squantheader>
         <div >
             <el-card :body-style="{ padding: '20px' }" style="width:68%;position:absolute;left:15%;top:13%;" > 
             <h5 style="margin-bottom: 0px;margin-top:0px">用户列表</h5>
@@ -72,31 +50,6 @@
 
 
 <style <style scoped>
-
-body {
-  background: red;
-}
-
-#nav_logo_collapsed {
-  background-image: url(../assets/logo-sq.png);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 50%;
-  position: absolute;
-  width: 65px;
-  height: 60px;
-  border-bottom: 1px solid hsla(0, 0%, 100%, 0.15);
-}
-
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 200px;
-  min-height: 400px;
-}
-
-#vertical-banner {
-  background-color: #252a2f;
-}
-
 #stock_details_part1 {
   width: 60%;
   border: 1px solid black;
@@ -121,7 +74,9 @@ body {
 <script>
 import axios from 'axios'
 import '../global.js'
+import squantheader from '@/components/header'
 export default {
+    components: {squantheader},
     data() {
         return {
             user_search: '',
