@@ -44,6 +44,16 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
+                            <el-form-item label="权重">
+                                <el-select v-model="strategy_details.weight" placeholder="请选择" size="mini" @change="change_baseline_type" style="width:100%">
+                                    <el-option
+                                        v-for="item in weight_sets"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
                         </div>
                         <div v-show="strategy_step==1">
                             <el-form-item label="股票池">
@@ -386,13 +396,18 @@ export default {
                     label: '中证500'
                 }
             ],
+            weight_sets: [{
+                value: 'equal_weight',
+                label: '等权重'
+            }],
             strategy_details: {
                 start_cash: 100000,
                 duration: '',
                 freq: 'Daily',
                 baseline: 'HS',
                 pool: [],
-                industry: []
+                industry: [],
+                weight: 'equal_weight',
             },
             selected_norm: {
                 stock_index: [
