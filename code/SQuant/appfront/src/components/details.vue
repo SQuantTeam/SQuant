@@ -2,7 +2,7 @@
     <div>
         <squantheader></squantheader>
         <div>
-          <div id="stocks_list" style="position: absolute; width: 28%;left: 6%;top: 10%;padding:10px">
+          <div id="stocks_list" style="position: absolute; width: 32%;left: 4%;top: 10%;padding:10px">
             <!-- <el-input
               placeholder="请输入股票代码"
               size="small"
@@ -19,7 +19,7 @@
               :trigger-on-focus="false"
               @select="stock_basic_select"
               clearable
-              style="width:402px">
+              style="width:100%">
               <i
                 class="el-icon-search el-input__icon"
                 slot="suffix"
@@ -58,7 +58,7 @@
               <el-table-column
                 prop="stock_up_down"
                 label="涨跌幅"
-                width="70">
+                width="80">
               </el-table-column>
               <el-table-column label="操作">
               <template slot-scope="scope">
@@ -77,7 +77,7 @@
 
         <!-- v-show="stock_list_current_row != null && stock_details != null" -->
         <!-- v-show="stock_details.is_show == true" -->
-        <div style="width: 55%; position: absolute; left: 40%; top: 9%;">
+        <div style="width: 56%; position: absolute; left: 40%; top: 9%;" v-show="stock_details.is_show == true">
           <div id="about_stock_basic_info">
             <!-- example
             {
@@ -101,7 +101,7 @@
             <div style="color:#da0003;position:relative;margin-left:-80%;margin-top: -2%;">
               <h1 style="margin-left:5%">{{stock_details.time=="" ?'-':(stock_details.last).toFixed(2)}} </h1> 
               <h4 style="width: 400px;margin-left: 38%;margin-top: -1%;position: absolute;">{{stock_details.time=="" ?'-':(stock_details.last - stock_details.close).toFixed(2)}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                {{stock_details.time=="" ?'-':(((stock_details.last - stock_details.close)/stock_details.close).toFixed(4)*100+'%')}}</h4>
+                {{stock_details.time=="" ?'-':((((stock_details.last - stock_details.close)/stock_details.close*100).toFixed(2))+'%')}}</h4>
 
             </div>
             
@@ -352,15 +352,6 @@ export default {
       };
     },
     methods: {
-      // stock_color({row, rowIndex}) {
-      //   if (row.stock_rise_fall[0] === '+') {
-      //     console.log('red')
-      //     return 'increase_stock'
-      //   } else if (row.stock_rise_fall[0] === '-') {
-      //     console.log('green')
-      //     return 'decrease_stock'
-      //   }
-      // },
       cancel_all_orders() {
         var order_json = {};
         let config = {
@@ -417,7 +408,7 @@ export default {
             });
         } else {
           var last_20_date = this.get_date(true);
-          console.log("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+"2018-11-03"+"/"+"2018-11-22");
+          console.log("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date);
           axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date, {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
@@ -500,15 +491,17 @@ export default {
         this.charts = echarts.init(this.$refs.kline_EChart);
         this.charts.setOption(option)
       },
-      get_date(last_10_day) {
+      get_date(last_20_day) {
         var date = new Date();
         var year=date.getFullYear();
-        var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
-        if (last_10_day == false){
+        if (last_20_day == false){
+          var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
           var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
           return year+"-"+month+"-"+day;
         }else{
-          var day=date.getDate()-20<10 ? "0"+String(date.getDate()-20) : date.getDate()-20;
+          // var t_day=date.getDate();
+          var day=date.getDate()-5<10 ? "0"+String(date.getDate()-5) : (date.getDate()-5);
+          var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
           return year+"-"+month+"-"+day;
         }
       },
@@ -3403,87 +3396,20 @@ export default {
           ];
       },
       stock_basic_select(item) {
-        // console.log("http://127.0.0.1:8000/squant/market/quote/"+item.stock_code);
         if (this.stock_list_data_symbol.indexOf(item.stock_code) < 0) {
           this.stock_list_data_symbol.push(item.stock_code);
-          this.update_contract_list_and_details(item.stock_code);
+          this.add_stock_list_data(symbol);
         }
         this.stock_search_selected = '';
       },
-      update_contract_list_and_details(symbol) {
-        var self = this;
-        console.log("http://127.0.0.1:8000/squant/market/quote/"+symbol)
-        axios.get("http://127.0.0.1:8000/squant/market/quote/"+symbol, {
-          }).then(function (response) {
-            var details = JSON.parse('['+response.data.result+']');
-            var stock_index = self.stock_list_data_symbol.indexOf(symbol);
-            if (stock_index >= self.stock_list_data.length) {
-              if (details[0].time == "") {
-                self.stock_list_data.push({
-                  stock_code: symbol,
-                  lasted_price: '-',
-                  stock_rise_fall: '-',
-                  stock_up_down: '-'
-                })
-              } else {
-                self.stock_list_data.push(
-                {
-                  stock_code: symbol,
-                  lasted_price: (details[0].lastPrice).toFixed(2),
-                  stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
-                  stock_up_down: (((details[0].lastPrice - details[0].preClosePrice)/(details[0].preClosePrice>0?details[0].preClosePrice:1))*100).toFixed(2) +'%'
-                });
-              }
-            } else {
-                if (details[0].time == "") {
-                  self.stock_list_data[stock_index] = {
-                    stock_code: symbol,
-                    lasted_price: '-',
-                    stock_rise_fall: '-',
-                    stock_up_down: '-'
-                  }
-                } else{
-                  self.stock_list_data[stock_index] = {
-                  stock_code: symbol,
-                  lasted_price: (details[0].lastPrice).toFixed(2),
-                  stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
-                  stock_up_down: (((details[0].lastPrice - details[0].preClosePrice)/(details[0].preClosePrice>0?details[0].preClosePrice:1))*100).toFixed(2) +'%'
-                  };
-                }
-            }
-            
-            if (self.stock_list_current_row != null && self.stock_list_current_row.stock_code == symbol) {
-              self.stock_details  = {
-                is_show: true,
-                code: symbol,
-                symbol: symbol,
-                name: details[0].name, //代码名称
-                last: details[0].lastPrice,
-                open: details[0].openPrice, //今开
-                close: details[0].preClosePrice, //昨收
-                volume: details[0].volume, //成交量
-                turnover: details[0].turnover, //成交额
-                high: details[0].highPrice, //最高
-                low: details[0].lowPrice, //最低
-                time: details[0].time
-              }
-              self.sell_buy_limit = details[0].time==""?15.9:details[0].lastPrice
-              self.refresh_kline();
-              console.log(details);
-            }
-
-          }).catch(function (error) {
-            console.log(error);
-          });
-      },
       set_current_selected_stock(row, event, column) {
-        this.$refs.stock_list_table.setCurrentRow(row);
-        for (var index in this.stock_list_data_symbol) {
-          this.update_contract_list_and_details(this.stock_list_data_symbol[index]);
-        }
+        // this.$refs.stock_list_table.setCurrentRow(row);
+        // this.refresh_details();
       },
       handle_stock_current_change(val) {
-        this.stock_list_current_row = val;
+        this.stock_details = val.stock_details;
+        this.sell_buy_limit = val.stock_details.time==""?15.9:(val.stock_details.last).toFixed(2);
+        this.refresh_kline();
       },
       place_order() {
         var order_json = {
@@ -3514,6 +3440,71 @@ export default {
           
           console.log(response);
         });
+      },
+      add_stock_list_data(symbol) {
+        var self = this;
+        axios.get("http://127.0.0.1:8000/squant/market/quote/"+symbol, {
+          }).then(function (response) {
+            var details = JSON.parse('['+response.data.result+']');
+            var stock_index = self.stock_list_data_symbol.indexOf(symbol);
+            if (details[0].time == "") {
+              self.stock_list_data.push({
+                  stock_code: symbol,
+                  lasted_price: '-',
+                  stock_rise_fall: '-',
+                  stock_up_down: '-',
+                  stock_details: null
+                })
+            } else {
+              self.stock_list_data.push(
+                {
+                  stock_code: symbol,
+                  lasted_price: (details[0].lastPrice).toFixed(2),
+                  stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
+                  stock_up_down: (((details[0].lastPrice - details[0].preClosePrice)/(details[0].preClosePrice>0?details[0].preClosePrice:1))*100).toFixed(2) +'%',
+                  stock_details: {
+                    is_show: true,
+                    code: symbol,
+                    symbol: symbol,
+                    name: details[0].name, //代码名称
+                    last: details[0].lastPrice,
+                    open: details[0].openPrice, //今开
+                    close: details[0].preClosePrice, //昨收
+                    volume: details[0].volume, //成交量
+                    turnover: details[0].turnover, //成交额
+                    high: details[0].highPrice, //最高
+                    low: details[0].lowPrice, //最低
+                    time: details[0].time
+                  }
+                });
+            }
+            self.refresh_details();
+          }).catch(function (error) {
+            console.log(error);
+          });
+      },
+      refresh_details() {
+        if(this.stock_list_current_row == null) {
+          return;
+        }
+        console.log(this.stock_list_data);
+        console.log(this.stock_list_current_row);
+        var s_details = this.stock_list_data[this.stock_list_current_row].stock_details;
+        this.stock_details = s_details;
+        this.sell_buy_limit = s_details.time==""?15.9:s_details.last;
+        this.refresh_kline();
+      },
+      refresh_all() {
+        this.stock_list_data = [];
+        var this_time = this.get_time();
+        var details = {};
+        console.log('symbol', this.stock_list_data);
+        for (var index in this.stock_list_data_symbol) {
+          console.log('add stock list data');
+          var symbol = this.stock_list_data_symbol[index];
+          this.add_stock_list_data(symbol);
+        }
+        console.log(this.stock_list_data);
       }
     },
     mounted() {
@@ -3530,13 +3521,18 @@ export default {
       var self = this;
       axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
           console.log(response);
-          self.user_contract_list = JSON.parse(response.data.contractNameList);
-          self.stock_list_data = []
-          for (var index in self.user_contract_list) {
-            self.stock_list_data_symbol.push(self.user_contract_list[index].symbol);
-            self.update_contract_list_and_details(self.user_contract_list[index].symbol);
+          var c_list = JSON.parse(response.data.contractNameList);
+          for (var index in c_list) {
+            var c = c_list[index];
+            if (self.stock_list_data_symbol.indexOf(c.symbol) > -1) {
+              continue
+            } else{
+              self.stock_list_data_symbol.push(c.symbol);
+            }
           }
+          self.refresh_all();
       });
+      // this.setInterval(this.refresh_all, 100);
     }
   }
 </script>
