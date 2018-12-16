@@ -11,10 +11,8 @@ from six import with_metaclass
 import numpy as np
 import pandas as pd
 
-from jaqs.data.basic import GoalPosition
-from jaqs.util.sequence import SequenceGenerator
-from jaqs.data.basic import Bar, Quote
-# import jaqs.util as jutil
+from trader.data.basic import GoalPosition
+from trader.util.sequence import SequenceGenerator
 
 from jaqs.trade import model
 from jaqs.trade import common
@@ -43,12 +41,6 @@ class Strategy(with_metaclass(abc.ABCMeta)):
     def __init__(self):
         super(Strategy, self).__init__()
         self.ctx = None
-        # self.run_mode = common.RUN_MODE.BACKTEST
-
-        # self.ctx.pm = PortfolioManager(strategy=self)
-        # self.pm = self.ctx.pm
-
-        # self.task_id_map = defaultdict(list)
         self.seq_gen = SequenceGenerator()
 
         self.init_balance = 0.0
@@ -69,57 +61,26 @@ class Strategy(with_metaclass(abc.ABCMeta)):
 
     def on_trade(self, ind):
         """
-
-        Parameters
-        ----------
-        ind : TradeInd
-
-        Returns
-        -------
-
         """
         pass
 
     def on_order_status(self, ind):
         """
-
-        Parameters
-        ----------
-        ind : OrderStatusInd
-
-        Returns
-        -------
-
         """
         pass
 
     def on_order_rsp(self, rsp):
         """
-
-        Parameters
-        ----------
-        rsp
-
         """
         pass
 
     def on_task_rsp(self, rsp):
         """
-
-        Parameters
-        ----------
-        rsp
-
         """
         pass
 
     def on_task_status(self, ind):
         """
-
-        Parameters
-        ----------
-        rsp
-
         """
         pass
 
@@ -694,94 +655,3 @@ class AlphaStrategy(Strategy, model.FuncRegisterable):
         for sec in self.ctx.pm.holding_securities:
             positions.append(self.ctx.pm.get_position(sec))
         return positions
-
-
-class EventDrivenStrategy(Strategy):
-    def __init__(self):
-
-        super(EventDrivenStrategy, self).__init__()
-
-    def on_bar(self, quote):
-        pass
-
-    def on_tick(self, quote):
-        pass
-
-    def on_cycle(self):
-        pass
-
-    def initialize(self):
-        pass
-
-    def buy_or_sell_with_bar(self, action, bar, size, slippage=0.0):
-        """
-        Send a limit Buy order with quote.close + slippage.
-
-        Parameters
-        ----------
-        action : {'Buy', 'Sell'}
-        bar : Bar
-        size : int or float
-            Should be positive.
-        slippage : float, optional
-            Should be non-negative
-
-        """
-        if not isinstance(bar, Bar):
-            raise TypeError("quote must be Bar type. You may have passed a Quote.")
-
-        if action == common.ORDER_ACTION.SELL:
-            slippage *= -1
-        entrust_price = bar.close + slippage
-        task_id, msg = self.ctx.trade_api.place_order(bar.symbol,
-                                                      action,
-                                                      entrust_price,
-                                                      size)
-        if (task_id is None) or (task_id == 0):
-            print("place_order FAILED! msg = {}".format(msg))
-
-    def buy(self, bar, size=1, slippage=0.0):
-        """
-        Send a limit Buy order with bar.close + slippage.
-
-        Parameters
-        ----------
-        bar : Bar
-        size : int or float
-        slippage : float
-
-        """
-        self.buy_or_sell_with_bar(common.ORDER_ACTION.BUY, bar, size, slippage)
-
-    def sell(self, bar, size=1, slippage=0.0):
-        """
-        Send a limit Sell order with bar.close + slippage.
-
-        Parameters
-        ----------
-        bar : Bar
-        size : int or float
-        slippage : float
-
-        """
-        self.buy_or_sell_with_bar(common.ORDER_ACTION.SELL, bar, size, slippage)
-
-    def cancel_all_orders(self):
-        for task_id, task in self.ctx.pm.tasks.items():
-            if task.trade_date == self.ctx.trade_date:
-                if not task.is_finished:
-                    self.ctx.trade_api.cancel_order(task_id)
-
-    def liquidate(self, quote, n, tick_size=1.0, pos=0):
-        self.cancel_all_orders()
-        if pos == 0:
-            return
-
-        ref_price = quote.close
-        if pos < 0:
-            action = common.ORDER_ACTION.BUY
-            price = ref_price + n * tick_size
-        else:
-            action = common.ORDER_ACTION.SELL
-            price = ref_price - n * tick_size
-        self.ctx.trade_api.place_order(quote.symbol, action, price, abs(pos))
