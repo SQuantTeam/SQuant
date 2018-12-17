@@ -5,7 +5,7 @@
         class="row-bg" >
         <el-col :span="3" :offset="2" id="nav_logo" >   
         </el-col>
-        <el-col :span="12" :offset="13">
+        <el-col :span="12" :offset="10">
             <el-menu
                 :default-active="Menu"
                 class="el-menu-demo"
@@ -13,9 +13,23 @@
                 text-color="#fff"
                 active-text-color="#fff">
                 <el-menu-item index="1">SQuant</el-menu-item>
-                <el-menu-item index="2">我的策略</el-menu-item>
-                <el-menu-item index="3"><a href="#/signup">注册</a></el-menu-item>
-                <el-menu-item index="4"><a href="#/signin">登录</a></el-menu-item>
+                <el-menu-item index="2"><a href="#/details">行情信息</a></el-menu-item>
+                <el-menu-item index="3"><a href="#/strategy">我的策略</a></el-menu-item>
+                <el-menu-item index="4"><a href="#/holdPosition">持仓信息</a></el-menu-item>
+                <el-menu-item index="5" v-show="!is_login"><a href="#/signup">注册</a></el-menu-item>
+                <el-menu-item index="6" v-show="!is_login"><a href="#/signin">登录</a></el-menu-item>
+                <el-menu-item index="/#/" style="width:80px" v-show="is_login">
+                    <el-popover
+                        placement="bottom"
+                        title=""
+                        trigger="click">
+                        <span type="text" @click="connect" style="text-align:center;display:block;cursor:pointer;">连接</span>
+                        <br/>
+                        <span type="text" @click="signout" style="text-align:center;display:block;cursor:pointer;">退出登录</span>
+                        <a slot="reference"><img src="../assets/usr.png" style="width:100%"></a>
+                        <!-- <el-button slot="reference"></el-button> -->
+                    </el-popover>
+                </el-menu-item>
             </el-menu>
         </el-col>
     </el-row>
@@ -31,7 +45,7 @@
                 <h1 style="font-size:44px">SQuant人工智能量化平台</h1>
                 <h5 style="font-size:23px;opacity:0.8">用人工智能做更好的量化投资</h5>
                 <h5 style="font-size:23px;opacity:0.8">Democratize AI to empower investor</h5>
-                <a href="https://www.baidu.com" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer;margin-right:20px;background:white;color: #f35135;">编写策略</h2></a>
+                <a href="#/strategy" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer;margin-right:20px;background:white;color: #f35135;">编写策略</h2></a>
                 <a href="#/details" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">行情查看</h2></a>
             </div>
         </el-carousel-item>
@@ -41,7 +55,7 @@
             <div style="vertical-align:middle;display:inline-block;color:white">
                 <h1 style="font-size:44px">可视化策略开发</h1>
                 <h5 style="font-size:23px;opacity:0.8">代码没基础？不会写Python？可视化助你快速上手策略开发</h5>
-                <h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">立即体验</h2>
+                <a href="#/strategy" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">立即体验</h2></a>
             </div>
             <img src="../assets/banner-2-2.jpg" style="position:absolute;width:578.5px !important;margin-left:-167px;margin-top:50px;">
         </el-carousel-item>
@@ -51,7 +65,7 @@
             <div style="vertical-align:middle;display:inline-block;color:white">
                 <h1 style="font-size:44px">期货回测正式上线</h1>
                 <h5 style="font-size:23px;opacity:0.8">支持商品期货、股指期货开发、回测</h5>
-                <h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">立即试用</h2>
+                <a href="#/details" style="color:white;"><h2 style="font-size:17px; border:1px solid white; border-radius:4px;line-height:50px;width:120px;display:inline-block;cursor:pointer">立即试用</h2></a>
             </div>
             <img src="../assets/banner-3-2.jpg" style="position:absolute;width:455px !important;margin-left:50px;margin-top:160px;">
         </el-carousel-item>
@@ -176,6 +190,7 @@ let windowHalfY = 625 / 2;
 export default {
   data() {
     return {
+        is_login: false
     };
   },
   methods: {
@@ -283,11 +298,64 @@ export default {
       renderer.render(scene, camera);
 
       count += 0.1;
+    },
+    user_status(){
+        if(sessionStorage.getItem('userEmail') && sessionStorage.getItem('userToken')) {
+            this.$store.dispatch("setUser",sessionStorage.getItem('userEmail'));
+        }else{
+            this.$store.dispatch("setUser",null);
+        }
+        console.log(this.$store.getters.isLogin)
+        return this.$store.getters.isLogin
+    },
+    signout() {
+        console.log('signout');
+        sessionStorage.setItem('userEmail', null)
+        sessionStorage.setItem('userToken', null)
+        this.$store.dispatch('setUser', null)
+        this.is_login = false
+    },
+    connect() {
+        var self = this
+        this.$prompt('请输入Token', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputErrorMessage: 'Token不能为空'
+        }).then(({ value }) => {
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+            var j = {
+                "phone" : "15827606670",
+                "token" : "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
+            }
+            axios.post("http://127.0.0.1:8000/squant/market/connect", j, config).then(function(response) {
+                // if (response.data.result)
+                self.$message({
+                    type: 'success',
+                    message: '成功连接'
+                });
+                console.log(response);
+            }).catch(function (error) {
+                self.$message({
+                    type: 'info',
+                    message: '连接失败，请稍后再试'
+                }); 
+            });
+        }).catch(() => {
+            this.$message({
+                type: 'info',
+                message: '取消连接'
+            });       
+        });
     }
   },
   mounted() {
     this.init()
     this.animate()
+    this.is_login = this.user_status()
   }
 };
 </script>
