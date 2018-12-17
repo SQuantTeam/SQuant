@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': 'squant',
         'USER': 'cgl',
         'PASSWORD': 'SQuant@123456',
-        'HOST': '114.115.137.173',
+        'HOST': '120.79.242.68',
     }
 }
 
