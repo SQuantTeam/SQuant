@@ -163,8 +163,8 @@
                                                 <el-input type="number" size="mini"  v-else-if="select_selected_index[scope.$index].index_type_m=='2_1'"></el-input>
                                                 <el-input type="number" size="mini" v-else-if="select_selected_index[scope.$index].index_type_m=='2_2'"></el-input>
                                                 <div v-else-if="select_selected_index[scope.$index].index_type_m=='2_3'">
-                                                    N1: <el-input type="number" size="mini" style="width:80%"></el-input>
-                                                    N2: <el-input type="number" size="mini" style="width:80%"></el-input>
+                                                    <el-input type="number" size="mini" style="width:45%"></el-input>-
+                                                    <el-input type="number" size="mini" style="width:45%"></el-input>
                                                 </div>
                                                 <span  v-else-if="select_selected_index[scope.$index].index_type_m=='3_1'">--</span>
                                                 <span  v-else-if="select_selected_index[scope.$index].index_type_m=='3_2'">--</span>
