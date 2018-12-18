@@ -70,7 +70,20 @@
             <img src="../assets/banner-3-2.jpg" style="position:absolute;width:455px !important;margin-left:50px;margin-top:160px;">
         </el-carousel-item>
     </el-carousel>
-  
+    <el-dialog title="绑定Token" :visible.sync="dialogFormVisible" :append-to-body='true' style="width:70%;margin:auto">
+        <el-form :model="connect_details">
+            <el-form-item label="手机号码" :label-width="'80px'">
+            <el-input v-model="connect_details.phone" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="Token" :label-width="'80px'">
+            <el-input v-model="connect_details.token" autocomplete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="connect_cancel">取 消</el-button>
+            <el-button type="primary" @click="connect">确 定</el-button>
+        </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -190,7 +203,12 @@ let windowHalfY = 625 / 2;
 export default {
   data() {
     return {
-        is_login: false
+        is_login: false,
+        connect_details: {
+            phone: '',
+            token: ''
+        },
+        dialogFormVisible: false
     };
   },
   methods: {
@@ -350,6 +368,36 @@ export default {
                 message: '取消连接'
             });       
         });
+    },
+    connect() {
+        var self = this
+        this.dialogFormVisible = false
+        let config = {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }
+        axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
+            console.log(response.data.error_num)
+            if(response.data.error_num == 0) {
+                self.$message({
+                    type: 'success',
+                    message: '成功绑定！'
+                });
+            } else {
+                self.$message({
+                    type: 'info',
+                    message: '绑定失败，请稍后再试'
+                });
+            }
+            
+            console.log(response);
+        }).catch(function (error) {
+            self.$message({
+                type: 'info',
+                message: '连接失败，请稍后再试'
+            }); 
+        });        
     }
   },
   mounted() {
