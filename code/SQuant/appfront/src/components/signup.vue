@@ -103,8 +103,8 @@ export default {
                 };
                 axios.post("http://localhost:8000/squant/user/add", json, config).then(function(result) {
                     self.$message({
-                        type: 'info',
-                        message: '注册成功，请稍后再试'
+                        type: 'success',
+                        message: '注册成功！'
                     }); 
                     self.$router.push({path: '/details'});
                 }).catch(function (error) {

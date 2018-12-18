@@ -6,7 +6,7 @@
                 <div id="nav_logo_collapsed"></div>
             </el-col>
 
-            <el-col :span="12" :offset="14">
+            <el-col :span="12" :offset="12">
                 <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
                     <el-menu-item index='/#/'>
                         <a href="./">SQuant</a>
@@ -25,7 +25,7 @@
                             placement="bottom"
                             title=""
                             trigger="click">
-                            <span type="text" @click="connect" style="text-align:center;display:block;cursor:pointer;">连接</span>
+                            <span type="text" @click="dialogFormVisible = true" style="text-align:center;display:block;cursor:pointer;">连接</span>
                             <br/>
                             <span type="text" @click="signout" style="text-align:center;display:block;cursor:pointer;">退出登录</span>
                             <a slot="reference"><img src="../assets/usr.png" style="width:100%"></a>
@@ -34,6 +34,21 @@
                     </el-menu-item>
                 </el-menu>
             </el-col>
+
+            <el-dialog title="绑定Token" :visible.sync="dialogFormVisible" :append-to-body='true' style="width:70%;margin:auto">
+                <el-form :model="connect_details">
+                    <el-form-item label="手机号码" :label-width="'80px'">
+                    <el-input v-model="connect_details.phone" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="Token" :label-width="'80px'">
+                    <el-input v-model="connect_details.token" autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="connect_cancel">取 消</el-button>
+                    <el-button type="primary" @click="connect">确 定</el-button>
+                </div>
+            </el-dialog>
         </el-row>
     </div>
 </template>
@@ -61,48 +76,56 @@ body {
 <script>
 import axios from 'axios'
 export default {
-     methods: {
+    data() {
+        return {
+            connect_details: {
+                phone: '',
+                token: ''
+            },
+            dialogFormVisible: false
+        }
+    },
+    methods: {
         signout() {
             sessionStorage.setItem('userEmail', null)
             sessionStorage.setItem('userToken', null)
             this.$store.dispatch('setUser', null)
-            this.$router.push({path: '/'})
+            window.location.href = '/#/'
+        },
+        connect_cancel() {
+            this.dialogFormVisible = false
+            this.$message('取消绑定');
         },
         connect() {
             var self = this
-            this.$prompt('请输入Token', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            inputErrorMessage: 'Token不能为空'
-            }).then(({ value }) => {
-                let config = {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+            this.dialogFormVisible = false
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
                 }
-                var j = {
-                    "phone" : "15827606670",
-                    "token" : "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
-                }
-                axios.post("http://127.0.0.1:8000/squant/market/connect", j, config).then(function(response) {
-                    // if (response.data.result)
+            }
+            axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
+                console.log(response.data.error_num)
+                if(response.data.error_num == 0) {
                     self.$message({
                         type: 'success',
-                        message: '成功连接'
+                        message: '成功绑定！'
                     });
-                    console.log(response);
-                }).catch(function (error) {
+                } else {
                     self.$message({
                         type: 'info',
-                        message: '连接失败，请稍后再试'
-                    }); 
-                });
-            }).catch(() => {
-                this.$message({
+                        message: '绑定失败，请稍后再试'
+                    });
+                }
+                
+                console.log(response);
+            }).catch(function (error) {
+                self.$message({
                     type: 'info',
-                    message: '取消连接'
-                });       
+                    message: '连接失败，请稍后再试'
+                }); 
             });
+            
         }
      }
 }

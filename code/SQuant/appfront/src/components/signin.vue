@@ -95,33 +95,46 @@ export default {
             // alert("login method")
             var postData = {
                 'email': this.signin.email,
-                'pwd': this.signin.pwd
+                'password': this.signin.pwd
             }
             var postDataJson = JSON.stringify(postData);
-            // axios.post(window.baseUrl + "market/connect", postDataJson)
-            //     .then(response => {
-            //         console.log("登录信息", response);
-            //         if (response.data.error_num == 0) {
-            //             window.location.href = '/#/details'
-            //             // this.transcationData = eval(response.data.result);
-            //             // console.log(this.transcationData);
-            //         } else {
-            //             alert("登录报错：" + response.data.msg);
-            //             console.log(response.data.error_num + ":" + response.data.msg);
-            //         }
-            //     }).catch(function (error) {
-            //         alert(error);
-            //         console.log(error);
-            //     });
-            sessionStorage.setItem('userEmail', 'hello')
-            sessionStorage.setItem('userToken', 'this_is_a_token')
-            this.$store.dispatch("setUser",'this_is_an_email');
-            this.$store.dispatch("setToken",'this_is_a_token');
+            var self = this
+            console.log(this.postData)
+            axios.post(window.baseUrl + "user/login", postDataJson)
+                .then(response => {
+                    console.log("登录信息", response);
+                    if (response.data.error_num == 0) {
+                        sessionStorage.setItem('userEmail', 'hello')
+                        sessionStorage.setItem('userToken', 'this_is_a_token')
+                        self.$store.dispatch("setUser",'this_is_an_email');
+                        self.$store.dispatch("setToken",'this_is_a_token');
+                        self.$message({
+                            type: 'success',
+                            message: '登录成功！'
+                        }); 
+                        window.location.href = '/#/details'
+                        // this.transcationData = eval(response.data.result);
+                        // console.log(this.transcationData);
+                    } else {
+                        self.$message({
+                            type: 'info',
+                            message: '邮箱或密码有误'
+                        }); 
+                        console.log(response.data.error_num + ":" + response.data.msg);
+                    }
+                }).catch(function (error) {
+                    self.$message({
+                        type: 'info',
+                        message: '登录失败，请稍后再试'
+                    }); 
+                    console.log(error);
+                });
+            
 
             console.log(this.$store.state.isLogin)
             console.log(this.$store.state.currentUser)
             console.log(this.$store.state.token)
-            this.$router.push({path: '/'});
+            
         }
     },
 }
