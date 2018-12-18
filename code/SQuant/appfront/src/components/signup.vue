@@ -102,6 +102,12 @@ export default {
                     }
                 };
                 axios.post("http://localhost:8000/squant/user/add", json, config).then(function(result) {
+                    console.log(result)
+                    sessionStorage.setItem('userEmail', self.ruleForm2.email)
+                    sessionStorage.setItem('userToken', 'this_is_a_token')
+                    sessionStorage.setItem('userType', 1)
+                    self.$store.dispatch("setUser",'this_is_an_email');
+                    self.$store.dispatch("setToken",'this_is_a_token');
                     self.$message({
                         type: 'success',
                         message: '注册成功！'

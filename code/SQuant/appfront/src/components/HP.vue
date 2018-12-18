@@ -328,7 +328,7 @@ export default {
     },
     signout() {
         console.log('signout');
-        sessionStorage.setItem('userEmail', null)
+        sessionStorage.setItem('userEmail', "NNNNOOOOEmail")
         sessionStorage.setItem('userToken', null)
         this.$store.dispatch('setUser', null)
         this.is_login = false

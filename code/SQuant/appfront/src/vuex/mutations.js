@@ -5,8 +5,9 @@ export const userStatus = (state,user) => {
       state.isLogin = true
     } else if (user == null){
       //登出的时候，清空sessionStorage里的东西
-      sessionStorage.setItem("userEmail",null);
+      sessionStorage.setItem("userEmail","NNNNOOOOEmail");
       sessionStorage.setItem("userToken","");
+      sessionStorage.setItem("userType", 0);
       state.currentUser = null;
       state.isLogin = false;
       state.token = "";
