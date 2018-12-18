@@ -64,7 +64,9 @@ def login(request):
             request.session['phone'] = user.phone
             request.session['api_key'] = user.api_key
 
-            response['msg'] = getStr
+            user.password = "***"
+
+            response['msg'] = json.loads(user.toJSON())
             response['error_num'] = 0
             # return response
         else:
