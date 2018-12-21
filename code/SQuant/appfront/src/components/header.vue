@@ -6,18 +6,18 @@
                 <div id="nav_logo_collapsed"></div>
             </el-col>
 
-            <el-col :span="12" :offset="12">
+            <el-col :span="12" :offset="12" v-if="is_manager==false">
                 <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
                     <el-menu-item index='/#/'>
                         <a href="./">SQuant</a>
                     </el-menu-item>
-                    <el-menu-item index='/more'>
+                    <el-menu-item index='/more' >
                         <a href="/#/details">行情信息</a>
                     </el-menu-item>
-                    <el-menu-item index="/strategy">
+                    <el-menu-item index="/strategy" >
                         <a href="/#/strategy">我的策略</a>
                     </el-menu-item>
-                    <el-menu-item index='/holdPosition'>
+                    <el-menu-item index='/holdPosition' >
                         <a href="/#/holdPosition">持仓信息</a>
                     </el-menu-item>
                     <el-menu-item index="/#/" style="width:80px">
@@ -27,6 +27,20 @@
                             trigger="click">
                             <span type="text" @click="dialogFormVisible = true" style="text-align:center;display:block;cursor:pointer;">连接</span>
                             <br/>
+                            <span type="text" @click="signout" style="text-align:center;display:block;cursor:pointer;">退出登录</span>
+                            <a slot="reference"><img src="../assets/usr.png" style="width:100%"></a>
+                            <!-- <el-button slot="reference"></el-button> -->
+                        </el-popover>
+                    </el-menu-item>
+                </el-menu>
+            </el-col>
+            <el-col :span="12" :offset="20" v-else>
+                <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
+                    <el-menu-item index="/#/" style="width:80px">
+                        <el-popover
+                            placement="bottom"
+                            title=""
+                            trigger="click">
                             <span type="text" @click="signout" style="text-align:center;display:block;cursor:pointer;">退出登录</span>
                             <a slot="reference"><img src="../assets/usr.png" style="width:100%"></a>
                             <!-- <el-button slot="reference"></el-button> -->
@@ -82,12 +96,13 @@ export default {
                 phone: '',
                 token: ''
             },
-            dialogFormVisible: false
+            dialogFormVisible: false,
+            is_manager: false,
         }
     },
     methods: {
         signout() {
-            sessionStorage.setItem('userEmail', null)
+            sessionStorage.setItem('userEmail', "NNNNOOOOEmail")
             sessionStorage.setItem('userToken', null)
             this.$store.dispatch('setUser', null)
             window.location.href = '/#/'
@@ -127,6 +142,11 @@ export default {
             });
             
         }
-     }
+    },
+    mounted() {
+        if(sessionStorage.getItem('userType') == 1) {
+            this.is_manager = true
+        }
+    },
 }
 </script>
