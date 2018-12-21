@@ -18,7 +18,7 @@
                     <el-input v-model="alg_details.code"></el-input>
                 </el-form-item>
                 <el-form-item label="方向">
-                    <el-select v-model="alg_details.direction" placeholder="请选择活动区域" style="width:240.1px">
+                    <el-select v-model="alg_details.direction" placeholder="请选择方向" style="width:240.1px">
                         <el-option label="多" value="open"></el-option>
                         <el-option label="平" value="close"></el-option>
                     </el-select>
@@ -99,7 +99,7 @@
                         <el-button
                         size="mini"
                         type="danger"
-                        @click="stop_alg(scope.$index, alg_config)">停止</el-button>
+                        @click="stop_alg(scope.$index, alg_status)">停止</el-button>
                     </template>
                     </el-table-column>
             </el-table>
@@ -270,6 +270,9 @@ export default {
         delete_alg_config(index, rows){
             console.log(index, rows);
             rows.splice(index, 1);
+        },
+        stop_alg(index, rows){
+            rows[index].status = 0
         }
     }
   }

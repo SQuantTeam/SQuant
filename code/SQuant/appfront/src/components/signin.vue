@@ -134,6 +134,11 @@ export default {
             console.log(this.$store.state.isLogin)
             console.log(this.$store.state.currentUser)
             console.log(this.$store.state.token)
+            sessionStorage.setItem('userEmail', 'hello')
+            sessionStorage.setItem('userToken', 'this_is_a_token')
+            self.$store.dispatch("setUser",'this_is_an_email');
+            self.$store.dispatch("setToken",'this_is_a_token');
+            window.location.href = '/#/details'
             
         }
     },

@@ -9,6 +9,7 @@ import details from '@/components/details'
 import holdPosition from '@/components/holdPosition'
 import algorithm from '@/components/algorithm'
 import strategy from '@/components/strategy'
+import drl from '@/components/drl'
 
 // Others
 import control from '@/components/control'
@@ -25,6 +26,7 @@ export default new Router({
     { path: '/details', component: details },
     { path: '/holdPosition', component: holdPosition },
     { path: '/algorithm', component: algorithm },
+    { path: '/drl', component: drl },
     // { path:'/home/:currentUser',component: HP,
     // children:[
     //   { path: '/details', component: details },
