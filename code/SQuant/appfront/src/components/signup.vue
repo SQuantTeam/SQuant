@@ -94,7 +94,7 @@ export default {
                 var json = {
                     'email': email, 
                     'password': pwd,
-                    'user_type': 1}
+                    'user_type': 0}
                 console.log(json);
                 let config = {
                     headers: {

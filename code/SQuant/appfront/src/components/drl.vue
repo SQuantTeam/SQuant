@@ -3,7 +3,6 @@
         <squantheader></squantheader>
         <div  style="position:absolute;top:10%;left: 2%;">
             <el-card>
-                
                    <el-form ref="form" :model="drl_details" label-width="100px" size="mini">
                         <el-form-item label="股票代码">
                             <el-autocomplete
@@ -15,7 +14,7 @@
                                 size="mini"
                                 :trigger-on-focus="false"
                                 clearable
-                                style="width:88%">
+                                style="width:240.1px">
                                     <i
                                         class="el-icon-search el-input__icon"
                                         slot="suffix"
@@ -28,7 +27,7 @@
                                 </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="风格">
-                            <el-select v-model="drl_details.style" placeholder="请选择风格" size="mini" style="width:88%">
+                            <el-select v-model="drl_details.style" placeholder="请选择风格" size="mini" style="width:240.1px">
                                 <el-option
                                 v-for="item in drl_styles"
                                 :key="item.value"
@@ -37,7 +36,7 @@
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="日期选择" size="mini">
+                        <!-- <el-form-item label="日期选择" size="mini">
                             <el-date-picker
                             v-model="drl_details.duration"
                             type="datetimerange"
@@ -47,9 +46,9 @@
                             end-placeholder="结束日期"
                             style="width:88%">
                             </el-date-picker>
-                        </el-form-item>
+                        </el-form-item> -->
                         <el-form-item>
-                            <el-button type="primary" @click="start_drl">启动算法</el-button>
+                            <el-button type="primary" @click="start_drl">启动</el-button>
                             <el-button @click="save_drl">保存配置</el-button>
                         </el-form-item>
                     </el-form>
@@ -63,8 +62,10 @@
                 <el-option label="已结束" value="0"></el-option>
             </el-select>
             <el-table
-                :data="drl_status.filter(data => !is_drl_stop || data.status==is_drl_stop)"
+                v-bind:data="is_drl_stop=='1'? drl_status.drl_status_run : drl_status.drl_status_stop"
                 height="280"
+                ref="drl_status_table"
+                highlight-current-row
                >
                 <el-table-column
                 prop="drl_name"
@@ -93,7 +94,7 @@
                         size="mini"
                         type="danger"
                         @click="stop_drl(scope.$index, drl_status)"
-                        v-if="is_drl_stop==1"
+                        v-if="is_drl_stop=='1'"
                         >停止</el-button>
                         <el-button
                         size="mini"
@@ -151,14 +152,14 @@
         </div>
 
         <div>
-            <el-card :body-style="{ padding: '10px' }" style="width:521px;position:absolute;left:2%;top:30%;" v-if="drl_result.is_show">
-                <span>策略：{{drl_result.name}} 结果展示</span>
+            <el-card :body-style="{ padding: '10px' }" style="width:382.1px;position:absolute;left:2%;top:30%;">
+                <h5 style="margin:5px">策略：{{drl_result.name}} 结果展示</h5>
                 <div>
-                    <img :src="drl_details.trade_point" class="image"/>
+                    <img v-bind:src="trade_point" class="image"/>
                     <!-- src="../assets/banner-2-1.jpg" style="position:absolute;width:442px !important;margin-left:-417px;margin-top:265px;"> -->
                 </div>
                 <div>
-                    <img :src="drl_details.img2" class="image"/>
+                    <img v-bind:src="img2" class="image"/>
                 </div>
             </el-card>
         </div>
@@ -172,9 +173,9 @@
 }
 
 .image {
-    width: 50%;
-    display: block;
-    float: left;
+    width: 80%;
+    float: center;
+    text-align: center;
 }
 
 </style>
@@ -236,14 +237,15 @@ export default {
             },
             is_drl_stop: '1',
             drl_search: '',
-            drl_status: [
-                {
+            drl_status: {
+                drl_status_run : [{
                     drl_id: 1,
                     drl_name: '2016-05-031',
                     drl_type: '王小虎',
                     drl_variables: '上海市普陀区金沙江路 1518 弄',
                     status: 1,
-                },{
+                }],
+                drl_status_stop: [{
                     drl_id: 2,
                     drl_name: '2016-05-032',
                     drl_type: '王小虎',
@@ -255,8 +257,8 @@ export default {
                     drl_type: '王小虎',
                     drl_variables: '上海市普陀区金沙江路 1518 弄',
                     status: 0,
-                }
-            ],
+                }],
+            },
             drl_config: [
                 {
                     drl_id: 1,
@@ -297,8 +299,8 @@ export default {
             ],
             drl_result: {
                 name: '',
-                trade_point: '',
-                img2: '',
+                res1: 'r1.png',
+                res2: 'r1.png',
                 is_show: false
             },
       };
@@ -3200,17 +3202,21 @@ export default {
             console.log('stop',rows)
             console.log(index)
             console.log(rows[index])
-            rows[index].status = 0
+            var item = rows.drl_status_run[index]
+            item.status = 0
+            rows.drl_status_run.splice(index, 1)
+            rows.drl_status_stop.push(item)
         },
         view_drl_res(index, rows){
-            var drl_id = rows[index].drl_id
+            var drl_id = rows.drl_status_stop[index].drl_id
             this.drl_result = {
-                name: rows[index].drl_name,
-                trade_point: require('../assets/result/r1.png'),
-                img2: '../assets/result/r1.png',
-                is_show: true
+                name: rows.drl_status_stop[index].drl_name,
+                is_show: true,
+                res1: 'r1.png',
+                res2: 'r2.png'
             }
             console.log(this.drl_result)
+            this.$refs.drl_status_table.setCurrentRow(rows.drl_status_stop[index]);
         },
         edit_drl_config(index, row){
             console.log(index, row);
@@ -3219,10 +3225,32 @@ export default {
             console.log(index, rows);
             rows.splice(index, 1);
         },
-        
+        get_drl_status() {
+            this.drl_status_run = []
+            this.drl_status_stop = []
+            for(var index in this.drl_status){
+                console.log(index)
+                var item = this.drl_status[index]
+                if (item.status == 0) {
+                    this.drl_status_run.push(item)
+                } else {
+                    this.drl_status_stop.push(item)
+                }
+            }
+            console.log(this.drl_status_run)
+            console.log(this.drl_status_stop)
+        },
     },
     mounted() {
         this.stock_basic_info = this.load_stock_basic_info();
-    }
+    },
+    computed: {
+        trade_point: function() {
+            return require('../assets/result/'+this.drl_result.res1)
+        },
+        img2: function() {
+            return require('../assets/result/'+this.drl_result.res2)
+        },
+    },
   }
 </script>

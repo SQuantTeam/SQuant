@@ -70,7 +70,7 @@
                 <el-option label="已结束" value="0"></el-option>
             </el-select>
             <el-table
-                :data="alg_status.filter(data => !is_alg_stop || data.status==is_alg_stop)"
+                :data="is_alg_stop=='1'?alg_status.alg_status_run:alg_status.alg_status_stop"
                 height="280"
                >
                 <el-table-column
@@ -213,13 +213,14 @@ export default {
                 alg_variables: '上海市普陀区金沙江路 1518 弄'
                 }
             ],
-            alg_status: [
-                {
+            alg_status: {
+                alg_status_run: [{
                 alg_name: '2016-05-03',
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
                 status: 1,
-                },{
+                }],
+                alg_status_stop: [{
                 alg_name: '2016-05-03',
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
@@ -229,8 +230,8 @@ export default {
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
                 status: 0,
-                }
-            ],
+                }]
+            },
             is_alg_stop: '1',
             
       };
@@ -272,7 +273,10 @@ export default {
             rows.splice(index, 1);
         },
         stop_alg(index, rows){
-            rows[index].status = 0
+            var item = rows.alg_status_run[index]
+            item.status = 0
+            rows.alg_status_run.splice(index, 1)
+            rows.alg_status_stop.push(item)
         }
     }
   }
