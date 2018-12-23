@@ -139,7 +139,7 @@ export default {
         },
         delete_usr(index, rows){
             var self = this;
-            rows.splice(index, 1);
+            console.log(rows[index].user_email)
             axios.delete("http://127.0.0.1:8000/squant/user/delete/"+rows[index].user_email).then(function(response) {
                 if (response.data.error_num == 0) {
                     self.$message({
@@ -150,6 +150,7 @@ export default {
                     self.$message.error('删除用户失败：'+response.data.msg);
                 }
             });
+            rows.splice(index, 1);
         }
     },
     mounted() {

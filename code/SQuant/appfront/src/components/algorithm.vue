@@ -18,7 +18,7 @@
                     <el-input v-model="alg_details.code"></el-input>
                 </el-form-item>
                 <el-form-item label="方向">
-                    <el-select v-model="alg_details.direction" placeholder="请选择活动区域" style="width:240.1px">
+                    <el-select v-model="alg_details.direction" placeholder="请选择方向" style="width:240.1px">
                         <el-option label="多" value="open"></el-option>
                         <el-option label="平" value="close"></el-option>
                     </el-select>
@@ -70,7 +70,7 @@
                 <el-option label="已结束" value="0"></el-option>
             </el-select>
             <el-table
-                :data="alg_status.filter(data => !is_alg_stop || data.status==is_alg_stop)"
+                :data="is_alg_stop=='1'?alg_status.alg_status_run:alg_status.alg_status_stop"
                 height="280"
                >
                 <el-table-column
@@ -99,7 +99,7 @@
                         <el-button
                         size="mini"
                         type="danger"
-                        @click="stop_alg(scope.$index, alg_config)">停止</el-button>
+                        @click="stop_alg(scope.$index, alg_status)">停止</el-button>
                     </template>
                     </el-table-column>
             </el-table>
@@ -213,13 +213,14 @@ export default {
                 alg_variables: '上海市普陀区金沙江路 1518 弄'
                 }
             ],
-            alg_status: [
-                {
+            alg_status: {
+                alg_status_run: [{
                 alg_name: '2016-05-03',
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
                 status: 1,
-                },{
+                }],
+                alg_status_stop: [{
                 alg_name: '2016-05-03',
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
@@ -229,8 +230,8 @@ export default {
                 alg_type: '王小虎',
                 alg_variables: '上海市普陀区金沙江路 1518 弄',
                 status: 0,
-                }
-            ],
+                }]
+            },
             is_alg_stop: '1',
             
       };
@@ -270,6 +271,12 @@ export default {
         delete_alg_config(index, rows){
             console.log(index, rows);
             rows.splice(index, 1);
+        },
+        stop_alg(index, rows){
+            var item = rows.alg_status_run[index]
+            item.status = 0
+            rows.alg_status_run.splice(index, 1)
+            rows.alg_status_stop.push(item)
         }
     }
   }

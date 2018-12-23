@@ -6,7 +6,7 @@
             <h3 style="text-align:center">登录</h3>
             <el-form :model="signin" status-icon :rules="rules2" ref="signin" label-width="60px" style="margin-left: -10%;">
                 <el-form-item label="邮箱" prop="email">
-                    <el-input v-model.number="signin.email"></el-input>
+                    <el-input v-model="signin.email"></el-input>
                 </el-form-item>
                 <el-form-item label="密码" prop="pwd">
                     <el-input type="password" v-model="signin.pwd" autocomplete="off"></el-input>
@@ -99,20 +99,27 @@ export default {
             }
             var postDataJson = JSON.stringify(postData);
             var self = this
-            console.log(this.postData)
+            console.log(postData)
             axios.post(window.baseUrl + "user/login", postDataJson)
                 .then(response => {
                     console.log("登录信息", response);
                     if (response.data.error_num == 0) {
-                        sessionStorage.setItem('userEmail', 'hello')
+                        sessionStorage.setItem('userEmail', this.signin.email)
                         sessionStorage.setItem('userToken', 'this_is_a_token')
+                        sessionStorage.setItem('userType', 0)
                         self.$store.dispatch("setUser",'this_is_an_email');
                         self.$store.dispatch("setToken",'this_is_a_token');
                         self.$message({
                             type: 'success',
                             message: '登录成功！'
                         }); 
-                        window.location.href = '/#/details'
+                        console.log('from 116', sessionStorage.getItem('userType') )
+                        if (sessionStorage.getItem('userType') == 0) {
+                            window.location.href = '/#/details'
+                        } else {
+                            window.location.href = '/#/management'
+                        }
+                        
                         // this.transcationData = eval(response.data.result);
                         // console.log(this.transcationData);
                     } else {
@@ -134,6 +141,11 @@ export default {
             console.log(this.$store.state.isLogin)
             console.log(this.$store.state.currentUser)
             console.log(this.$store.state.token)
+            sessionStorage.setItem('userEmail', 'hello')
+            sessionStorage.setItem('userToken', 'this_is_a_token')
+            self.$store.dispatch("setUser",'this_is_an_email');
+            self.$store.dispatch("setToken",'this_is_a_token');
+            window.location.href = '/#/details'
             
         }
     },

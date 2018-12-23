@@ -7,6 +7,7 @@ import store from './vuex/store'
 import ElementUI from 'element-ui'
 import VueResource from 'vue-resource'
 import 'element-ui/lib/theme-chalk/index.css'
+import './permission'
 
 Vue.config.productionTip = false
 
