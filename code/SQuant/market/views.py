@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding: UTF-8
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
