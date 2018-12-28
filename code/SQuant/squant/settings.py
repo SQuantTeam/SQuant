@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'market',
+    'market',
+    'strategy',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,7 @@ STATIC_URL = '/static/'
 # Add for vuejs
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "appfront/dist/static"),
+    os.path.join(BASE_DIR, "output").replace('\\', '/'),
 ]
 
 # Set session serializer

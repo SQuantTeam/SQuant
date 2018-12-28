@@ -73,7 +73,7 @@ def connect(request):
         response['msg'] = 'successfully connected'
         response['error_num'] = 0
         tradeGateway.close()
-    except  Exception,e:
+    except Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 

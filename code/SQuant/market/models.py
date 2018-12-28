@@ -50,6 +50,3 @@ class Order(models.Model):
     order_type = models.SmallIntegerField(default=1)
 
 
-class Strategy(models.Model):
-    id = models.IntegerField(max_length=64, primary_key=True, unique=True, null=False, blank=False, db_index=True, )
-    name = models.CharField(max_length=64, )
