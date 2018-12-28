@@ -8,12 +8,12 @@ from django.db import models
 # Create your models here.
 
 class Algorithem(models.Model):
-    email = models.ForeignKey("market.User")
-    name = models.CharField(max_length=255, unique=True, default='')
+    user = models.ForeignKey("market.User")
+    name = models.CharField(max_length=255, default='')
     file_path = models.CharField(max_length=255, default='')
 
 
 class Strategy(models.Model):
-    email = models.ForeignKey("market.User")
-    name = models.CharField(max_length=255, unique=True, default='')
+    user = models.ForeignKey("market.User")
+    name = models.CharField(max_length=255, default='')
     file_path = models.CharField(max_length=255, default='')

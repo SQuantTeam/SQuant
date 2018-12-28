@@ -1,0 +1,1 @@
+{"stock_index": {"pb": [1, 2], "pe": [10, 20]}, "rank_index": {"pb": 1, "pe": 1}, "pc_method": "equal_weight", "period": "week", "dataview_props": {"fileds": "pb,pe", "end_date": 20181201, "universe": "000807.SH,000300.SH", "benchmark": "000300.SH", "freq": 1, "start_date": 20180101}}
