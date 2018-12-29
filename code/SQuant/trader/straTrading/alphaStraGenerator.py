@@ -97,6 +97,8 @@ class AlphaStraGenerator(object):
 
         self.dataview_props['fileds'] = fileds
 
+        print("数据区域: " , self.dataview_props['fileds'])
+
         self.period = period  # re-balance period length
         self.pc_method = pc_method  # 购股权重
         self.amount = amount
@@ -164,7 +166,7 @@ class AlphaStraGenerator(object):
             factor_fomular = index_fomula_generator(index, -1, -1)
             print(factor_fomular)
             fomular_name = index
-            dv.add_formula(fomular_name, factor_fomular, is_quarterly=False)
+            dv.add_formula(fomular_name, factor_fomular, is_quarterly=False)   # todo: is_quarterly judgement
 
         dv.save_dataview(folder_path=self.dataview_store_folder)
 
@@ -276,15 +278,15 @@ class AlphaStraGenerator(object):
 
 
 if __name__ == '__main__':
-    stock_index = {"pb": [1, 2],
-                   "pe": [10, 20]}
+    stock_index = {"pb": [-1, 2],
+                   "pe": [-1, 20]}
     rank_index = {"pb": 1,
                   "pe": 1}
     phone = "15827606670"
     token = "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkI" \
             "joiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
     email = "1"
-    stra = AlphaStraGenerator(start_date=20180101, end_date=20181201, universe="000807.SH,000300.SH", benchmark="000300.SH",
+    stra = AlphaStraGenerator(start_date=20180101, end_date=20181201, universe="000905.SH,000300.SH", benchmark="000300.SH",
                               period="week", pc_method="equal_weight", stock_index=stock_index, rank_index =rank_index,
                               amount=5, phone=phone, token=token, email=email, strategy_name="test")
     stra.save_stra()

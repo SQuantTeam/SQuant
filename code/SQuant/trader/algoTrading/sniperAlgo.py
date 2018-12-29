@@ -33,7 +33,6 @@ class SniperAlgo(AlgoTemplate):
         self.vtOrderID = ''  # 委托号
         self.tradedVolume = 0  # 成交数量
 
-        self.subscribe(self.symbol)
 
     # ----------------------------------------------------------------------
     def onTick(self, tick):
@@ -45,7 +44,7 @@ class SniperAlgo(AlgoTemplate):
 
         # 做多，且卖1价格小于等于执行目标价
         if (self.direction == DIRECTION_LONG and
-                tick.askPrice1 <= self.price):
+             tick.askPrice1 <= self.price):
             orderVolume = self.volume - self.tradedVolume
             orderVolume = min(orderVolume, tick.askVolume1)
             self.vtOrderID = self.buy(self.symbol, self.price,
@@ -53,7 +52,7 @@ class SniperAlgo(AlgoTemplate):
 
         # 做空
         elif (self.direction == DIRECTION_SHORT and
-              tick.bidPrice1 >= self.price):
+               tick.bidPrice1 >= self.price):
             orderVolume = self.volume - self.tradedVolume
             orderVolume = min(orderVolume, tick.bidVolume1)
             self.vtOrderID = self.sell(self.symbol, self.price,

@@ -10,8 +10,6 @@ from models import User
 from django.views.decorators.csrf import csrf_exempt
 
 
-
-
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_user(request, email):
@@ -30,6 +28,7 @@ def get_user(request, email):
         response['error_num'] = 1
     return JsonResponse(response)
 
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_all_user(request):
@@ -46,9 +45,13 @@ def get_all_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def login(request):
+    print("cookie:", request.COOKIES)
+    print("session.keys:", request.session.keys())
+    print("session.values:", request.session.values())
     response = {}
     try:
         user_data = json.loads(request.body)
@@ -62,13 +65,19 @@ def login(request):
             getStr = "login success:" + str(user.email)
             print(getStr)
             print(user.email, user.user_type, user.phone, user.phone, user.api_key)
+            # 将所有Session失效日期小于当前日期的数据删除
+            # request.session.clear_expired()
+            # del request.session['email']
+            # del request.session['user_type']
+            # del request.session['api_key']
             # session中记录登录用户的信息
             request.session['email'] = user.email
             request.session['user_type'] = user.user_type
-            request.session['phone'] = user.phone
             request.session['api_key'] = user.api_key
 
             user.password = "***"
+            print("----------------------------------------------------------------------")
+            print("get request.session['email']:", request.session.get('email'))
 
             response['msg'] = json.loads(user.toJSON())
             response['error_num'] = 0
@@ -89,6 +98,7 @@ def login(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_user(request):
@@ -108,6 +118,7 @@ def add_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
+
 @csrf_exempt
 @require_http_methods(["PUT"])
 def update_user(request):
@@ -124,6 +135,7 @@ def update_user(request):
         response['msg'] = str(e)
         response['error_num'] = 1
     return JsonResponse(response)
+
 
 @csrf_exempt
 @require_http_methods(["DELETE"])
