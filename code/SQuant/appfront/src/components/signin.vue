@@ -103,20 +103,21 @@ export default {
             this.$axios.post(window.baseUrl + "user/login", postDataJson)
                 .then(response => {
                     console.log("登录信息", response);
+                    var cookie = document.cookie;
                     if (response.data.error_num == 0) {
                         console.log(response);
                         sessionStorage.setItem('userEmail', this.signin.email);
-                        sessionStorage.setItem('userToken', 'this_is_a_token');
+                        sessionStorage.setItem('userToken', cookie);
                         sessionStorage.setItem('userType', 0);
                         self.$store.dispatch("setUser",'this_is_an_email');
-                        self.$store.dispatch("setToken",'this_is_a_token');
+                        self.$store.dispatch("setToken", cookie);
                         self.$message({
                             type: 'success',
                             message: '登录成功！'
                         }); 
                         console.log('userType: ' + sessionStorage.getItem('userType') )
                         if (sessionStorage.getItem('userType') == 0) {
-                            // window.location.href = '/#/strategy'
+                            window.location.href = '/#/strategy'
                         } else {
                             window.location.href = '/#/management'
                         }

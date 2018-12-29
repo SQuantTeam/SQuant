@@ -571,16 +571,9 @@ export default {
                 "strategy_name" : name 
             }
             console.log(json);
-            let config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cookie': 'sid=uhxaw91tqlhta2mz4au3r7jcz3eqczdn'
-                }
-            }
+            console.log(sessionStorage.getItem('userToken'))
             var self = this;
-            console.log('line: 581')
-            this.$axios.defaults.withCredentials=true
-            this.$axios.post("http://127.0.0.1:8000/squant/strategy/doBacktest", json, config).then(function(response) {
+            this.$axios.post("http://localhost:8000/squant/strategy/doBacktest", json).then(function(response) {
                 if (response.data.error_num == 0) {
                     console.log(response);
                     console.log(response.data.result);
@@ -594,9 +587,10 @@ export default {
                     console.log(response);
                 }
                 console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-            console.log('line: 596')
-            console.log(json);
         },
         previous(){
             this.strategy_step--

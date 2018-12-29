@@ -120,7 +120,7 @@ export default {
                 }
             }
             this.$axios.defaults.withCredentials=true
-            this.$axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
+            this.$axios.post("http://localhost:8000/squant/market/connect", this.connect_details, config).then(function(response) {
                 console.log(response.data.error_num)
                 if(response.data.error_num == 0) {
                     self.$message({
