@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding: UTF-8
 """
 PortfolioManager helps manage strategy's trades, orders, positions, etc.

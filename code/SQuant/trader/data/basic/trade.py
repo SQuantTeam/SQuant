@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding:utf-8
 """
 Classes defined in trade module are relevant to trades, including:

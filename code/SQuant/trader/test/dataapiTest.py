@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding: utf-8
 from trader.data.dataapi import DataApi
 from trader.sqGateway import *

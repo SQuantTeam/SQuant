@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding:utf-8
 """
 Classes defined in order module are relevant to orders, including:

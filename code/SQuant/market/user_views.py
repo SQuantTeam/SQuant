@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # -*- coding: utf-8 -*-
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -5,10 +6,13 @@ from django.core import serializers
 import requests
 from django.utils.encoding import force_text, python_2_unicode_compatible
 import json
-
 from models import User
+from django.views.decorators.csrf import csrf_exempt
 
 
+
+
+@csrf_exempt
 @require_http_methods(["GET"])
 def get_user(request, email):
     response = {}
@@ -26,7 +30,7 @@ def get_user(request, email):
         response['error_num'] = 1
     return JsonResponse(response)
 
-
+@csrf_exempt
 @require_http_methods(["GET"])
 def get_all_user(request):
     response = {}
@@ -42,7 +46,7 @@ def get_all_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
-
+@csrf_exempt
 @require_http_methods(["POST"])
 def login(request):
     response = {}
@@ -85,7 +89,7 @@ def login(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
-
+@csrf_exempt
 @require_http_methods(["POST"])
 def add_user(request):
     response = {}
@@ -104,7 +108,7 @@ def add_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
-
+@csrf_exempt
 @require_http_methods(["PUT"])
 def update_user(request):
     response = {}
@@ -121,7 +125,7 @@ def update_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
-
+@csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_user(request, email):
     response = {}
