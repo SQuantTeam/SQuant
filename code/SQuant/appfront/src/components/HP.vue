@@ -349,7 +349,8 @@ export default {
                 "phone" : "15827606670",
                 "token" : "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
             }
-            axios.post("http://127.0.0.1:8000/squant/market/connect", j, config).then(function(response) {
+            this.$axios.defaults.withCredentials=true
+            this.$axios.post("http://127.0.0.1:8000/squant/market/connect", j, config).then(function(response) {
                 // if (response.data.result)
                 self.$message({
                     type: 'success',
@@ -377,7 +378,8 @@ export default {
                 'Content-Type': 'multipart/form-data'
             }
         }
-        axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
+        this.$axios.defaults.withCredentials=true
+        this.$axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
             console.log(response.data.error_num)
             if(response.data.error_num == 0) {
                 self.$message({

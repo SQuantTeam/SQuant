@@ -181,7 +181,6 @@
 </style>
 
 <script>
-import axios from 'axios'
 import echarts from 'echarts'
 import squantheader from '@/components/header'
 export default {

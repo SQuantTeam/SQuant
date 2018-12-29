@@ -7,7 +7,7 @@ export const userStatus = (state,user) => {
       //登出的时候，清空sessionStorage里的东西
       sessionStorage.setItem("userEmail","NNNNOOOOEmail");
       sessionStorage.setItem("userToken","");
-      sessionStorage.setItem("userType", 0);
+      sessionStorage.setItem("userType", null);
       state.currentUser = null;
       state.isLogin = false;
       state.token = "";

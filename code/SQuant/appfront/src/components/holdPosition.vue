@@ -272,7 +272,6 @@
 </style>
 
 <script>
-import axios from 'axios'
 import '../global.js'
 // import Toast from 'toast/Toast.vue'
 import squantheader from '@/components/header'
@@ -380,7 +379,8 @@ export default {
     mounted() {
         console.log(window.baseUrl);
         // 持仓信息
-        axios.get(window.baseUrl + "market/queryPosition")
+        this.$axios.defaults.withCredentials=true
+        this.$axios.get(window.baseUrl + "market/queryPosition")
             .then(response => {
                 console.log("持仓信息");
                 console.log(response);
@@ -396,7 +396,8 @@ export default {
                 console.log(error);
             });
         // 委托信息
-        axios.get(window.baseUrl + "market/queryOrder")
+        this.$axios.defaults.withCredentials=true
+        this.$axios.get(window.baseUrl + "market/queryOrder")
             .then(response => {
                 console.log("委托信息");
                 console.log(response);
@@ -415,7 +416,8 @@ export default {
                 console.log(error);
             });
         // 成交信息
-        axios.get(window.baseUrl + "market/queryTrade")
+        this.$axios.defaults.withCredentials=true
+        this.$axios.get(window.baseUrl + "market/queryTrade")
             .then(response => {
                 console.log("成交信息");
                 console.log(response);

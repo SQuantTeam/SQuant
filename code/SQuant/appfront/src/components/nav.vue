@@ -15,7 +15,7 @@
                     <el-menu-item index="1">SQuant</el-menu-item>
                     <el-menu-item index="2">我的策略</el-menu-item>
                     <el-menu-item index="3"><a href="#/signup">注册</a></el-menu-item>
-                    <el-menu-item index="4"><a href="https://www.baidu.com">登录</a></el-menu-item>
+                    <el-menu-item index="4"><a href="#/signin">登录</a></el-menu-item>
                 </el-menu>
             </el-col>
         </el-row>

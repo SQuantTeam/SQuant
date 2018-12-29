@@ -277,7 +277,6 @@ h4 {
 </style>
 
 <script>
-import axios from 'axios'
 import echarts from 'echarts'
 import squantheader from '@/components/header'
 export default {
@@ -360,7 +359,8 @@ export default {
           }
         };
         var self = this;
-        axios.post("http://127.0.0.1:8000/squant/market/cancelPortfolioOrder", order_json, config).then(function(response) {
+        this.$axios.defaults.withCredentials=true
+        this.$axios.post("http://127.0.0.1:8000/squant/market/cancelPortfolioOrder", order_json, config).then(function(response) {
           self.$message({
               message: '一键撤单成功！',
               type: 'success'
@@ -374,9 +374,10 @@ export default {
         var date = this.get_date(false);
         var trade_data = [];
         var x_data = [];
+        this.$axios.defaults.withCredentials=true
         if (type == "1M") {
           console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/1M')
-          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/1M", {
+          this.$axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/1M", {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
@@ -392,7 +393,7 @@ export default {
             });
         }else if (type == "5M") {
           console.log("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+'/5M')
-          axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/5M", {
+          this.$axios.get("http://127.0.0.1:8000/squant/market/bar/"+this.stock_details.code+"/"+date+"/5M", {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
@@ -409,7 +410,7 @@ export default {
         } else {
           var last_20_date = this.get_date(true);
           console.log("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date);
-          axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date, {
+          this.$axios.get("http://127.0.0.1:8000/squant/market/daily/"+this.stock_details.code+"/"+last_20_date+"/"+date, {
             }).then(function (response) {
               var fake_data = JSON.parse(response.data.result)
               for (var index in fake_data) {
@@ -3428,7 +3429,8 @@ export default {
         var self = this;
         console.log("http://127.0.0.1:8000/squant/market/placeOrder");
         console.log(order_json);
-        axios.post("http://127.0.0.1:8000/squant/market/placeOrder", order_json, config).then(function(response) {
+        this.$axios.defaults.withCredentials=true
+        this.$axios.post("http://127.0.0.1:8000/squant/market/placeOrder", order_json, config).then(function(response) {
           if (response.data.error_num == 0) {
             self.$message({
               message: '委托成功',
@@ -3443,7 +3445,8 @@ export default {
       },
       add_stock_list_data(symbol) {
         var self = this;
-        axios.get("http://127.0.0.1:8000/squant/market/quote/"+symbol, {
+        this.$axios.defaults.withCredentials=true
+        this.$axios.get("http://127.0.0.1:8000/squant/market/quote/"+symbol, {
           }).then(function (response) {
             var details = JSON.parse('['+response.data.result+']');
             var stock_index = self.stock_list_data_symbol.indexOf(symbol);
@@ -3519,7 +3522,8 @@ export default {
           }
       };
       var self = this;
-      axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
+      this.$axios.defaults.withCredentials=true
+      this.$axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
           console.log(response);
           var c_list = JSON.parse(response.data.contractNameList);
           for (var index in c_list) {
