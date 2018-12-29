@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # encoding: utf-8
 """
 Classes defined in backtest module are responsible to run backtests.

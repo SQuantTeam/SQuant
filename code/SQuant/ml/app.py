@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # 导入基础模块
 import os
 import sys

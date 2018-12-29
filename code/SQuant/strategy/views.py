@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
@@ -14,13 +15,14 @@ from trader.straTrading.alphaStraGenerator import AlphaStraGenerator
 
 from models import Algorithem, Strategy
 from market.models import User
-
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
-
+@csrf_exempt
 @require_http_methods(["POST"])
 def do_backtest(request):
     response = {}
     try:
+        print("strategy->do_backtest:", request.session.get('email'))
         # get data from POST request
         user_data = json.loads(request.body)
         start_date = user_data['start_date']
