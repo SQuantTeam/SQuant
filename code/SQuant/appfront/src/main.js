@@ -9,7 +9,6 @@ import ElementUI from 'element-ui'
 import VueResource from 'vue-resource'
 import 'element-ui/lib/theme-chalk/index.css'
 import './permission'
-import axios from 'axios'
 
 Vue.config.productionTip = false
 axios.defaults.withCredentials = true

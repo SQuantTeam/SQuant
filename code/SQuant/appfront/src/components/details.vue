@@ -3512,29 +3512,26 @@ export default {
     },
     mounted() {
       this.stock_basic_info = this.load_stock_basic_info();
-      var user_info = {
-        "phone" : "15827606670",
-        "token" : "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
-      };
-      let config = {
-          headers: {
-              'Content-Type': 'multipart/form-data'
-          }
-      };
       var self = this;
       this.$axios.defaults.withCredentials=true
-      this.$axios.post("http://127.0.0.1:8000/squant/market/connect", user_info, config).then(function(response) {
-          console.log(response);
-          var c_list = JSON.parse(response.data.contractNameList);
-          for (var index in c_list) {
-            var c = c_list[index];
-            if (self.stock_list_data_symbol.indexOf(c.symbol) > -1) {
-              continue
-            } else{
-              self.stock_list_data_symbol.push(c.symbol);
+      this.$axios.get("http://127.0.0.1:8000/squant/market/queryPosition").then(function(response) {
+          if (response.data.error_num == 0) {
+            console.log(response)
+            var c_list = JSON.parse(response.data.result);
+            for (var index in c_list) {
+              var c = c_list[index];
+              if (self.stock_list_data_symbol.indexOf(c.symbol) > -1) {
+                continue
+              } else{
+                self.stock_list_data_symbol.push(c.symbol);
+              }
             }
+            self.refresh_all();
+          } else {
+            console.log(response);
           }
-          self.refresh_all();
+      }).catch(function (error) {
+        console.log(error);
       });
       // this.setInterval(this.refresh_all, 100);
     }
