@@ -89,6 +89,9 @@ def connect(request):
 @require_http_methods(["GET"])
 def quote(request, symbol):
     '''查询实时行情'''
+    print("cookie:", request.COOKIES)
+    print("session.keys:", request.session.keys())
+    print("session.values:", request.session.values())
     response = {}
     setting = {}
     try:
