@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -26,8 +25,7 @@ SECRET_KEY = 'qixa)p9w$hf^g8q=9dgc3wul1ix57^nwclw55s=#0p5)o0-g*r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
-
+ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 
@@ -38,8 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'market',
     'strategy',
+    # 'reinforce',
 ]
 
 MIDDLEWARE = [
@@ -47,13 +47,11 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'squant.urls'
 
@@ -76,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'squant.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -89,7 +86,6 @@ DATABASES = {
         'HOST': '120.79.242.68',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -109,7 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -123,7 +118,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -134,6 +128,58 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "appfront/dist/static"),
     os.path.join(BASE_DIR, "output").replace('\\', '/'),
 ]
-
+# 跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    '*',
+    'localhost:8080',
+    'localhost:8000',
+    '127.0.0.1:8080',
+    '127.0.0.1:8000',
+)
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+)
+# you are accessing the site non-securely.
+CSRF_COOKIE_SECURE = True
+# crf cookie not set handle
 # Set session serializer
-# SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 引擎（默认）
+
+# SESSION_COOKIE_NAME ＝ "sessionid"  # Session的cookie保存在浏览器上时的key，即：sessionid＝随机字符串（默认）
+# SESSION_COOKIE_PATH ＝ "/"  # Session的cookie保存的路径（默认）
+
+SESSION_COOKIE_DOMAIN = None  # Session的cookie保存的域名（默认）
+
+SESSION_COOKIE_SECURE = False  # 是否Https传输cookie（默认）
+
+SESSION_COOKIE_HTTPONLY = False  # 是否Session的cookie只支持http传输（默认）
+
+SESSION_COOKIE_AGE = 1209600  # Session的cookie失效日期（2周）（默认）
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使得Session过期（默认）
+
+SESSION_SAVE_EVERY_REQUEST = True# 是否每次请求都保存Session，默认修改之后才保存（默认）
+# 上线时需设置为False
+DEBUG = True

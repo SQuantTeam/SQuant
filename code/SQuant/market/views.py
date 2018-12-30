@@ -10,22 +10,26 @@ from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
 from trader.gateway.tradeGateway import TradeGateway
 from trader.sqConstant import *
 from trader.sqGateway import *
+from django.views.decorators.csrf import csrf_exempt
 
 setting = {}
 setting['mdAddress'] = MdAddress
 setting['tdAddress'] = TdAddress
 setting['username'] = DefaultPhone
 setting['token'] = DefaultToken
+
+
 # tradeGateway = TradeGateway(setting, gatewayName="SQuant")
 
 # Create your views here.
+@csrf_exempt
 @require_http_methods(["POST"])
 def connect(request):
     '''连接数据源和第三方交易平台'''
     response = {}
     setting = {}
     try:
-        #get data from POST request
+        # get data from POST request
         userData = json.loads(request.body)
         # phone = '15827606670'
         # token = 'eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkI' \
@@ -81,12 +85,18 @@ def connect(request):
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def quote(request, symbol):
     '''查询实时行情'''
+    print("cookie:", request.COOKIES)
+    print("session.keys:", request.session.keys())
+    print("session.values:", request.session.values())
     response = {}
     setting = {}
     try:
+        email = request.session.get('email', None)
+        print("market->quote:", email)
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
@@ -113,13 +123,14 @@ def quote(request, symbol):
             response['error_num'] = 0
         # 释放资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def bar(request, symbol, trade_date, freq):
     '''查询分钟线数据，默认频率为5分钟一次'''
@@ -158,13 +169,14 @@ def bar(request, symbol, trade_date, freq):
             response['error_num'] = 0
         # 释放资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def daily(request, symbol, start_date, end_date):
     '''查询日线数据，默认频率为一天一次'''
@@ -201,19 +213,21 @@ def daily(request, symbol, start_date, end_date):
             response['error_num'] = 0
         # 释放资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def placeOrder(request):
     '''单标的下单操作'''
     response = {}
     setting = {}
     try:
-        #get data from POST request
+        # get data from POST request
         userData = json.loads(request.body)
 
         # 获取用户下单信息
@@ -268,6 +282,7 @@ def placeOrder(request):
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def cancelPortfolioOrder(request):
     '''一键撤单'''
@@ -311,6 +326,8 @@ def cancelPortfolioOrder(request):
 
     return JsonResponse(response)
 
+
+@csrf_exempt
 @require_http_methods(["GET"])
 def queryPosition(request):
     '''查询持仓信息'''
@@ -348,8 +365,8 @@ def queryPosition(request):
                 break
         fetchTime = datetime.datetime.now()
 
-        print ("con: ", (connectTime-startTime).seconds)
-        print ("fet: ", (fetchTime-connectTime).microseconds)
+        print ("con: ", (connectTime - startTime).seconds)
+        print ("fet: ", (fetchTime - connectTime).microseconds)
 
         result = json.dumps(positionList, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['result'] = result
@@ -357,13 +374,14 @@ def queryPosition(request):
         response['error_num'] = 0
         # 释放连接资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def queryOrder(request):
     '''查询交易订单'''
@@ -404,13 +422,14 @@ def queryOrder(request):
         response['error_num'] = 0
         # 释放连接资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def queryTrade(request):
     '''查询成交信息'''
@@ -443,12 +462,14 @@ def queryTrade(request):
         response['error_num'] = 0
         # 释放连接资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 
     return JsonResponse(response)
 
+
+@csrf_exempt
 @require_http_methods(["GET"])
 def queryTotal(request):
     '''查询所有订单相关信息'''
@@ -492,7 +513,7 @@ def queryTotal(request):
         response['error_num'] = 0
         # 释放连接资源
         tradeGateway.close()
-    except  Exception,e:
+    except  Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 2
 

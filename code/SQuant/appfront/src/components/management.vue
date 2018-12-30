@@ -72,7 +72,6 @@
 </style>
 
 <script>
-import axios from 'axios'
 import '../global.js'
 import squantheader from '@/components/header'
 export default {
@@ -87,7 +86,8 @@ export default {
     methods: {
         load_all_user(){
             var self = this;
-            axios.get("http://127.0.0.1:8000/squant/user/all", {
+            this.$axios.defaults.withCredentials=true
+            this.$axios.get("http://localhost:8000/squant/user/all", {
             }).then(function (response) {
                 var user_data = response.data.list;
                 console.log(user_data)
@@ -126,7 +126,8 @@ export default {
                 "user_type": u_type
             };
             console.log(user_json);
-            axios.put("http://127.0.0.1:8000/squant/user/update", user_json, config).then(function(response) {
+            this.$axios.defaults.withCredentials=true
+            this.$axios.put("http://localhost:8000/squant/user/update", user_json, config).then(function(response) {
                 if (response.data.error_num == 0) {
                     self.$message({
                         message: '重置密码成功',
@@ -140,7 +141,8 @@ export default {
         delete_usr(index, rows){
             var self = this;
             console.log(rows[index].user_email)
-            axios.delete("http://127.0.0.1:8000/squant/user/delete/"+rows[index].user_email).then(function(response) {
+            this.$axios.defaults.withCredentials=true
+            this.$axios.delete("http://localhost:8000/squant/user/delete/"+rows[index].user_email).then(function(response) {
                 if (response.data.error_num == 0) {
                     self.$message({
                         message: '删除用户成功',

@@ -64,7 +64,6 @@
 </style>
 
 <script>
-import axios from 'axios'
 import '../global.js'
 import squantheader from '@/components/header'
 export default {

@@ -88,7 +88,6 @@ body {
 </style>
 
 <script>
-import axios from 'axios'
 export default {
     data() {
         return {
@@ -104,6 +103,7 @@ export default {
         signout() {
             sessionStorage.setItem('userEmail', "NNNNOOOOEmail")
             sessionStorage.setItem('userToken', null)
+            sessionStorage.setItem('userType', null)
             this.$store.dispatch('setUser', null)
             window.location.href = '/#/'
         },
@@ -119,7 +119,8 @@ export default {
                     'Content-Type': 'multipart/form-data'
                 }
             }
-            axios.post("http://127.0.0.1:8000/squant/market/connect", this.connect_details, config).then(function(response) {
+            this.$axios.defaults.withCredentials=true
+            this.$axios.post("http://localhost:8000/squant/market/connect", this.connect_details, config).then(function(response) {
                 console.log(response.data.error_num)
                 if(response.data.error_num == 0) {
                     self.$message({

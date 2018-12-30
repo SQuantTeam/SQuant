@@ -48,7 +48,7 @@ class AlgoTemplate(object):
         if not self.active:
             return
 
-        self.onTick(tick)
+        return self.tradeGateway.qryQuote(tick.symbol)
 
     # ----------------------------------------------------------------------
     def updateTrade(self, trade):
@@ -79,45 +79,14 @@ class AlgoTemplate(object):
         if not self.active:
             return
 
-        self.onTimer()
+        # Todo
 
-    # ----------------------------------------------------------------------
+    # ------------------
+    # ----------------------------------------------------
     def stop(self):
         """"""
         self.active = False
         self.cancelAll()
-
-        self.onStop()
-
-    # ----------------------------------------------------------------------
-    def onTick(self, tick):
-        """"""
-        pass
-
-    # ----------------------------------------------------------------------
-    def onTrade(self, trade):
-        """"""
-        pass
-
-    # ----------------------------------------------------------------------
-    def onOrder(self, order):
-        """"""
-        pass
-
-    # ----------------------------------------------------------------------
-    def onTimer(self):
-        """"""
-        pass
-
-    # ----------------------------------------------------------------------
-    def onStop(self):
-        """"""
-        pass
-
-    # ----------------------------------------------------------------------
-    def subscribe(self, symbol):
-        """"""
-        pass
 
     # ----------------------------------------------------------------------
     def buy(self, symbol, price, volume, priceType=None, offset=None):
