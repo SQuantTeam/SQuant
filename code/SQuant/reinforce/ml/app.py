@@ -464,7 +464,7 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
     ax1 = fig.add_subplot(212)
     plot_fortune = [(i / 100000 - 1.0) * 100 for i in fortune]
     print("plot_fortuen.len:", plot_fortune.__len__())
-    f_type1 = ax1.plot(np.arange(len(fortune)), plot_fortune, color='red', linewidth=1.0, label=symbol)
+    # f_type1 = ax1.plot(np.arange(len(fortune)), plot_fortune, color='red', linewidth=1.0, label=symbol)
     date_list1 = []
     for d in dt[5:]:
         date_list1.append(d)
@@ -489,14 +489,13 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
 
     print("hs300 length:", (hs300_profit_ratio.__len__()))
     print("hs300_profit_ratio.len:", hs300_profit_ratio.__len__())
-    f_type2 = ax1.plot(np.arange(len(date_list1)), hs300_profit_ratio, color='black', linewidth=1.0,
-                       linestyle='--', label="hs300")
+    # f_type2 = ax1.plot(np.arange(len(date_list1)), hs300_profit_ratio, color='black', linewidth=1.0,
+    #                    linestyle='--', label="hs300")
 
     # ax1.legend(handles=[f_type1, f_type2], labels=['a', 'b', ], loc='best',fontsize="small")
     # 收益率为0的基准线
 
     # plt.show()
-
 
     # ---------
     df_result = pd.DataFrame([])
@@ -505,6 +504,7 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
     df_result['target_price'] = close_price
     df_result['hs300_profit_ratio'] = hs300_profit_ratio
     df_result['profit_ratio'] = plot_fortune
+    print(df_result.iloc[1])
     return df_result
 
 
@@ -520,14 +520,16 @@ def init():
     # 将数据在图像上画出
     plt_data(test, act, fortune, cash, date_test, symbol)
 
-def getBackTestData(symbol='600519.SH',epochs=1,n_samples=1000,isTrain=False):
+
+def getBackTestData(symbol='600519.SH', epochs=1, n_samples=1000, isTrain=False):
     # 获取对应公司的数据
     split_ratio = 0.8
     epochs = 1
     # 获取模型在股价上的数据
     test, act, fortune, cash, date_test = test_model(symbol, split_ratio, epochs, n_samples, isTrain)
     # 将数据在图像上画出
-    result=getPlotData(test, act, fortune, cash, date_test, symbol)
+    result = getPlotData(test, act, fortune, cash, date_test, symbol)
+    print("getBackTestData->result.shape:", result.shape)
     return result
 
 

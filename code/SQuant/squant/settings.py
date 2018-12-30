@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'market',
     'strategy',
-    # 'reinforce',
+    'reinforce',
 ]
 
 MIDDLEWARE = [
