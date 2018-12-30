@@ -1,18 +1,16 @@
 # -*- coding: UTF-8 -*-
 # 导入基础模块
 import os
-import sys
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 # %matplotlib inline
 
 # 导入 pyqt5 相关模块
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QPushButton, QLabel, QInputDialog, QLineEdit, \
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QPushButton, QLabel, QInputDialog, QLineEdit, \
     QGridLayout, QSizePolicy
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -20,7 +18,6 @@ from matplotlib.figure import Figure
 import GetData
 import DataPreprocess
 import StockEnvironment
-import DQN
 import Runner
 
 global _symbol
@@ -522,6 +519,16 @@ def init():
     test, act, fortune, cash, date_test = test_model(symbol, split_ratio, epochs, n_samples, isTrain)
     # 将数据在图像上画出
     plt_data(test, act, fortune, cash, date_test, symbol)
+
+def getBackTestData(symbol='600519.SH',epochs=1,n_samples=1000,isTrain=False):
+    # 获取对应公司的数据
+    split_ratio = 0.8
+    epochs = 1
+    # 获取模型在股价上的数据
+    test, act, fortune, cash, date_test = test_model(symbol, split_ratio, epochs, n_samples, isTrain)
+    # 将数据在图像上画出
+    result=getPlotData(test, act, fortune, cash, date_test, symbol)
+    return result
 
 
 if __name__ == '__main__':
