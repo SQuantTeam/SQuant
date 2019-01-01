@@ -68,7 +68,8 @@ def get_data(symbol, n_samples=500, save_to_csv=False):
                 print(e)
                 return None
 
-def get_stock(ts_code="000001.SZ", start_date='20180101',
+
+def get_stock(ts_code="000001.SZ", start_date='20100101',
               end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d')):
     df = pd.DataFrame([])
     df = ts.pro_bar(pro_api=ts.pro_api(), ts_code=ts_code, adj='qfq', start_date=start_date, end_date=end_date)
@@ -84,11 +85,15 @@ def get_stock(ts_code="000001.SZ", start_date='20180101',
     return df
 
 
-def get_A_data(ts_code="000001.SZ", n_samples=500):
-    yesterday = (datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d')
-    df = get_stock(ts_code=ts_code, start_date="20100101", end_date=yesterday)
+def get_A_data(ts_code="000001.SZ", end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
+               n_samples=1000):
+    print("end_date:", end_date)
+    # yesterday = (datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d')
+    df = get_stock(ts_code=ts_code, start_date="20090101", end_date=end_date)
+    print("get_A_data df.iloc[-1]:", df.iloc[-1])
     df_n = df[-n_samples:]
     print("get_A_data shape:", df_n.shape)
+    print("get_A_data df_n.iloc[-1]:", df_n.iloc[-1])
     return df_n
 
     # df = ts.pro_bar(pro_api=ts.pro_api(), ts_code='399300.SZ', adj='qfq', start_date='20180101', end_date='20181225')

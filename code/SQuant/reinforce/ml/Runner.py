@@ -40,7 +40,7 @@ class Runner:
         # runner运行结束后，需要返回最终训练出的模型的名字，以便测试
         self.model_name = ''
 
-    def trainer(self, symbol, env, epochs):
+    def trainer(self, symbol, env, epochs,order_size):
         # 获取环境
         self.env = env
         # 初始化dqn_agent
@@ -53,7 +53,7 @@ class Runner:
         # 开始执行epochs轮次的训练
         for epoch in range(self.epochs):
             # 初始化训练环境
-            self.env.reset()
+            self.env.reset(order_size)
             # 获取当前状态
             cur_state = self.env.states
             # 初始化资本总值记录
@@ -122,7 +122,7 @@ class Runner:
         # 完成所有轮次训练后，返回训练后的模型名称       
         return self.model_name
 
-    def tester(self, env, model_name):
+    def tester(self, env, model_name,order_size):
         # 根据测试数据，初始化环境
         self.env = env
         # 初始化每轮次的训练步数
@@ -133,7 +133,7 @@ class Runner:
         self.test_model = load_model(self.model_name)
 
         # 初始化测试环境
-        self.env.reset()
+        self.env.reset(order_size)
         # 获取当前状态
         cur_state = self.env.states
         # 初始化资本总值记录

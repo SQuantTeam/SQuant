@@ -106,8 +106,10 @@ def data_A_preprocess(data, split_ratio):
     date_train = date_series[:n_train]
     # 测试数据集
     test = _data[-n_test:]
+    print("train 1:",train[1])
     print("test 1:", test[1])
     date_test = date_series[-n_test:]
+    print("date_train 1",date_train.iloc[1])
     print("date_test 1:", date_test.iloc[1])
     return train, test, date_train, date_test
 

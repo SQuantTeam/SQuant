@@ -12,7 +12,7 @@ from ml import app
 
 
 @require_http_methods(["GET"])
-def getBackTestData(request, symbol):
+def getBackTestData(request, symbol, end_date, prefer):
     response = {}
     try:
         print("stockId:", symbol)
@@ -20,11 +20,13 @@ def getBackTestData(request, symbol):
         # user = User.objects.get(email=email)
         # print(user.toJSON())
         # response['list'] = json.loads(serializers.serialize("json", users))
-        data_df = app.getBackTestData(symbol)
+        format_date = end_date.replace("-","")
+        ("format_date:", format_date)
+        data_df = app.getBackTestData(symbol, int(prefer) * 10, format_date)
         print("getBackTestData data_df.head[1]:", data_df.iloc[1])
         return_load = json.loads(data_df.to_json(orient='index'))
         return_data = json.dumps(return_load)
-        print(return_load)
+        # print(return_load)
         response['list'] = return_load
         response['error_num'] = 0
         response['msg'] = 'success'

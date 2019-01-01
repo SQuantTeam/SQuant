@@ -13,12 +13,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import datetime
 
 # 导入自己写的项目模块文件
 import GetData
 import DataPreprocess
 import StockEnvironment
 import Runner
+
 
 global _symbol
 global _split_ratio
@@ -181,9 +183,10 @@ class MyThread(QThread):
         # 数据预处理 根据用户输入的split_ratio 返回划分好的训练集和测试集
         train, test = DataPreprocess.data_preprocess(data, _split_ratio)
 
+        order_size = 100
         # 生成训练环境和测试环境
-        env_train = StockEnvironment.StockEnv(train)
-        env_test = StockEnvironment.StockEnv(test)
+        env_train = StockEnvironment.StockEnv(train, order_size)
+        env_test = StockEnvironment.StockEnv(test, order_size)
 
         # 初始化runner
         runner = Runner.Runner()
@@ -198,7 +201,7 @@ class MyThread(QThread):
         print('Model Name: {}'.format(trained_model))
 
         # 用训练后的trained_Q对test数据进行分析，给出预测出的最终交易行为；显示测试情况图
-        fortune, act, reward, cash = runner.tester(env_test, trained_model)
+        fortune, act, reward, cash = runner.tester(env_test, trained_model,order_size)
         d = test
         a = act
         f = fortune
@@ -273,19 +276,22 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
 
-def test_model(symbol="AAPL", split_ratio=0.8, epochs=1, n_samples=500, isTrain=False):
+def test_model(symbol="AAPL", order_size=10, split_ratio=0.8, epochs=1,
+    end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
+               n_samples=500, isTrain=False):
     _symbol = symbol
     _split_ratio = split_ratio
     _epochs = epochs
-    data = GetData.get_A_data(ts_code=_symbol, n_samples=n_samples)
+    data = GetData.get_A_data(ts_code=_symbol,end_date=end_date,n_samples=n_samples)
     print(data.columns.values)
     # 数据预处理 根据用户输入的split_ratio 返回划分好的训练集和测试集
     # train, test, date_train, date_test = DataPreprocess.data_preprocess(data, _split_ratio)
     train, test, date_train, date_test = DataPreprocess.data_A_preprocess(data, _split_ratio)
 
     # 生成训练环境和测试环境
-    env_test = StockEnvironment.StockEnv(test)
-    env_train = StockEnvironment.StockEnv(train)
+    print
+    env_test = StockEnvironment.StockEnv(test, order_size)
+    env_train = StockEnvironment.StockEnv(train, order_size)
 
     # 初始化runner
     runner = Runner.Runner()
@@ -302,13 +308,13 @@ def test_model(symbol="AAPL", split_ratio=0.8, epochs=1, n_samples=500, isTrain=
                     trained_model = dir_name
         if trained_model == None:
             print("No model for predict,now train a model")
-            trained_model = runner.trainer(_symbol, env_train, _epochs)
+            trained_model = runner.trainer(_symbol, env_train, _epochs,order_size)
     else:
         # 训练dqn网络，返回训练完毕的模型，以及训练最终结果; 显示训练情况图
         trained_model = runner.trainer(_symbol, env_train, _epochs)
     print('Model Name: {}'.format(trained_model))
     # 用训练后的trained_Q对test数据进行分析，给出预测出的最终交易行为；显示测试情况图
-    fortune, act, reward, cash = runner.tester(env_test, trained_model)
+    fortune, act, reward, cash = runner.tester(env_test, trained_model,order_size)
     print("profitRatio:{},fortune:{},act:{},reward:{},cash:{}".format(fortune[-1] / 100000.0, fortune[-1], act[-1],
                                                                       reward[-1], cash[-1]))
     print("fortune len:", len(fortune))
@@ -483,7 +489,7 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
 
     # 将基准沪深300收益率作为比较基准
     print("date_list:", date_list1[0], date_list1[-1])
-    hs300_data = GetData.get_stock(ts_code="399300.SZ", start_date=date_list1[0], end_date=date_list1[-1])
+    hs300_data = GetData.get_A_data(ts_code="399300.SZ", end_date=date_list1[-1],n_samples=len(date_list1))
     print("hs300_data.shape:", hs300_data.shape)
     hs300_profit_ratio = compute_profit_ratio(hs300_data['close'].values)
 
@@ -510,23 +516,27 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
 
 def init():
     # 获取对应公司的数据
-    symbol = "600519.SH"
+    symbol = "000002.SZ"
     split_ratio = 0.8
     epochs = 1
     n_samples = 1000
     isTrain = False
+    end_date = (datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d')
+    order_size=10
     # 获取模型在股价上的数据
-    test, act, fortune, cash, date_test = test_model(symbol, split_ratio, epochs, n_samples, isTrain)
+    test, act, fortune, cash, date_test = test_model(symbol,order_size, split_ratio, epochs, end_date,n_samples, isTrain)
     # 将数据在图像上画出
     plt_data(test, act, fortune, cash, date_test, symbol)
 
 
-def getBackTestData(symbol='600519.SH', epochs=1, n_samples=1000, isTrain=False):
+def getBackTestData(symbol='000002.SZ',order_size=10,
+                    end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
+                    epochs=1, n_samples=1000, isTrain=False):
     # 获取对应公司的数据
     split_ratio = 0.8
     epochs = 1
     # 获取模型在股价上的数据
-    test, act, fortune, cash, date_test = test_model(symbol, split_ratio, epochs, n_samples, isTrain)
+    test, act, fortune, cash, date_test = test_model(symbol,order_size, split_ratio, epochs,end_date, n_samples, isTrain)
     # 将数据在图像上画出
     result = getPlotData(test, act, fortune, cash, date_test, symbol)
     print("getBackTestData->result.shape:", result.shape)

@@ -11,17 +11,17 @@ import tensorforce
 # 状态的步长
 N_TIMESTEPS = 5
 # 每次下单交易的股数
-ORDER_SIZE = 10
+# ORDER_SIZE = 100
 
 
-class StockEnv(Environment):
-    def __init__(self, data):
+class StockEnv (Environment):
+    def __init__(self, data,order_size):
 
         # 获取股价数据，包括过去20天的历史数据和当天(第21天)的开盘价
         self.xdata = data
 
         # 初始化环境
-        self.reset()
+        self.reset(order_size)
 
     def __str__(self):
         return 'StockEnvironment'
@@ -42,7 +42,7 @@ class StockEnv(Environment):
         """
         return None
 
-    def reset(self):
+    def reset(self,order_size):
         """
         Reset environment and setup for new episode.
         Returns:
@@ -55,7 +55,7 @@ class StockEnv(Environment):
         # 状态步长初始化
         self.n_timesteps = N_TIMESTEPS
         # 单笔交易股数初始化
-        self.order_size = ORDER_SIZE
+        self.order_size = order_size
         # 动作个数初始化
         self.n_actions = len(self.actions)
         # 奖励初始化
