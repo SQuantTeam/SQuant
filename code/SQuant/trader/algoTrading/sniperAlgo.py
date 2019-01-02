@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-# encoding: UTF-8
 
 from __future__ import division
 from collections import OrderedDict
@@ -19,11 +18,11 @@ class SniperAlgo(AlgoTemplate):
     templateName = u'Sniper 狙击手'
 
     # ----------------------------------------------------------------------
-    def __init__(self, tradeGateway, setting, algoName):
+    def __init__(self, tradeGateway, setting, email, algoName):
         """Constructor"""
-        super(SniperAlgo, self).__init__(tradeGateway, setting, algoName)
+        super(SniperAlgo, self).__init__(tradeGateway, setting, email, algoName)
 
-        # 参数，强制类型转换，保证从CSV加载的配置正确
+        # 参数，强制类型转换，保证加载的配置正确
         self.symbol = str(setting['symbol'])  # 合约代码
         self.direction = text_type(setting['direction'])  # 买卖
         self.price = float(setting['price'])  # 价格
@@ -47,24 +46,25 @@ class SniperAlgo(AlgoTemplate):
              tick.askPrice1 <= self.price):
             orderVolume = self.volume - self.tradedVolume
             orderVolume = min(orderVolume, tick.askVolume1)
-            self.vtOrderID = self.buy(self.symbol, self.price,
-                                      orderVolume, offset=self.offset)
+            self.vtOrderID, msg = self.buy(self.symbol, self.price,
+                                      orderVolume, direction= self.direction, offset=self.offset)
 
         # 做空
         elif (self.direction == DIRECTION_SHORT and
                tick.bidPrice1 >= self.price):
             orderVolume = self.volume - self.tradedVolume
             orderVolume = min(orderVolume, tick.bidVolume1)
-            self.vtOrderID = self.sell(self.symbol, self.price,
+            self.vtOrderID, msg = self.sell(self.symbol, self.price,
                                        orderVolume, offset=self.offset)
 
+        # trade = self.tradeGateway.tdApi.query_trade(self.vtOrderID)
 
 
     # ----------------------------------------------------------------------
     def onTrade(self, trade):
         """"""
         self.tradedVolume += trade.volume
-
+        self.tradedOrderList.append(trade.tradeID)
         if self.tradedVolume >= self.volume:
             self.stop()
 
@@ -85,5 +85,5 @@ class SniperAlgo(AlgoTemplate):
     # ----------------------------------------------------------------------
     def onStop(self):
         """"""
-        pass
+        return
 

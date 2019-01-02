@@ -460,7 +460,7 @@ class SQuantTdApi(object):
 
     # ----------------------------------------------------------------------
     def qryOrder(self):
-        """查询委托"""
+        """查询所有委托"""
         df, msg = self.api.query_order()
         orderList = []
 
@@ -474,8 +474,20 @@ class SQuantTdApi(object):
         return orderList
 
     # ----------------------------------------------------------------------
+    def qrySingleOrder(self, taskid):
+        """查询单个任务的订单"""
+        df, msg = self.api.query_order(task_id=taskid, format='pandas')
+
+        order = SqOrderData()
+
+        for index, data in df.iterrows():
+            order = self.onOrderStatus(data)
+
+        return order
+
+    # ----------------------------------------------------------------------
     def qryTrade(self):
-        """查询成交"""
+        """查询所有成交"""
         df, msg = self.api.query_trade()
         tradeList = []
 
@@ -487,6 +499,16 @@ class SQuantTdApi(object):
             tradeList.append(trade)
 
         return tradeList
+
+    # ----------------------------------------------------------------------
+    def qrySingleTrade(self, taskid):
+        """查询所有成交"""
+        df, msg = self.api.query_trade(task_id=taskid)
+        trade = SqTradeData()
+        for index, data in df.iterrows():
+            trade = self.onTrade(data)
+
+        return trade
 
 
 ########################################################################

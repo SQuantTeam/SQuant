@@ -1,11 +1,12 @@
-# -*- coding: UTF-8 -*-
 # encoding: UTF-8
 
 from __future__ import division
 from datetime import datetime
+import os
 
 from trader.sqGateway import *
 from trader.sqSetting import *
+from squant.settings import BASE_DIR
 
 # 活动委托状态
 STATUS_ACTIVE = [STATUS_NOTTRADED, STATUS_PARTTRADED, STATUS_UNKNOWN]
@@ -21,7 +22,7 @@ class AlgoTemplate(object):
 
     @classmethod
     # ----------------------------------------------------------------------
-    def new(cls, tradeGateway, setting):
+    def new(cls, tradeGateway, setting, email):
         """创建新对象"""
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         if timestamp != cls.timestamp:
@@ -31,16 +32,22 @@ class AlgoTemplate(object):
             cls.count += 1
 
         algoName = '_'.join([cls.templateName, cls.timestamp, str(cls.count)])
-        algo = cls(tradeGateway, setting, algoName)
+        algo = cls(tradeGateway, setting, email, algoName)
         return algo
 
     # ----------------------------------------------------------------------
-    def __init__(self, tradeGateway, setting, algoName):
+    def __init__(self, tradeGateway, setting, email, algoName):
         """Constructor"""
         self.tradeGateway = tradeGateway
         self.active = True
         self.algoName = algoName
         self.activeOrderDict = {}  # orderID:order
+        self.tradedOrderList = []  # orderID list of traded order id
+
+        # Strategy param storage direction
+        self.algorithm_param_dir = os.path.join(BASE_DIR, "output", email).replace('\\', '/')
+        # Strategy param storage path
+        self.algorithm_param_path = os.path.join(BASE_DIR, "output", email, algoName + ".json").replace('\\', '/')
 
     # ----------------------------------------------------------------------
     def updateTick(self, tick):
@@ -48,7 +55,7 @@ class AlgoTemplate(object):
         if not self.active:
             return
 
-        return self.tradeGateway.qryQuote(tick.symbol)
+        self.onTick(tick)
 
     # ----------------------------------------------------------------------
     def updateTrade(self, trade):
@@ -79,17 +86,50 @@ class AlgoTemplate(object):
         if not self.active:
             return
 
-        # Todo
+        self.onTimer()
 
-    # ------------------
-    # ----------------------------------------------------
+    # ----------------------------------------------------------------------
     def stop(self):
         """"""
         self.active = False
         self.cancelAll()
 
+        self.onStop()
+
     # ----------------------------------------------------------------------
-    def buy(self, symbol, price, volume, priceType=None, offset=None):
+    def onTick(self, tick):
+        """"""
+        pass
+
+    # ----------------------------------------------------------------------
+    def onTrade(self, trade):
+        """"""
+        pass
+
+    # ----------------------------------------------------------------------
+    def onOrder(self, order):
+        """"""
+        pass
+
+    # ----------------------------------------------------------------------
+    def onTimer(self):
+        """"""
+        pass
+
+    # ----------------------------------------------------------------------
+    def onStop(self):
+        """"""
+        pass
+
+    # ----------------------------------------------------------------------
+    def subscribe(self, symbol):
+        """
+        Do not subscribe now.
+        """
+        pass
+
+    # ----------------------------------------------------------------------
+    def buy(self, symbol, price, volume, priceType=None, direction=None, offset=None):
         """"""
         orderReq = SqOrderReq()
         orderReq.symbol = symbol
@@ -97,9 +137,9 @@ class AlgoTemplate(object):
         orderReq.exchange = exchange
         orderReq.price = price
         orderReq.volume = volume
-        orderReq.priceType = None
-        orderReq.direction = DIRECTION_LONG
-        orderReq.offset = OFFSET_OPEN
+        orderReq.priceType = PRICETYPE_LIMITPRICE
+        orderReq.direction = direction
+        orderReq.offset = offset
         return self.tradeGateway.sendOrder(orderReq)
 
     # ----------------------------------------------------------------------
@@ -157,9 +197,7 @@ class AlgoTemplate(object):
 
     # ----------------------------------------------------------------------
 
-    def varEvent(self, value, change):
-        """"""
-        pass
+
 
 
 
