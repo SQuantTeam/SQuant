@@ -9,6 +9,8 @@ import squant.settings
 
 urlpatterns = [
     url(r'strategy/doBacktest$', views.do_backtest, ),
+    url(r'strategy/runSniperAlgo$', views.run_sniper_algo, ),
+    url(r'strategy/runTwapAlgo$', views.run_twap_algo, ),
 ]
 
 if settings.DEBUG:
