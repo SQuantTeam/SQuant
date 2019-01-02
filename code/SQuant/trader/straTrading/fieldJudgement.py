@@ -48,17 +48,18 @@ Define which filed to use in dataview by stock selection index and rank index.
 
 
 def fileds_generator(index):
-    if index is "sale_gross_profit_rate":
+    print(index == "asset_liability_ratio")
+    if index == "sale_gross_profit_rate":
         fileds = "open_rev" + "," +  "cost_of_revenue"
-    elif index is "operating_profit_ratio":
+    elif index == "operating_profit_ratio":
         fileds = "oper_profit" + "," + "open_rev"
-    elif index is "net_assets":
+    elif index == "net_assets":
         fileds = "total_assets" + "," + "total_liability"
-    elif index is "asset_liability_ratio":
+    elif index == "asset_liability_ratio":
         fileds = "total_liability" + "," + "total_assets"
-    elif index is "quick_ratio":
+    elif index == "quick_ratio":
         fileds = "tot_cur_assets" + "," + "inventories" + "," + "pre_pay" + "," + "deferred_exp" + "," + "tot_cur_liab"
-    elif index is "current_ratio":
+    elif index == "current_ratio":
         fileds = "tot_cur_assets" + "," + "tot_cur_liab"
     else:
         fileds = index
@@ -95,17 +96,17 @@ def index_fomula_generator(index, lower_bound, upper_bound):
     """
     index_fomula = ""
 
-    if index is "sale_gross_profit_rate":
+    if index == "sale_gross_profit_rate":
         expression = "(" + "open_rev" + "-" + "cost_of_revenue" + ")" + "/" + "open_rev"
-    elif index is "operating_profit_ratio":
+    elif index == "operating_profit_ratio":
         expression = "oper_profit" + "/" + "open_rev"
-    elif index is "net_assets":
+    elif index == "net_assets":
         expression = "(" + "total_assets" + "-" + "total_liability" + ")"
-    elif index is "asset_liability_ratio":
+    elif index == "asset_liability_ratio":
         expression = "total_liability" + "/" + "total_assets"
-    elif index is "quick_ratio":
+    elif index == "quick_ratio":
         expression = "(" + "tot_cur_assets" + "-" + "inventories" + "-" + "pre_pay" + "-" + "deferred_exp" + ")" + "/" + "tot_cur_liab"
-    elif index is "current_ratio":
+    elif index == "current_ratio":
         expression = "tot_cur_assets" + "/" + "tot_cur_liab"
     else:
         expression = index
@@ -127,12 +128,14 @@ if __name__ == "__main__":
     print (index_fomula_generator(index, 20, 30))
 
     index = "operating_profit_ratio"
+    print (fileds_generator(index))
     print (index_fomula_generator(index, 20, 30))
 
     index = "net_assets"
     print (index_fomula_generator(index, 20, 30))
 
     index = "asset_liability_ratio"
+    print (fileds_generator(index))
     print (index_fomula_generator(index, -1, -1))
 
     index = "quick_ratio"

@@ -17,11 +17,13 @@ def run_algo(algo):
     while algo.active:
         round += 1
         print (round)
+        if (round>10):
+            break
         tick = algo.getTick(algo.symbol)
         print (tick.name)
         algo.updateTick(tick)
         algo.updateTimer()
-        if algo.vtOrderID or len(algo.vtOrderID) > 0:
+        if algo.vtOrderID:
             time.sleep(5)
             trade = algo.tradeGateway.tdApi.qrySingleTrade(algo.vtOrderID)
             algo.updateTrade(trade)
@@ -66,5 +68,6 @@ if __name__ == "__main__":
     setting['volume'] = 100
     setting['offset'] = OFFSET_OPEN
 
-    sniper_algo = SniperAlgo(tradeGateway=tradeGateway, setting=setting, email="test@test.com", algoName="sniper_test")
+    sniper_algo = SniperAlgo.new(tradeGateway=tradeGateway, setting=setting, email="test@test.com")
     print (run_algo(sniper_algo))
+    print (sniper_algo.algoName)

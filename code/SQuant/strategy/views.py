@@ -17,7 +17,7 @@ from trader.algoTrading.twapAlgo import TwapAlgo
 from trader.algoTrading.runAlgo import run_algo, stop_algo, save_algo
 from trader.gateway.tradeGateway import TradeGateway
 
-from models import Algorithem, Strategy
+from models import Algorithem, Strategy, FinishedAlgorithem
 from market.models import User
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
@@ -68,19 +68,46 @@ def do_backtest(request):
 
         # get the folder of strategy
         strategy_path = alpha_strategy.strategy_param_path
-        backtest_result = os.path.join("http://127.0.0.1:8000", "squant", "output", email, strategy_name, \
-                                       "report.html").replace("\\", "/")
 
         # save strategy params
         alpha_strategy.save_stra()
-        print ("here")
         # run strategy backtest
         alpha_strategy.run_stra()
         # update database
-        stra = Strategy(user=user, name=strategy_name, file_path=strategy_path)
+        stra = Strategy(user=user, name=strategy_name, file_path=strategy_path,
+                        remote_report_path=alpha_strategy.remote_report_path)
         stra.save()
 
-        response['result'] = backtest_result
+        response['result'] = alpha_strategy.remote_report_path
+        response['err_num'] = 0
+
+    except Exception, e:
+        response['msg'] = str(e)
+        response['err_num'] = 2
+    return JsonResponse(response)
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_all_stra(request):
+    response = {}
+    try:
+        # user indentity
+        email = request.session.get('email', None)
+        if email is None:
+            response['msg'] = "未登录"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+        user = User.objects.get(email=email)
+        if user is None:
+            response['msg'] = "非法用户"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+        strategy = Strategy.objects.filter(user=user)
+
+        # return the list of traded order's id to the font
+        response['result'] = str(json.loads(serializers.serialize("json", strategy)))
         response['err_num'] = 0
 
     except Exception, e:
@@ -150,6 +177,13 @@ def run_sniper_algo(request):
 
         if trade_id_list_str.endswith(","):
             trade_id_list_str = trade_id_list_str[:-1]
+
+        # save every running result of the algorithm to the database
+        finished_algo = FinishedAlgorithem(user=user, name=algo_name, timestamp=sniper_algo.timestamp,
+                                           traded_list=trade_id_list_str)
+        finished_algo.save()
+
+        # return the list of traded order's id to the font
         response['result'] = trade_id_list_str
         response['err_num'] = 0
 
@@ -228,5 +262,69 @@ def run_twap_algo(request):
 
 @csrf_exempt
 @require_http_methods(["GET"])
+def get_finished_algo(request):
+    response = {}
+    try:
+        # user indentity
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+        email = request.session.get('email', None)
+        if phone is None or token is None:
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+        if email is None:
+            response['msg'] = "未登录"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+
+        user = User.objects.get(email=email)
+        if user is None:
+            response['msg'] = "非法用户"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+        finished_algo = FinishedAlgorithem.objects.filter(user=user)
+
+        # return the list of traded order's id to the font
+        response['result'] = str(json.loads(serializers.serialize("json", finished_algo)))
+        response['err_num'] = 0
+
+    except Exception, e:
+        response['msg'] = str(e)
+        response['err_num'] = 2
+    return JsonResponse(response)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
 def get_all_algo(request):
-    set
+    response = {}
+    try:
+        # user indentity
+        email = request.session.get('email', None)
+        if email is None:
+            response['msg'] = "未登录"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+
+        user = User.objects.get(email=email)
+        if user is None:
+            response['msg'] = "非法用户"
+            response['err_num'] = 1
+            return JsonResponse(response)
+
+        algo = Algorithem.objects.filter(user=user)
+
+        # return the list of traded order's id to the font
+        response['result'] = str(json.loads(serializers.serialize("json", algo)))
+        response['err_num'] = 0
+
+    except Exception, e:
+        response['msg'] = str(e)
+        response['err_num'] = 2
+    return JsonResponse(response)

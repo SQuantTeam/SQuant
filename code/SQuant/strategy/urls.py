@@ -11,6 +11,9 @@ urlpatterns = [
     url(r'strategy/doBacktest$', views.do_backtest, ),
     url(r'strategy/runSniperAlgo$', views.run_sniper_algo, ),
     url(r'strategy/runTwapAlgo$', views.run_twap_algo, ),
+    url(r'strategy/getFinishedAlgo$', views.get_finished_algo, ),
+    url(r'strategy/getAllAlgo$', views.get_all_algo, ),
+    url(r'strategy/getAllStra$', views.get_all_stra, ),
 ]
 
 if settings.DEBUG:

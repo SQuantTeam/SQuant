@@ -84,6 +84,45 @@ def connect(request):
 
     return JsonResponse(response)
 
+@csrf_exempt
+@require_http_methods(["GET"])
+def queryAccount(request):
+    '''连接数据源和第三方交易平台'''
+    response = {}
+    setting = {}
+    try:
+        phone = request.session.get('phone', None)
+        token = request.session.get('token', None)
+
+        if phone is None or token is None:
+            # response['msg'] = 'no connection'
+            # response['error_num'] = 1
+            # return JsonResponse(response)
+            phone = DefaultPhone
+            token = DefaultToken
+
+        setting['mdAddress'] = MdAddress
+        setting['tdAddress'] = TdAddress
+        setting['username'] = phone
+        setting['token'] = token
+        tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+
+        if tradeGateway.loginStatus == False:
+            response['msg'] = "failed to connect"
+            response['error_num'] = 1
+            tradeGateway.close()
+            return JsonResponse(response)
+
+        # 获取用户账户信息
+        account = tradeGateway.qryAccount()
+        response['account'] = json.dumps(account, default=lambda obj: obj.__dict__, ensure_ascii=False)
+        response['error_num'] = 0
+        tradeGateway.close()
+    except Exception, e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -96,7 +135,6 @@ def quote(request, symbol):
     setting = {}
     try:
         email = request.session.get('email', None)
-        print("market->quote:", email)
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:

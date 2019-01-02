@@ -48,6 +48,8 @@ class AlgoTemplate(object):
         self.algorithm_param_dir = os.path.join(BASE_DIR, "output", email).replace('\\', '/')
         # Strategy param storage path
         self.algorithm_param_path = os.path.join(BASE_DIR, "output", email, algoName + ".json").replace('\\', '/')
+        # record the creation timestamp of every algorithm object
+        self.timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
     # ----------------------------------------------------------------------
     def updateTick(self, tick):

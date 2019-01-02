@@ -50,6 +50,16 @@ dataview_props_example = {'start_date': 20180101,  # Start and end date of back-
                           'freq': 1  # freq = 1 means we use daily data. Please do not change this.
                           }
 
+market_daily_fields = \
+            {'open', 'high', 'low', 'close', 'volume', 'turnover', 'vwap', 'oi', 'trade_status',
+             'open_adj', 'high_adj', 'low_adj', 'close_adj', 'vwap_adj', 'index_member', 'index_weight'}
+reference_daily_fields = \
+            {"total_mv", "float_mv", "pe", "pb", "pe_ttm", "pcf_ocf", "pcf_ocfttm", "pcf_ncf",
+             "pcf_ncfttm", "ps", "ps_ttm", "turnover_ratio", "free_turnover_ratio", "total_share",
+             "float_share", "price_div_dps", "free_share", "np_parent_comp_ttm",
+             "np_parent_comp_lyr", "net_assets", "ncf_oper_ttm", "ncf_oper_lyr", "oper_rev_ttm",
+             "oper_rev_lyr", "limit_status"}
+
 class AlphaStraGenerator(object):
 
     def __init__(self, start_date, end_date, universe, benchmark, stock_index, rank_index, period, pc_method, amount,\
@@ -85,14 +95,14 @@ class AlphaStraGenerator(object):
         if self.stock_index:
             for index, scope in self.stock_index.iteritems():
                 index_list.append(index)
-                fileds = fileds + fileds_generator(index) + ","
+                fileds = fileds + fileds_generator(str(index)) + ","
 
         if self.rank_index:
             for index, scope in self.rank_index.iteritems():
                 if index in index_list:
                     continue
                 index_list.append(index)
-                fileds = fileds + fileds_generator(index) + ","
+                fileds = fileds + fileds_generator(str(index)) + ","
 
         if fileds.endswith(","):
             fileds = fileds[:-1]
@@ -124,6 +134,10 @@ class AlphaStraGenerator(object):
 
         # Strategy param storage path
         self.strategy_param_path = os.path.join(BASE_DIR, "output", email, strategy_name + ".json").replace('\\', '/')
+
+        # remote path of report
+        self.remote_report_path = os.path.join("http://127.0.0.1:8000", "squant", "output", email, strategy_name, \
+                                       "report.html").replace("\\", "/")
 
     def save_stra(self):
         strategy_param = {}
@@ -158,17 +172,27 @@ class AlphaStraGenerator(object):
         dv.init_from_config(self.dataview_props, ds)
         dv.prepare_data()
 
-        for index, bound in self.stock_index.iteritems():
-            factor_fomular = index_fomula_generator(index, bound[0], bound[1])
-            print(factor_fomular)
-            fomular_name = index + "condition"
-            dv.add_formula(fomular_name, factor_fomular, is_quarterly=False)
+        if self.stock_index:
+            for index, bound in self.stock_index.iteritems():
+                if index in market_daily_fields or index in reference_daily_fields:
+                    is_quarterly = False
+                else:
+                    is_quarterly = True
+                factor_fomular = index_fomula_generator(str(index), bound[0], bound[1])
+                print(factor_fomular)
+                fomular_name = index + "_" + "condition"
+                dv.add_formula(fomular_name, factor_fomular, is_quarterly=is_quarterly)
 
-        for index, weight in self.rank_index.iteritems():
-            factor_fomular = index_fomula_generator(index, -1, -1)
-            print(factor_fomular)
-            fomular_name = index
-            dv.add_formula(fomular_name, factor_fomular, is_quarterly=False)   # todo: is_quarterly judgement
+        if self.rank_index:
+            for index, weight in self.rank_index.iteritems():
+                if index in market_daily_fields or index in reference_daily_fields:
+                    is_quarterly = False
+                else:
+                    is_quarterly = True
+                factor_fomular = index_fomula_generator(str(index), -1, -1)
+                print(factor_fomular)
+                fomular_name = str(index)
+                dv.add_formula(fomular_name, factor_fomular, is_quarterly=is_quarterly)
 
         dv.save_dataview(folder_path=self.dataview_store_folder)
 
@@ -180,7 +204,8 @@ class AlphaStraGenerator(object):
         """
         selector_list = []
         for index, bound in self.stock_index.iteritems():
-            selector_list.append(context.snapshot[index])
+            fomula_name = index + "_" + "condition"
+            selector_list.append(context.snapshot[fomula_name])
 
         merge = selector_list[0]
         for i in range(1, len(selector_list)):
