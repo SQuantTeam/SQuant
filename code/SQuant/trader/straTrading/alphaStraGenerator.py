@@ -82,15 +82,17 @@ class AlphaStraGenerator(object):
 
         fileds = ""
         index_list = []
-        for index, scope in self.stock_index.iteritems():
-            index_list.append(index)
-            fileds = fileds + fileds_generator(index) + ","
+        if self.stock_index:
+            for index, scope in self.stock_index.iteritems():
+                index_list.append(index)
+                fileds = fileds + fileds_generator(index) + ","
 
-        for index, scope in self.rank_index.iteritems():
-            if index in index_list:
-                continue
-            index_list.append(index)
-            fileds = fileds + fileds_generator(index) + ","
+        if self.rank_index:
+            for index, scope in self.rank_index.iteritems():
+                if index in index_list:
+                    continue
+                index_list.append(index)
+                fileds = fileds + fileds_generator(index) + ","
 
         if fileds.endswith(","):
             fileds = fileds[:-1]
