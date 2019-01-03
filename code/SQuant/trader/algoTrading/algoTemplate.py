@@ -145,7 +145,7 @@ class AlgoTemplate(object):
         return self.tradeGateway.sendOrder(orderReq)
 
     # ----------------------------------------------------------------------
-    def sell(self, symbol, price, volume, priceType=None, offset=None):
+    def sell(self, symbol, price, volume, priceType=None, direction=None, offset=None):
         """"""
         orderReq = SqOrderReq()
         orderReq.symbol = symbol
@@ -153,7 +153,7 @@ class AlgoTemplate(object):
         orderReq.exchange = exchange
         orderReq.price = price
         orderReq.volume = volume
-        orderReq.priceType = None
+        orderReq.priceType = PRICETYPE_LIMITPRICE
         orderReq.direction = DIRECTION_SHORT
         orderReq.offset = OFFSET_CLOSE
         return self.tradeGateway.sendOrder(orderReq)

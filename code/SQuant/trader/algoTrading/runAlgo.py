@@ -63,10 +63,10 @@ if __name__ == "__main__":
     tradeGateway = TradeGateway(setting, gatewayName="squant")
 
     setting['symbol'] = "000718.SZ"
-    setting['direction'] = DIRECTION_LONG
-    setting['price'] = 3.20
+    setting['direction'] = DIRECTION_SHORT
+    setting['price'] = 3
     setting['volume'] = 100
-    setting['offset'] = OFFSET_OPEN
+    setting['offset'] = OFFSET_CLOSE
 
     sniper_algo = SniperAlgo.new(tradeGateway=tradeGateway, setting=setting, email="test@test.com")
     print (run_algo(sniper_algo))
