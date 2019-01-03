@@ -138,7 +138,7 @@ def delete_stra(request):
             response['err_num'] = 1
             return JsonResponse(response)
 
-        Strategy.objects.filter(user=user, name=stra_name)
+        Strategy.objects.filter(user=user, name=stra_name).delete()
 
         # return the list of traded order's id to the font
         response['result'] = "删除选股策略: " + stra_name
