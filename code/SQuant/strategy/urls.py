@@ -14,6 +14,9 @@ urlpatterns = [
     url(r'strategy/getFinishedAlgo$', views.get_finished_algo, ),
     url(r'strategy/getAllAlgo$', views.get_all_algo, ),
     url(r'strategy/getAllStra$', views.get_all_stra, ),
+    url(r'strategy/deleteStra$', views.delete_stra, ),
+    url(r'strategy/deleteAlgo$', views.delete_algo, ),
+    url(r'strategy/runExistedAlgo$', views.run_existed_algo, ),
 ]
 
 if settings.DEBUG:
