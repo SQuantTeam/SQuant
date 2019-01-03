@@ -1,11 +1,78 @@
 <template>
     <div>
         <squantheader></squantheader>
-        <el-col :span="23" :offset="1">
+        <el-col :span="24">
             <div class="ant-layout">
                 <div class="ant-layout-content">
                     <div style="padding: 24px; background: rgb(243, 243, 243);">
+                        <!-- 基本信息块 -->
+                        <div class="ant-card ant-card-padding-transition" style="margin-top: 5px; margin-bottom: 5px;">
+                            <div class="ant-card-head">
+                                <div class="ant-card-head-wrapper">
+                                    <div class="ant-card-head-title text-bold ">基本信息</div>
+                                </div>
+                            </div>
+                            <div class="ant-card-body" v-cloak>
+                                <div class="ant-table-wrapper">
+                                    <div class="ant-spin-nested-loading">
+                                        <div class="ant-spin-container">
+                                            <div class="ant-table ant-table-middle ant-table-scroll-position-left">
+                                                <div class="ant-table-content">
+                                                    <div class="ant-table-body">
+                                                        <table class="">
+                                                            <colgroup>
+                                                                <col>
+                                                                <col>
+                                                                <col>
+                                                                <col>
+                                                            </colgroup>
+                                                            <thead class="ant-table-thead">
+                                                                <tr>
+                                                                    <th v-for="item in accountItems" v-bind:key="item.name" class="text-center  text-bold">
+                                                                        <span> {{ item.name }}</span>
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="ant-table-tbody">
+                                                                <tr v-for="item in accountJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.enable_balance}}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.float_pnl}}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.holding_pnl}}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.trading_pnl}}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.frozen_balance}}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span style="font-weight: 700;">{{item.init_balance}}</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <!-- <el-table :data="holdPositionJson" stripe style="width: 100%">
+                                                            <div v-for="item in holdPostionItems" v-bind:key="item.index">
+                                                                <el-table-column class="text-center  text-bold" v-bind:prop="item.prop" v-bind:label="item.name">
+                                                                </el-table-column>
+                                                            </div>
+                                                        </el-table> -->
 
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
                         <!-- 委托信息块 -->
                         <div class="ant-card ant-card-padding-transition" style="margin-top: 5px; margin-bottom: 5px;">
                             <div class="ant-card-head">
@@ -38,7 +105,7 @@
                                                                 <tr v-for="item in holdPositionJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date().toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.symbol}}</span>
@@ -123,7 +190,7 @@
                                                                 <tr v-for="item in sliceOrderData" v-bind:key="item.taskID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date().toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -159,10 +226,7 @@
                                                             </tbody>
                                                         </table>
 
-                                                        <div style="text-align: center;margin-top: 30px;" v-cloak>
-                                                            <el-pagination background layout="prev, pager, next" :total="total" :page-size="pagesize" @current-change="current_change">
-                                                            </el-pagination>
-                                                        </div>
+                                                        
                                                     </div>
                                                 </div>
                                             </div>
@@ -205,7 +269,7 @@
                                                                 <tr v-for="item in transcationData" v-bind:key="item.orderID" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
                                                                         <span class="ant-table-row-indent indent-level-0" style="padding-left: 0px;"></span>
-                                                                        <span style="font-weight: 700;">{{new Date(1542978771577).toLocaleDateString()}}</span>
+                                                                        <span style="font-weight: 700;">{{new Date().toLocaleDateString()}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.orderID}}</span>
@@ -220,7 +284,7 @@
                                                                         <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':(!(item.direction==='long'))}">{{item.direction==='long'?'多':'空'}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.tradeVolume}}</span>
+                                                                        <span style="font-weight: 700;">{{item.volume}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.price}}</span>
@@ -301,6 +365,14 @@ export default {
                     }
                 }]
             },
+            accountItems: [
+                { name: "可用资金", prop: "enable_balance" },
+                { name: "浮动盈亏", prop: "float_pnl" },
+                { name: "持仓盈亏", prop: "holding_pnl" },
+                { name: "交易盈亏", prop: "trading_pnl"},
+                { name: "冻结资金", prop: "frozen_balance" },
+                { name: "初始资金", prop: "init_balance" },
+            ],
             holdPostionItems: [
                 { name: "交易日", prop: "date" },
                 { name: "证券代码", prop: "symbol" },
@@ -317,6 +389,7 @@ export default {
             orderItems: [{ name: "交易日" }, { name: "任务编号" }, { name: "证券代码" }, { name: "证券名称" }, { name: "委托行为" }, { name: "委托价格" }, { name: "委托数量" }, { name: "成交价格" }, { name: "成交数量" }, { name: "下单时间" }, { name: "订单状态" },],
             transctionItems: [{ name: "交易日" }, { name: "任务编号" }, { name: "证券代码" }, { name: "证券名称" }, { name: "交易行为" }, { name: "成交数量" }, { name: "成交价格" }, { name: "成交时间" },],
             holdPositionJson: [],
+            accountJson: [],
             orderData: [],
             total: 10,
             pagesize: 5,
@@ -378,6 +451,26 @@ export default {
     // },
     mounted() {
         console.log(window.baseUrl);
+        // 基本信息
+        var self = this;
+        this.$axios.defaults.withCredentials=true
+        this.$axios.get(window.baseUrl + "market/queryAccount")
+            .then(response => {
+                console.log("基本信息");
+                console.log(response);
+                if (response.data.error_num == 0) {
+                    console.log(response.data.account)
+                    self.accountJson = eval("["+response.data.account+"]");
+                    
+                    console.log(this.accountJson);
+                } else {
+                    alert("获取持仓信息错误：" + response.data.msg);
+                    console.log(response.data.error_num + ":" + response.data.msg);
+                }
+            }).catch(function (error) {
+                // alert(error);
+                console.log(error);
+            });
         // 持仓信息
         this.$axios.defaults.withCredentials=true
         this.$axios.get(window.baseUrl + "market/queryPosition")
@@ -385,8 +478,8 @@ export default {
                 console.log("持仓信息");
                 console.log(response);
                 if (response.data.error_num == 0) {
-                    this.holdPositionJson = eval(response.data.result);
-                    console.log(this.holdPositionJson);
+                    self.holdPositionJson = eval(response.data.result);
+                    console.log(self.holdPositionJson);
                 } else {
                     alert("获取持仓信息错误：" + response.data.msg);
                     console.log(response.data.error_num + ":" + response.data.msg);
@@ -404,8 +497,8 @@ export default {
                 if (response.data.error_num == 0) {
                     var temp = eval(response.data.result);
                     console.log(temp);
-                    this.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
-                    console.log(this.orderData);
+                    self.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
+                    console.log(self.orderData);
 
                 } else {
                     alert("获取委托信息错误：" + response.data.msg);
@@ -422,8 +515,8 @@ export default {
                 console.log("成交信息");
                 console.log(response);
                 if (response.data.error_num == 0) {
-                    this.transcationData = eval(response.data.result);
-                    console.log(this.transcationData);
+                    self.transcationData = eval(response.data.result);
+                    console.log(self.transcationData);
                 } else {
                     alert("获取成交信息错误：" + response.data.msg);
                     console.log(response.data.error_num + ":" + response.data.msg);

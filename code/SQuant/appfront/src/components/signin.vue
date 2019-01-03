@@ -108,7 +108,7 @@ export default {
                         console.log(response);
                         sessionStorage.setItem('userEmail', this.signin.email);
                         sessionStorage.setItem('userToken', cookie);
-                        sessionStorage.setItem('userType', 0);
+                        sessionStorage.setItem('userType', response.data.msg.user_type);
                         self.$store.dispatch("setUser",'this_is_an_email');
                         self.$store.dispatch("setToken", cookie);
                         self.$message({
@@ -117,7 +117,7 @@ export default {
                         }); 
                         console.log('userType: ' + sessionStorage.getItem('userType') )
                         if (sessionStorage.getItem('userType') == 0) {
-                            window.location.href = '/#/strategy'
+                            window.location.href = '/#/details'
                         } else {
                             window.location.href = '/#/management'
                         }

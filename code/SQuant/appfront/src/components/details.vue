@@ -283,6 +283,7 @@ export default {
     components: {squantheader},
     data() {
       return {
+        timer: null,
         kline_types: ['1M', '5M', '1D'],
         activeIndex: "1",
         isCollapse: true,
@@ -494,14 +495,16 @@ export default {
       },
       get_date(last_20_day) {
         var date = new Date();
-        var year=date.getFullYear();
         if (last_20_day == false){
+          var year=date.getFullYear();
           var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
           var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
           return year+"-"+month+"-"+day;
         }else{
+          date.setTime(date.getTime() - (24 * 60 * 60 * 1000 * 20))
           // var t_day=date.getDate();
-          var day=date.getDate()-5<10 ? "0"+String(date.getDate()-5) : (date.getDate()-5);
+          var year=date.getFullYear();
+          var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
           var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
           return year+"-"+month+"-"+day;
         }
@@ -523,7 +526,15 @@ export default {
         return hours + ":" + minutes + ":" + seconds;
       },
       deleteRow(index, rows) {
+        var symbol = rows[index].stock_code;
         rows.splice(index, 1);
+        for(var i in this.stock_list_data_symbol) {
+          if(this.stock_list_data_symbol[i].symbol == symbol){
+            this.stock_list_data_symbol.splice(i, 1);
+            break;
+          }
+        }
+        
       },
       stock_basic_search(queryString, cb) {
         var stock_basic_info = this.stock_basic_info;
@@ -3399,7 +3410,7 @@ export default {
       stock_basic_select(item) {
         if (this.stock_list_data_symbol.indexOf(item.stock_code) < 0) {
           this.stock_list_data_symbol.push(item.stock_code);
-          this.add_stock_list_data(symbol);
+          this.add_stock_list_data(item.stock_code);
         }
         this.stock_search_selected = '';
       },
@@ -3446,21 +3457,36 @@ export default {
       add_stock_list_data(symbol) {
         var self = this;
         this.$axios.defaults.withCredentials=true
+        var is_replace = false;
+        var replace_index = -1;
         this.$axios.get("http://localhost:8000/squant/market/quote/"+symbol, {
           }).then(function (response) {
             var details = JSON.parse('['+response.data.result+']');
             var stock_index = self.stock_list_data_symbol.indexOf(symbol);
+            
+            for(var i in self.stock_list_data){
+              var item = self.stock_list_data[i];
+              if(item.stock_code == symbol) {
+                is_replace = true;
+                replace_index = i;
+                break;
+              }
+            }
             if (details[0].time == "") {
-              self.stock_list_data.push({
+              var item = {
                   stock_code: symbol,
                   lasted_price: '-',
                   stock_rise_fall: '-',
                   stock_up_down: '-',
                   stock_details: null
-                })
+                }
+              if(is_replace==false) {
+                self.stock_list_data.push(item);
+              }else{
+                self.stock_list_data[replace_index]=item;
+              }
             } else {
-              self.stock_list_data.push(
-                {
+              var item = {
                   stock_code: symbol,
                   lasted_price: (details[0].lastPrice).toFixed(2),
                   stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
@@ -3479,7 +3505,12 @@ export default {
                     low: details[0].lowPrice, //最低
                     time: details[0].time
                   }
-                });
+              };
+              if(is_replace==false) {
+                self.stock_list_data.push(item);
+              }else{
+                self.stock_list_data[replace_index]=item;
+              }
             }
             self.refresh_details();
           }).catch(function (error) {
@@ -3498,7 +3529,6 @@ export default {
         this.refresh_kline();
       },
       refresh_all() {
-        this.stock_list_data = [];
         var this_time = this.get_time();
         var details = {};
         console.log('symbol', this.stock_list_data);
@@ -3527,13 +3557,22 @@ export default {
               }
             }
             self.refresh_all();
+            self.timer = setInterval(() => {
+              self.refresh_all();
+            },10000)
+            
           } else {
             console.log(response);
           }
       }).catch(function (error) {
         console.log(error);
       });
-      // this.setInterval(this.refresh_all, 100);
+      
+    },
+    beforeDestroy() {
+        if(this.timer) {
+            clearInterval(this.timer);
+        }
     }
   }
 </script>

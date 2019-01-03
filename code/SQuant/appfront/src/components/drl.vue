@@ -1,7 +1,7 @@
 <template>
     <div>
         <squantheader></squantheader>
-        <div  style="position:absolute;top:10%;left: 2%;">
+        <div  style="position:absolute;top:10%;left: 5%;">
             <el-card>
                    <el-form ref="form" :model="drl_details" label-width="100px" size="mini">
                         <el-form-item label="股票代码">
@@ -13,6 +13,7 @@
                                 placeholder="请输入股票代码"
                                 size="mini"
                                 :trigger-on-focus="false"
+                                @select="stock_basic_select"
                                 clearable
                                 style="width:240.1px">
                                     <i
@@ -36,17 +37,16 @@
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <!-- <el-form-item label="日期选择" size="mini">
+                        <el-form-item label="日期选择" size="mini">
                             <el-date-picker
                             v-model="drl_details.duration"
-                            type="datetimerange"
-                            :picker-options="date_pick_fast"
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            style="width:88%">
+                            type="date"
+                            placeholder="选择日期"
+                            size="mini"
+                            style="width:100%"
+                            value-format="yyyy-MM-dd">
                             </el-date-picker>
-                        </el-form-item> -->
+                        </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="start_drl">启动</el-button>
                             <el-button @click="save_drl">保存配置</el-button>
@@ -55,8 +55,8 @@
             </el-card>    
         </div>
 
-        <div >
-            <el-card :body-style="{ padding: '10px' }" style="width:68%;position:absolute;left:30%;top:10%;">
+        <div v-if="false">
+            <el-card :body-style="{ padding: '10px' }" style="width:68%;position:absolute;left:30%;top:9%;">
             <el-select v-model="is_drl_stop" size="mini" style="margin-left:-80%">
                 <el-option label="运行中" value="1"></el-option>
                 <el-option label="已结束" value="0"></el-option>
@@ -108,7 +108,7 @@
             </el-card>
         </div>
 
-        <div >
+        <div v-if="false">
             <el-card :body-style="{ padding: '10px' }" style="width:68%;position:absolute;left:30%;top:55%;" > 
             <h5 style="margin-bottom: 0px;margin-top:0px">配置</h5>
             <el-table
@@ -151,7 +151,7 @@
             </el-card>
         </div>
 
-        <div>
+        <div v-if="false">
             <el-card :body-style="{ padding: '10px' }" style="width:382.1px;position:absolute;left:2%;top:30%;">
                 <h5 style="margin:5px">策略：{{drl_result.name}} 结果展示</h5>
                 <div>
@@ -162,6 +162,43 @@
                     <img v-bind:src="img2" class="image"/>
                 </div>
             </el-card>
+        </div>
+
+        <div>
+            <el-card :body-style="{ padding: '10px' }" style="width: 60%; height: 40%;position: absolute;left: 33%;top: 10%;">
+                <div id="trade_point" style="width:100%;height:300px;postition:relative" ref="Trade_Point"></div>
+            </el-card>
+        </div>
+        <div>
+            <el-card :body-style="{ padding: '10px' }" style="width: 60%; height: 40%;position: absolute;left: 33%;top: 55%;">
+                <div id="fortune" style="width:100%;height:300px;postition:relative" ref="Fortune"></div>
+            </el-card>
+        </div>
+
+        <div>
+            <el-menu
+            default-active="v_2"
+            class="el-menu-vertical-demo"
+            background-color="#252a2f"
+            text-color="#fff"
+            active-text-color="#ffd04b"
+            style="height: 100%;position: absolute;top:0"
+            :collapse=true>
+            <el-menu-item index="v_0">
+            </el-menu-item>
+            <el-menu-item index="v_1">
+                <a href="/#/strategy"><i class="el-icon-location"></i></a>
+                <span slot="title">选股</span>
+            </el-menu-item>
+            <el-menu-item index="v_2">
+                <a href="/#/drl"><i class="el-icon-menu"></i></a>
+                <span slot="title">择时</span>
+            </el-menu-item>
+            <el-menu-item index="v_3">
+                <a href="/#/algorithm"><i class="el-icon-setting"></i></a>
+                <span slot="title">算法</span>
+            </el-menu-item>
+            </el-menu>
         </div>
     </div>
 </template>
@@ -190,20 +227,20 @@ export default {
             stock_search_selected: '',
             stock_basic_info: [],
             drl_details: {
-                code: '',
-                style: '',
-                duration:  [new Date(2018, 10, 10, 10, 10), new Date(2018, 10, 11, 10, 10)],
+                code: '000002.SZ',
+                style: 1,
+                duration:  '',
             },
             drl_styles: [
                 {
                     label: '积极',
-                    value: '积极'
+                    value: 3
                 },{
                     label: '平衡',
-                    value: '平衡'
+                    value: 2
                 },{
                     label: '保守',
-                    value: '保守'
+                    value: 1
                 },
                 
             ],
@@ -305,6 +342,9 @@ export default {
       };
     },
     methods: {
+        stock_basic_select(item) {
+            this.drl_details.code = item.stock_code;
+        },
         stock_basic_search(queryString, cb) {
             var stock_basic_info = this.stock_basic_info;
             var results = queryString ? stock_basic_info.filter(this.create_stock_filter(queryString)) : stock_basic_info;
@@ -318,7 +358,48 @@ export default {
         },
         start_drl() {
             console.log(this.drl_details);
-            console.log(this.drl_type);
+            console.log("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style)
+            var self = this;
+            this.$axios.get("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style, {
+            }).then(function (response) {
+                if(response.data.error_num == 0) {
+                    var result = response.data.list;
+                    // date	"20180316"
+                    // action	2
+                    // profit_ratio	0
+                    // target_price	31.4
+                    // hs300_profit_ratio	0
+                    var date_arr = [];
+                    var action_arr = [];
+                    var profit_ratio_arr = [];
+                    var target_price_arr = [];
+                    var hs300_profit_ratio_arr = [];
+                    var sell_or_buy = [];
+                    for(var i in result) {
+                        var item = result[i];
+                        date_arr.push(item.date);
+                        // action_arr.push(item.action);
+                        profit_ratio_arr.push(item.profit_ratio);
+                        target_price_arr.push(item.target_price);
+                        hs300_profit_ratio_arr.push(item.hs300_profit_ratio);
+
+
+                        if(item.action==1) {
+                            //  {name : '周最低', value : -2, xAxis: 1, yAxis: 1.5},
+                            var buy = {name : '买入', xAxis: item.date, yAxis: item.target_price, symbol: 'circle',  symbolSize: 5, itemStyle:{normal:{color:'red'}}}
+                            sell_or_buy.push(buy)
+                        } else if(item.action==2) {
+                            var sell = {name : '卖出', xAxis: item.date, yAxis: item.target_price, symbol: 'circle',  symbolSize: 5, itemStyle:{normal:{color:'green'}}}
+                            sell_or_buy.push(sell);
+                        }
+                    }
+                    console.log(response);
+                    self.trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr);
+                    self.fortune_linechart_init(date_arr, profit_ratio_arr, hs300_profit_ratio_arr);
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
         },
         save_drl() {
             this.$prompt('请输入配置名称', '提示', {
@@ -3239,9 +3320,169 @@ export default {
             console.log(this.drl_status_run)
             console.log(this.drl_status_stop)
         },
+        trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr) {
+            var option = {
+                title: {
+                    text: 'Trade Point',
+                    textStyle:{
+                        fontSize:14,
+                        fontWeight:'bolder',
+                        color:'black'
+                    }
+                },
+                legend: {
+                    data:['Trade Point'],
+                    textStyle:{
+                        color:'black'
+                    }
+                },
+                toolbox: {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataZoom : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom : {
+                    show : true,
+                    realtime: true,
+                    start : 50,
+                    end : 100
+                },
+                xAxis : [
+                    {
+                        type : 'category',
+                        boundaryGap : true,
+                        axisTick: {onGap:false},
+                        splitLine: {show:false},
+                        data : date_arr
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value',
+                        scale: true
+                    }
+                ],
+                tooltip : {
+                    trigger: 'axis'
+                },
+                series : [
+                    {
+                        name:'Stock Price',
+                        type:'line',
+                        data: target_price_arr,
+                        markPoint : {
+                            data: sell_or_buy
+                        },
+                        symbol: "none",
+                        itemStyle:{  
+                            normal:{    
+                                lineStyle:{    
+                                    color:'#409EFF',
+                                }    
+                            }  
+                        }, 
+                    }
+                ]
+            };
+            this.trade_point_chart = echarts.init(this.$refs.Trade_Point);
+            console.log(target_price_arr);
+            this.trade_point_chart.setOption(option);
+        },
+        fortune_linechart_init(date_arr, profit_ratio_arr, hs300_profit_ratio_arr) {
+            var option = {
+                title: {
+                    text: 'Fortune Figure',
+                    textStyle:{
+                        fontSize:14,
+                        fontWeight:'bolder',
+                        color:'black'
+                    }
+                },
+                legend: {
+                    data:['Fortune Figure'],
+                    textStyle:{
+                        color:'black'
+                    }
+                },
+                toolbox: {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataZoom : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom : {
+                    show : true,
+                    realtime: true,
+                    start : 50,
+                    end : 100
+                },
+                xAxis : [
+                    {
+                        type : 'category',
+                        boundaryGap : true,
+                        axisTick: {onGap:false},
+                        splitLine: {show:false},
+                        data : date_arr
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value',
+                        scale: true
+                    }
+                ],
+                tooltip : {
+                    trigger: 'axis'
+                },
+                series : [
+                    {
+                        name:'Stock Price',
+                        type:'line',
+                        data: profit_ratio_arr,
+                        symbol: "none",
+                    },
+                    {
+                        name:'Stock Price',
+                        type:'line',
+                        data: hs300_profit_ratio_arr,
+                        symbol: "none",
+                        itemStyle:{  
+                            normal:{    
+                                lineStyle:{    
+                                    color:'black',
+                                    width:2,
+                                    type:'dotted'
+                                }    
+                            }  
+                        }, 
+                    }
+                ]
+            }
+            this.fortune_linechart = echarts.init(this.$refs.Fortune);
+            this.fortune_linechart.setOption(option);
+        },
+        get_date() {
+            var date = new Date();
+            var year=date.getFullYear();
+            var month= date.getMonth()+1<10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
+            var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
+            return year+"-"+month+"-"+day;
+        },
     },
     mounted() {
         this.stock_basic_info = this.load_stock_basic_info();
+        this.drl_details.duration = this.get_date();
     },
     computed: {
         trade_point: function() {
