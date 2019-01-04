@@ -64,7 +64,10 @@ class SniperAlgo(AlgoTemplate):
     def onTrade(self, trade):
         """"""
         self.tradedVolume += trade.volume
-        self.tradedOrderList.append(trade.tradeID)
+
+        if not trade.tradeID == '':
+            self.tradedOrderList.append(trade.tradeID)
+
         if self.tradedVolume >= self.volume:
             self.stop()
 
