@@ -3419,6 +3419,7 @@ export default {
         // this.refresh_details();
       },
       handle_stock_current_change(val) {
+        console.log(val);
         this.stock_details = val.stock_details;
         this.sell_buy_limit = val.stock_details.time==""?15.9:(val.stock_details.last).toFixed(2);
         this.refresh_kline();
@@ -3457,36 +3458,21 @@ export default {
       add_stock_list_data(symbol) {
         var self = this;
         this.$axios.defaults.withCredentials=true
-        var is_replace = false;
-        var replace_index = -1;
         this.$axios.get("http://localhost:8000/squant/market/quote/"+symbol, {
           }).then(function (response) {
             var details = JSON.parse('['+response.data.result+']');
             var stock_index = self.stock_list_data_symbol.indexOf(symbol);
-            
-            for(var i in self.stock_list_data){
-              var item = self.stock_list_data[i];
-              if(item.stock_code == symbol) {
-                is_replace = true;
-                replace_index = i;
-                break;
-              }
-            }
+            var item = {};
             if (details[0].time == "") {
-              var item = {
+              item = {
                   stock_code: symbol,
                   lasted_price: '-',
                   stock_rise_fall: '-',
                   stock_up_down: '-',
                   stock_details: null
                 }
-              if(is_replace==false) {
-                self.stock_list_data.push(item);
-              }else{
-                self.stock_list_data[replace_index]=item;
-              }
             } else {
-              var item = {
+              item = {
                   stock_code: symbol,
                   lasted_price: (details[0].lastPrice).toFixed(2),
                   stock_rise_fall: (details[0].lastPrice - details[0].preClosePrice).toFixed(2),
@@ -3506,12 +3492,22 @@ export default {
                     time: details[0].time
                   }
               };
-              if(is_replace==false) {
-                self.stock_list_data.push(item);
-              }else{
-                self.stock_list_data[replace_index]=item;
+            }
+            var new_data = [];
+            var is_replace = false;
+            for(var i in self.stock_list_data){
+              var temp = self.stock_list_data[i];
+              if(temp.stock_code == symbol) {
+                new_data.push(item);
+                is_replace = true;
+              } else {
+                new_data.push(temp);
               }
             }
+            if(is_replace==false) {
+              new_data.push(item);
+            }
+            self.stock_list_data=new_data;
             self.refresh_details();
           }).catch(function (error) {
             console.log(error);
@@ -3531,13 +3527,10 @@ export default {
       refresh_all() {
         var this_time = this.get_time();
         var details = {};
-        console.log('symbol', this.stock_list_data);
         for (var index in this.stock_list_data_symbol) {
-          console.log('add stock list data');
           var symbol = this.stock_list_data_symbol[index];
           this.add_stock_list_data(symbol);
         }
-        console.log(this.stock_list_data);
       }
     },
     mounted() {
