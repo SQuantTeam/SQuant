@@ -650,7 +650,7 @@ export default {
             console.log(json);
             var self = this;
             this.$axios.post("http://localhost:8000/squant/strategy/doBacktest", json).then(function(response) {
-                if (response.data.error_num == 0) {
+                if (response.data.err_num == 0) {
                     console.log('success' + response);
                     var url = response.data.result;
                     self.$message({
