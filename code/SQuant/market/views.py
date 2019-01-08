@@ -3,6 +3,8 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
+
 import json
 import datetime
 
@@ -10,7 +12,7 @@ from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
 from trader.gateway.tradeGateway import TradeGateway
 from trader.sqConstant import *
 from trader.sqGateway import *
-from django.views.decorators.csrf import csrf_exempt
+from trader.trade.riskManager import RiskManager
 
 setting = {}
 setting['mdAddress'] = MdAddress
@@ -95,11 +97,11 @@ def queryAccount(request):
         token = request.session.get('token', None)
 
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
@@ -138,11 +140,11 @@ def quote(request, symbol):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
@@ -178,11 +180,11 @@ def bar(request, symbol, trade_date, freq):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
@@ -224,11 +226,11 @@ def daily(request, symbol, start_date, end_date):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
         setting['tdAddress'] = TdAddress
@@ -284,11 +286,11 @@ def placeOrder(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 连接交易平台
         setting['mdAddress'] = MdAddress
@@ -304,7 +306,34 @@ def placeOrder(request):
             tradeGateway.close()
             return JsonResponse(response)
 
-        # 下单操作
+        # 风控检测
+        active = request.session.get("risk_manager_status", None)
+        if active is not None and active is True:
+            order_size_limit = request.session.get("order_size_limit")
+            order_price_upper_limit = request.session.get("order_price_upper_limit")
+            balance_use_limit = request.session.get("balance_use_limit")
+            trade_limit = request.session.get("trade_limit")
+
+            # 获取用户账户信息
+            account = tradeGateway.qryAccount()
+            # 查询当日下单数，因为查询订单的接口不稳定，有时候拿不到值，所以多查几次以保证结果的正确性
+            for i in range(0, 5):
+                trade_list = tradeGateway.qryTrade()
+                trade_count = len(trade_list)
+                if trade_count > 0:
+                    break
+            tick = tradeGateway.qryQuote(instcode=orderReq.symbol)
+            risk_manager = RiskManager(active=active, order_size_limit=order_size_limit,
+                                       order_price_upper_limit=order_price_upper_limit,
+                                       balance_use_limit=balance_use_limit,
+                                       trade_limit=trade_limit, trade_count=trade_count)
+            msg, result = risk_manager.checkRisk(orderReq=orderReq, tick=tick, account=account)
+            if result is False:
+                response['result'] = msg
+                response['error_num'] = 1
+                return JsonResponse(response)
+
+        # 下单操作（通过风控检测）
         taskid, msg = tradeGateway.sendOrder(orderReq)
         response['msg'] = msg
         if taskid is None:
@@ -331,11 +360,11 @@ def cancelPortfolioOrder(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 连接交易平台
         setting['mdAddress'] = MdAddress
@@ -375,11 +404,11 @@ def queryPosition(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
@@ -429,11 +458,11 @@ def queryOrder(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
@@ -477,11 +506,11 @@ def queryTrade(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
@@ -517,11 +546,11 @@ def queryTotal(request):
         phone = request.session.get('phone', None)
         token = request.session.get('token', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
 
         # 构造连接第三方数据和交易平台的类
         setting['mdAddress'] = MdAddress
@@ -556,3 +585,80 @@ def queryTotal(request):
         response['error_num'] = 2
 
     return JsonResponse(response)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def getRiskManagerStatus(request):
+    '''查询所有订单相关信息'''
+    response = {}
+    try:
+        active = request.session.get("risk_manager_status", None)
+        if active is None or active is False:
+            response['active'] = False
+            response['order_size_limit'] = 0
+            response['order_price_upper_limit'] = 0.0
+            response['balance_use_limit'] = 0.0
+            response['trade_limit'] = 0
+        else:
+            response['active'] = True
+            response['order_size_limit'] = request.session.get("order_size_limit")
+            response['order_price_upper_limit'] = request.session.get("order_price_upper_limit")
+            response['balance_use_limit'] = request.session.get("balance_use_limit")
+            response['trade_limit'] = request.session.get("trade_limit")
+
+        response['error_num'] = 0
+    except  Exception, e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def activateRiskManager(request):
+    '''开启风控'''
+    response = {}
+    try:
+        userData = json.loads(request.body)
+        order_size_limit = int(userData['order_size_limit'])
+        order_price_upper_limit = float(userData['order_price_upper_limit'])
+        balance_use_limit = float(userData['balance_use_limit'])
+        trade_limit = int(userData['trade_limit'])
+
+        request.session['risk_manager_status'] = True
+        request.session['order_size_limit'] = order_size_limit
+        request.session['order_price_upper_limit'] = order_price_upper_limit
+        request.session['balance_use_limit'] = balance_use_limit
+        request.session['trade_limit'] = trade_limit
+
+        response['msg'] = "风控模块开启成功！"
+        response['error_num'] = 0
+    except Exception as e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def closeRiskManager(request):
+    '''关闭风控'''
+    response = {}
+    try:
+        request.session['risk_manager_status'] = False
+        request.session['order_size_limit'] = 0
+        request.session['order_price_upper_limit'] = 0.0
+        request.session['balance_use_limit'] = 0.0
+        request.session['trade_limit'] = 0
+
+        response['msg'] = "风控模块关闭成功！"
+        response['error_num'] = 0
+    except Exception as e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
+
+    return JsonResponse(response)
+
+

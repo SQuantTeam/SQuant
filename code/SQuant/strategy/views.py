@@ -9,6 +9,7 @@ from django.core import serializers
 import json
 import datetime
 import os
+from six import text_type
 
 from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
 from trader.straTrading.alphaStraGenerator import AlphaStraGenerator
@@ -16,6 +17,9 @@ from trader.algoTrading.sniperAlgo import SniperAlgo
 from trader.algoTrading.twapAlgo import TwapAlgo
 from trader.algoTrading.runAlgo import run_algo, stop_algo, save_algo
 from trader.gateway.tradeGateway import TradeGateway
+from trader.sqConstant import *
+from trader.sqGateway import SqOrderReq
+from trader.trade.riskManager import RiskManager
 
 from models import Algorithem, Strategy, FinishedAlgorithem
 from market.models import User
@@ -46,11 +50,11 @@ def do_backtest(request):
         token = request.session.get('token', None)
         email = request.session.get('email', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         if email is None:
             response['msg'] = "未登录"
             response['err_num'] = 1
@@ -175,11 +179,11 @@ def run_sniper_algo(request):
         token = request.session.get('token', None)
         email = request.session.get('email', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         if email is None:
             response['msg'] = "未登录"
             response['err_num'] = 1
@@ -195,6 +199,48 @@ def run_sniper_algo(request):
             return JsonResponse(response)
 
         trade_gateway = TradeGateway(setting=setting, gatewayName="squant")
+
+        # 风控检测
+        active = request.session.get("risk_manager_status", None)
+        if active is not None and active is True:
+            symbol = str(setting['symbol'])  # 合约代码
+            direction = text_type(setting['direction'])  # 买卖
+            price = float(setting['price'])  # 价格
+            volume = float(setting['volume'])  # 数量
+            offset = text_type(setting['offset'])  # 开平
+            orderReq = SqOrderReq()
+            orderReq.symbol = symbol
+            code, exchange = orderReq.symbol.split('.')
+            orderReq.exchange = exchange
+            orderReq.price = price
+            orderReq.volume = volume
+            orderReq.priceType = PRICETYPE_LIMITPRICE
+            orderReq.direction = direction
+            orderReq.offset = offset
+            order_size_limit = request.session.get("order_size_limit")
+            order_price_upper_limit = request.session.get("order_price_upper_limit")
+            balance_use_limit = request.session.get("balance_use_limit")
+            trade_limit = request.session.get("trade_limit")
+
+            # 获取用户账户信息
+            account = trade_gateway.qryAccount()
+            # 查询当日下单数，因为查询订单的接口不稳定，有时候拿不到值，所以多查几次以保证结果的正确性
+            for i in range(0, 5):
+                trade_list = trade_gateway.qryTrade()
+                trade_count = len(trade_list)
+                if trade_count > 0:
+                    break
+            tick = trade_gateway.qryQuote(instcode=orderReq.symbol)
+            risk_manager = RiskManager(active=active, order_size_limit=order_size_limit,
+                                       order_price_upper_limit=order_price_upper_limit,
+                                       balance_use_limit=balance_use_limit,
+                                       trade_limit=trade_limit, trade_count=trade_count)
+            msg, result = risk_manager.checkRisk(orderReq=orderReq, tick=tick, account=account)
+            if result is False:
+                response['result'] = msg
+                response['error_num'] = 1
+                return JsonResponse(response)
+
         sniper_algo = SniperAlgo(tradeGateway=trade_gateway, setting=setting, email=email, algoName=algo_name)
 
         # run sniper algorithm
@@ -256,11 +302,11 @@ def run_twap_algo(request):
         token = request.session.get('token', None)
         email = request.session.get('email', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         if email is None:
             response['msg'] = "未登录"
             response['err_num'] = 1
@@ -306,11 +352,11 @@ def get_finished_algo(request):
         token = request.session.get('token', None)
         email = request.session.get('email', None)
         if phone is None or token is None:
-            # response['msg'] = 'no connection'
-            # response['error_num'] = 1
-            # return JsonResponse(response)
-            phone = DefaultPhone
-            token = DefaultToken
+            response['msg'] = 'no connection'
+            response['error_num'] = 1
+            return JsonResponse(response)
+            # phone = DefaultPhone
+            # token = DefaultToken
         if email is None:
             response['msg'] = "未登录"
             response['err_num'] = 1

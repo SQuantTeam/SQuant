@@ -27,4 +27,7 @@ urlpatterns = [
         views.bar, ),
     url(r'market/daily/(?P<symbol>[0-9]{6}\.S[HZ])/(?P<start_date>[0-9]{4}\-[0-9]{2}\-[0-9]{2})/(?P<end_date>'
         r'[0-9]{4}\-[0-9]{2}\-[0-9]{2})$', views.daily, ),
+    url(r'market/getRiskManagerStatus$', views.getRiskManagerStatus, ),
+    url(r'market/activateRiskManager$', views.activateRiskManager, ),
+    url(r'market/closeRiskManager$', views.closeRiskManager, ),
 ]
