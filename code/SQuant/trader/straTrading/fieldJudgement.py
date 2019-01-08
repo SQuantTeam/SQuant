@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- encoding: utf-8 -*-
 
 """
 Define which filed to use in dataview by stock selection index and rank index.
@@ -48,7 +48,6 @@ Define which filed to use in dataview by stock selection index and rank index.
 
 
 def fileds_generator(index):
-    print(index == "asset_liability_ratio")
     if index == "sale_gross_profit_rate":
         fileds = "open_rev" + "," +  "cost_of_revenue"
     elif index == "operating_profit_ratio":

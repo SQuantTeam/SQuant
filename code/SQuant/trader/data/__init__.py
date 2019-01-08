@@ -9,5 +9,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from .dataapi import DataApi
+from .dataview import DataView
 
-__all__ = ['DataApi']
+__all__ = ['DataApi', 'DataView']

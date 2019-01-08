@@ -1,5 +1,4 @@
-# -*- coding: UTF-8 -*-
-# encoding: utf-8
+# -*- encoding: utf-8 -*-
 
 """
 We use user's selection to generate stock selection strategy:
@@ -13,7 +12,8 @@ import json
 import os
 
 from squant.settings import BASE_DIR
-from jaqs.data import RemoteDataService, DataView
+from jaqs.data import RemoteDataService
+from trader.data import DataView
 
 from trader.trade import model
 from trader.trade import (AlphaStrategy, AlphaBacktestInstance,
@@ -107,9 +107,7 @@ class AlphaStraGenerator(object):
         if fileds.endswith(","):
             fileds = fileds[:-1]
 
-        self.dataview_props['fileds'] = fileds
-
-        print("数据区域: " , self.dataview_props['fileds'])
+        self.dataview_props['fields'] = fileds
 
         self.period = period  # re-balance period length
         self.pc_method = pc_method  # 购股权重
@@ -168,7 +166,6 @@ class AlphaStraGenerator(object):
 
         # DataView utilizes RemoteDataService to get various data and store them
         dv = DataView()
-        print(self.dataview_props)
         dv.init_from_config(self.dataview_props, ds)
         dv.prepare_data()
 
@@ -191,7 +188,7 @@ class AlphaStraGenerator(object):
                     is_quarterly = True
                 factor_fomular = index_fomula_generator(str(index), -1, -1)
                 print(factor_fomular)
-                fomular_name = str(index)
+                fomular_name = str(index) + "_" + "rank"
                 dv.add_formula(fomular_name, factor_fomular, is_quarterly=is_quarterly)
 
         dv.save_dataview(folder_path=self.dataview_store_folder)
@@ -227,7 +224,8 @@ class AlphaStraGenerator(object):
         weight_list = []
         total_weight = 0
         for index, weight in self.rank_index.iteritems():
-            rank_list.append(context.snapshot[index])
+            formula_name = index + "_" + "condition"
+            rank_list.append(context.snapshot[formula_name])
             weight_list.append(weight)
             total_weight += weight
 
@@ -305,18 +303,20 @@ class AlphaStraGenerator(object):
 
 
 if __name__ == '__main__':
-    stock_index = {"pb": [-1, 2],
+    stock_index = {"turnover_ratio": [-1, 100],
                    "pe": [-1, 20]}
-    rank_index = {"pb": 1,
-                  "pe": 1}
+    rank_index = {"pe": 1}
     phone = "15827606670"
     token = "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkI" \
             "joiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
     email = "1"
-    stra = AlphaStraGenerator(start_date=20180101, end_date=20181201, universe="000905.SH,000300.SH", benchmark="000300.SH",
+    stra = AlphaStraGenerator(start_date=20181101, end_date=20181201, universe="000905.SH,000300.SH", benchmark="000300.SH",
                               period="week", pc_method="equal_weight", stock_index=stock_index, rank_index =rank_index,
                               amount=5, phone=phone, token=token, email=email, strategy_name="test")
     stra.save_stra()
     stra.run_stra()
+    # stra.save_dataview()
+
+    print ("here: run successfully!!!!!!!!!!!!!!!!!!")
 
 
