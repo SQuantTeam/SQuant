@@ -116,7 +116,11 @@ def queryAccount(request):
             return JsonResponse(response)
 
         # 获取用户账户信息
-        account = tradeGateway.qryAccount()
+        for i in range(1, 10):
+            account = tradeGateway.qryAccount()
+            if account.init_balance > 0:
+                break
+
         response['account'] = json.dumps(account, default=lambda obj: obj.__dict__, ensure_ascii=False)
         response['error_num'] = 0
         tradeGateway.close()
