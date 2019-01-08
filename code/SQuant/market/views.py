@@ -116,7 +116,7 @@ def queryAccount(request):
             return JsonResponse(response)
 
         # 获取用户账户信息
-        for i in range(1, 10):
+        for i in range(1, 50):
             account = tradeGateway.qryAccount()
             if account.init_balance > 0:
                 break
