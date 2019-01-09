@@ -103,22 +103,29 @@ export default {
                 this.$axios.defaults.withCredentials=true
                 this.$axios.post("http://localhost:8000/squant/user/add", json, config).then(function(result) {
                     console.log(result)
-                    sessionStorage.setItem('userEmail', self.ruleForm2.email)
-                    sessionStorage.setItem('userToken', 'this_is_a_token')
-                    sessionStorage.setItem('userType', 0)
-                    self.$store.dispatch("setUser",'this_is_an_email');
-                    self.$store.dispatch("setToken",'this_is_a_token');
-                    self.$message({
-                        type: 'success',
-                        message: '注册成功！'
-                    }); 
-                    self.$router.push({path: '/details'});
+                    if(result.data.error_num==0){
+                        sessionStorage.setItem('userEmail', self.ruleForm2.email)
+                        sessionStorage.setItem('userToken', 'this_is_a_token')
+                        sessionStorage.setItem('userType', 0)
+                        self.$store.dispatch("setUser",'this_is_an_email');
+                        self.$store.dispatch("setToken",'this_is_a_token');
+                        self.$message({
+                            type: 'success',
+                            message: '注册成功！'
+                        }); 
+                        self.$router.push({path: '/details'});
+                    }else {
+                        self.$message({
+                            type: 'error',
+                            message: result.data.msg
+                        }); 
+                    }
+                    
                 }).catch(function (error) {
                     self.$message({
                         type: 'info',
                         message: '注册失败，请稍后再试'
                     }); 
-                    self.$router.push({path: '/details'});
                 });
             } else {
                 console.log('error submit!!');

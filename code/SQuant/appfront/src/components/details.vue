@@ -279,6 +279,7 @@ h4 {
 <script>
 import echarts from 'echarts'
 import squantheader from '@/components/header'
+import { setInterval, clearInterval } from 'timers'
 export default {
     components: {squantheader},
     data() {

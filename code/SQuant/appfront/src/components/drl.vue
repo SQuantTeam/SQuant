@@ -48,8 +48,8 @@
                             </el-date-picker>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="start_drl" style="float:left">训练模型</el-button>
-                            <el-button @click="run_this_drl" v-if="model_trained" style="float:left">运行模型</el-button>
+                            <el-button type="primary" @click="start_drl" style="float:left" :disabled="disable_model_train">训练模型</el-button>
+                            <el-button @click="run_this_drl" v-if="model_trained && !model_is_run" style="float:left">运行模型</el-button>
                             <el-button @click="stop_this_drl" v-if="model_is_run" style="float:left">停止该模型</el-button>
                         </el-form-item>
                     </el-form>
@@ -61,7 +61,7 @@
                 <div id="trade_point" style="width:100%;height:300px;postition:relative" ref="Trade_Point"></div>
             </el-card>
         </div>
-        <div>
+        <div v-show="!model_is_run" >
             <el-card :body-style="{ padding: '10px' }" style="width: 60%; height: 40%;position: absolute;left: 33%;top: 55%;">
                 <div id="fortune" style="width:100%;height:300px;postition:relative" ref="Fortune"></div>
             </el-card>
@@ -112,15 +112,23 @@
 <script>
 import echarts from 'echarts'
 import squantheader from '@/components/header'
+import { setInterval, clearInterval } from 'timers';
 export default {
     components: {squantheader},
     data() {
       return {
+            timer: null,
+            disable_model_train: false,
             model_trained: false,
             model_is_run: false,
             stock_search_selected: '',
             stock_basic_info: [],
             drl_details: {
+                code: '000002.SZ',
+                style: 1,
+                duration:  '',
+            },
+            trained_details: {
                 code: '000002.SZ',
                 style: 1,
                 duration:  '',
@@ -165,6 +173,11 @@ export default {
                     }
                 }]
             },
+            model_run_realtime:{
+                'date': [],
+                'target_price': [],
+                'sell_or_buy': []
+            },
       };
     },
     methods: {
@@ -183,7 +196,13 @@ export default {
             };
         },
         start_drl() {
-            console.log(this.drl_details);
+            if(sessionStorage.getItem('userConnect')=="false"){
+                this.$message({
+                    type: 'info',
+                    message: '进行模型训练，请先进行账户连接'
+                });
+                return
+            }
             console.log("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style)
             var self = this;
             this.$axios.get("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style, {
@@ -191,7 +210,6 @@ export default {
                 if(response.data.error_num == 0) {
                     var result = response.data.list;
                     var date_arr = [];
-                    var action_arr = [];
                     var profit_ratio_arr = [];
                     var target_price_arr = [];
                     var hs300_profit_ratio_arr = [];
@@ -199,7 +217,6 @@ export default {
                     for(var i in result) {
                         var item = result[i];
                         date_arr.push(item.date);
-                        // action_arr.push(item.action);
                         profit_ratio_arr.push(item.profit_ratio);
                         target_price_arr.push(item.target_price);
                         hs300_profit_ratio_arr.push(item.hs300_profit_ratio);
@@ -212,30 +229,13 @@ export default {
                             sell_or_buy.push(sell);
                         }
                     }
-                    console.log(response);
                     self.trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr);
                     self.fortune_linechart_init(date_arr, profit_ratio_arr, hs300_profit_ratio_arr);
                     self.model_trained=true;
+                    self.trained_details=self.drl_details;
                 }
             }).catch(function (error) {
                 console.log(error);
-            });
-        },
-        save_drl() {
-            this.$prompt('请输入配置名称', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                inputErrorMessage: '配置名称不能为空'
-                }).then(({ value }) => {
-                this.$message({
-                    type: 'success',
-                    message: '保存配置: ' + value
-                });
-                }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '取消保存'
-                });       
             });
         },
         load_stock_basic_info() {
@@ -3099,6 +3099,10 @@ export default {
             ];
         },
         trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr) {
+            var line_color = '#409EFF';
+            if(this.disable_model_train==true) {
+                line_color = 'black'
+            }
             var option = {
                 title: {
                     text: 'Trade Point',
@@ -3128,8 +3132,6 @@ export default {
                 dataZoom : {
                     show : true,
                     realtime: true,
-                    start : 50,
-                    end : 100
                 },
                 xAxis : [
                     {
@@ -3137,7 +3139,7 @@ export default {
                         boundaryGap : true,
                         axisTick: {onGap:false},
                         splitLine: {show:false},
-                        data : date_arr
+                        data : date_arr,
                     }
                 ],
                 yAxis : [
@@ -3161,7 +3163,7 @@ export default {
                         itemStyle:{  
                             normal:{    
                                 lineStyle:{    
-                                    color:'#409EFF',
+                                    color: line_color,
                                 }    
                             }  
                         }, 
@@ -3169,7 +3171,6 @@ export default {
                 ]
             };
             this.trade_point_chart = echarts.init(this.$refs.Trade_Point);
-            console.log(target_price_arr);
             this.trade_point_chart.setOption(option);
         },
         fortune_linechart_init(date_arr, profit_ratio_arr, hs300_profit_ratio_arr) {
@@ -3202,8 +3203,6 @@ export default {
                 dataZoom : {
                     show : true,
                     realtime: true,
-                    start : 50,
-                    end : 100
                 },
                 xAxis : [
                     {
@@ -3258,15 +3257,60 @@ export default {
             return year+"-"+month+"-"+day;
         },
         run_this_drl(){
-
+            this.disable_model_train = true;
+            this.model_is_run = true;
+            this.refresh_drl();
+            this.timer = setInterval(() => {
+              this.refresh_drl();
+            },60000)
+        },
+        refresh_drl(){
+            var self = this;
+            this.$axios.get("http://localhost:8000/squant/reinforce/barData/"+this.trained_details.code+"/"+this.trained_details.style, {
+            }).then(function (response) {
+                if(response.data.error_num == 0) {
+                    var result = response.data.list;
+                    var old_len = self.model_run_realtime.date.length;
+                    var new_len = Object.keys(result).length;
+                    var date_arr = self.model_run_realtime.date;
+                    var profit_ratio_arr = [];
+                    var target_price_arr = self.model_run_realtime.target_price;
+                    var hs300_profit_ratio_arr = [];
+                    var sell_or_buy = self.model_run_realtime.sell_or_buy;
+                    for(var i = old_len; i < new_len; i ++) {
+                        var item = result[i];
+                        date_arr.push(item.time);
+                        
+                        target_price_arr.push(item.target_price);
+                        if(item.action==1) {
+                            var buy = {name : '买入', xAxis: item.time, yAxis: item.target_price, symbol: 'circle',  symbolSize: 5, itemStyle:{normal:{color:'red'}}}
+                            sell_or_buy.push(buy)
+                        } else if(item.action==2) {
+                            var sell = {name : '卖出', xAxis: item.time, yAxis: item.target_price, symbol: 'circle',  symbolSize: 5, itemStyle:{normal:{color:'green'}}}
+                            sell_or_buy.push(sell);
+                        }
+                    }
+                    self.trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr);
+                    
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
         },
         stop_this_drl(){
-
+            this.disable_model_train = false;
+            this.model_is_run = false;
+            clearInterval(this.timer);
         }
     },
     mounted() {
         this.stock_basic_info = this.load_stock_basic_info();
         this.drl_details.duration = this.get_date();
     },
+    beforeDestroy() {
+        if(this.timer) {
+            clearInterval(this.timer);
+        }
+    }
   }
 </script>
