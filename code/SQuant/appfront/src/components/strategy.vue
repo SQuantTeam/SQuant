@@ -408,22 +408,22 @@ export default {
                     { name: '净利润', type: 'plain', index_type: 1, unit: '元', nid: 'net_profit_incl_min_int_inc' },
                     { name: '息税前利润', type: 'plain', index_type: 1, unit: '元', nid: 'ebit' },
                     { name: '基本每股收益', type: 'plain', index_type: 1, unit: '元', nid: 'eps_basic' },
-                    { name: '每股收益', type: 'plain', index_type: 1, unit: '元', nid: 'eps' },
-                    { name: '每股净资产', type: 'plain', index_type: 1, unit: '元', nid: 'naps' },
-                    { name: '每股未分配利润', type: 'plain', index_type: 1, unit: '元', nid: 'retained_prodfit_ps' },
-                    { name: '每股公积金', type: 'plain', index_type: 1, unit: '元', nid: 'cap_resv_ps' },
-                    { name: '销售毛利率', type: 'plain', index_type: 1, unit: '%', nid: 'sale_gross_profit_rate' },
-                    { name: '营业利润率', type: 'plain', index_type: 1, unit: '%', nid: 'operating_profit_ratio' },
-                    { name: '股东权益(净资产)', type: 'plain', index_type: 1, unit: '元', nid: 'net_assets' },
-                    { name: '资产负债率', type: 'plain', index_type: 1, unit: '%', nid: 'asset_liability_ratio' },
-                    { name: '速动比率', type: 'plain', index_type: 1, unit: '%', nid: 'quick_ratio' },
-                    { name: '流动比率', type: 'plain', index_type: 1, unit: '%', nid: 'current_ratio' },
-                    { name: '市盈率', type: 'plain', index_type: 1, unit: '%', nid: 'pe' },
-                    { name: '滚动市盈率', type: 'plain', index_type: 1, unit: '%', nid: 'pe_ttm' },
-                    { name: '市净率', type: 'plain', index_type: 1, unit: '%', nid: 'pb' },
-                    { name: '市销率(TTM)', type: 'plain', index_type: 1, unit: '%', nid: 'ps_ttm' },
-                    { name: '市现率', type: 'plain', index_type: 1, unit: '%', nid: 'pcf_ncfttm' },
-                    { name: '摊薄净资产收益率', type: 'plain', index_type: 1, unit: '%', nid: 'roe_cut' },
+                    // { name: '每股收益', type: 'plain', index_type: 1, unit: '元', nid: 'eps' },
+                    // { name: '每股净资产', type: 'plain', index_type: 1, unit: '元', nid: 'naps' },
+                    // { name: '每股未分配利润', type: 'plain', index_type: 1, unit: '元', nid: 'retained_prodfit_ps' },
+                    // { name: '每股公积金', type: 'plain', index_type: 1, unit: '元', nid: 'cap_resv_ps' },
+                    // { name: '销售毛利率', type: 'plain', index_type: 1, unit: '倍率', nid: 'sale_gross_profit_rate' },
+                    // { name: '营业利润率', type: 'plain', index_type: 1, unit: '倍率', nid: 'operating_profit_ratio' },
+                    // { name: '股东权益(净资产)', type: 'plain', index_type: 1, unit: '元', nid: 'net_assets' },
+                    // { name: '资产负债率', type: 'plain', index_type: 1, unit: '倍率', nid: 'asset_liability_ratio' },
+                    { name: '速动比率', type: 'plain', index_type: 1, unit: '倍率', nid: 'quick_ratio' },
+                    { name: '流动比率', type: 'plain', index_type: 1, unit: '倍率', nid: 'current_ratio' },
+                    { name: '市盈率', type: 'plain', index_type: 1, unit: '倍率', nid: 'pe' },
+                    { name: '滚动市盈率', type: 'plain', index_type: 1, unit: '倍率', nid: 'pe_ttm' },
+                    { name: '市净率', type: 'plain', index_type: 1, unit: '倍率', nid: 'pb' },
+                    { name: '市销率(TTM)', type: 'plain', index_type: 1, unit: '倍率', nid: 'ps_ttm' },
+                    { name: '市现率', type: 'plain', index_type: 1, unit: '倍率', nid: 'pcf_ncfttm' },
+                    // { name: '摊薄净资产收益率', type: 'plain', index_type: 1, unit: '倍率', nid: 'roe_cut' },
                 ],
                 stock_price: [
                     { name: '昨日开盘价', type: 'plain', index_type: 1, unit: '元', nid: 'open'},
@@ -431,8 +431,8 @@ export default {
                     { name: '昨日最低价', type: 'plain', index_type: 1, unit: '元', nid: 'low' },
                     { name: '昨日收盘价', type: 'plain', index_type: 1, unit: '元', nid: 'close' },
                     { name: '昨日成交量', type: 'plain', index_type: 1, unit: '股', nid: 'volume' },
-                    { name: '昨日成交额', type: 'plain', index_type: 1, unit: '万元', nid: 'amount' },
-                    { name: '昨日换手率', type: 'plain', index_type: 1, unit: '%', nid: 'turnover_ratio'},
+                    // { name: '昨日成交额', type: 'plain', index_type: 1, unit: '万元', nid: 'amount' },
+                    { name: '昨日换手率', type: 'plain', index_type: 1, unit: '倍率', nid: 'turnover_ratio'},
                 ],
                 index_1_type: [{
                         value: '1_1',
@@ -511,14 +511,14 @@ export default {
                     { name: '净利润', type: 'plain', index_type: 1, unit: '-', nid: 'net_profit_incl_min_int_inc' },
                     { name: '息税前利润', type: 'plain', index_type: 1, unit: '-', nid: 'ebit' },
                     { name: '基本每股收益', type: 'plain', index_type: 1, unit: '-', nid: 'eps_basic' },
-                    { name: '每股收益', type: 'plain', index_type: 1, unit: '-', nid: 'eps' },
-                    { name: '每股净资产', type: 'plain', index_type: 1, unit: '-', nid: 'naps' },
-                    { name: '每股未分配利润', type: 'plain', index_type: 1, unit: '-', nid: 'retained_prodfit_ps' },
-                    { name: '每股公积金', type: 'plain', index_type: 1, unit: '-', nid: 'cap_resv_ps' },
-                    { name: '销售毛利率', type: 'plain', index_type: 1, unit: '-', nid: 'sale_gross_profit_rate' },
-                    { name: '营业利润率', type: 'plain', index_type: 1, unit: '-', nid: 'operating_profit_ratio' },
-                    { name: '股东权益(净资产)', type: 'plain', index_type: 1, unit: '-', nid: 'net_assets' },
-                    { name: '资产负债率', type: 'plain', index_type: 1, unit: '-', nid: 'asset_liability_ratio' },
+                    // { name: '每股收益', type: 'plain', index_type: 1, unit: '-', nid: 'eps' },
+                    // { name: '每股净资产', type: 'plain', index_type: 1, unit: '-', nid: 'naps' },
+                    // { name: '每股未分配利润', type: 'plain', index_type: 1, unit: '-', nid: 'retained_prodfit_ps' },
+                    // { name: '每股公积金', type: 'plain', index_type: 1, unit: '-', nid: 'cap_resv_ps' },
+                    // { name: '销售毛利率', type: 'plain', index_type: 1, unit: '-', nid: 'sale_gross_profit_rate' },
+                    // { name: '营业利润率', type: 'plain', index_type: 1, unit: '-', nid: 'operating_profit_ratio' },
+                    // { name: '股东权益(净资产)', type: 'plain', index_type: 1, unit: '-', nid: 'net_assets' },
+                    // { name: '资产负债率', type: 'plain', index_type: 1, unit: '-', nid: 'asset_liability_ratio' },
                     { name: '速动比率', type: 'plain', index_type: 1, unit: '-', nid: 'quick_ratio' },
                     { name: '流动比率', type: 'plain', index_type: 1, unit: '-', nid: 'current_ratio' },
                     { name: '市盈率', type: 'plain', index_type: 1, unit: '-', nid: 'pe' },
@@ -526,7 +526,7 @@ export default {
                     { name: '市净率', type: 'plain', index_type: 1, unit: '-', nid: 'pb' },
                     { name: '市销率(TTM)', type: 'plain', index_type: 1, unit: '-', nid: 'ps_ttm' },
                     { name: '市现率', type: 'plain', index_type: 1, unit: '-', nid: 'pcf_ncfttm' },
-                    { name: '摊薄净资产收益率', type: 'plain', index_type: 1, unit: '-', nid: 'roe_cut' },
+                    // { name: '摊薄净资产收益率', type: 'plain', index_type: 1, unit: '-', nid: 'roe_cut' },
                 ],
                 stock_price: [
                     { name: '昨日开盘价', type: 'plain', index_type: 1, unit: '-', nid: 'open'},
@@ -534,7 +534,7 @@ export default {
                     { name: '昨日最低价', type: 'plain', index_type: 1, unit: '-', nid: 'low' },
                     { name: '昨日收盘价', type: 'plain', index_type: 1, unit: '-', nid: 'close' },
                     { name: '昨日成交量', type: 'plain', index_type: 1, unit: '股', nid: 'volume' },
-                    { name: '昨日成交额', type: 'plain', index_type: 1, unit: '-', nid: 'amount' },
+                    // { name: '昨日成交额', type: 'plain', index_type: 1, unit: '-', nid: 'amount' },
                     { name: '昨日换手率', type: 'plain', index_type: 1, unit: '-', nid: 'turnover_ratio'},
                 ],
                 index_1_type: [{
@@ -580,11 +580,12 @@ export default {
                 if(run == true){
                     this.run_strategy(value);
                 }
-            }).catch(() => {
-            this.$message({
-                type: 'info',
-                message: '取消保存'
-            });       
+            }).catch((err) => {
+                console.log(err);
+                this.$message({
+                    type: 'info',
+                    message: '取消保存'
+                });       
             });
         },
         run_strategy(name) {
@@ -598,13 +599,20 @@ export default {
                 console.log(j);
                 var nid = j.nid;
                 var t = j.index_type_m;
-                var l = []
+                var l = [];
                 if(t == '1_1') {
                     l = [parseInt(j.index_type_value), -1]
                 } else if(t == '1_2') {
                     l = [-1, parseInt(j.index_type_value)]
                 } else {
                     l = [parseInt(j.index_type_value_1), parseInt(j.index_type_value_2)]
+                }
+                if(isNaN(l[0]) || isNaN(l[1])) {
+                    this.$message({
+                        type: 'info',
+                        message: '请输入非空数值'
+                    });
+                    return
                 }
                 stock_index[j.nid] = l;
                 stock_index_c = stock_index_c + j.index + ': ( '+l + ') ';
@@ -614,6 +622,13 @@ export default {
                 var j = this.sort_selected_index[index];
                 var nid = j.nid;
                 var data = {};
+                if(isNaN(parseInt(j.index_type_value))) {
+                    this.$message({
+                        type: 'info',
+                        message: '请输入非空数值'
+                    });
+                    return
+                }
                 rank_index[j.nid] = parseInt(j.index_type_value);
                 rank_index_c = rank_index_c + j.index + ':('+parseInt(j.index_type_value)+') ';
             }    
@@ -664,7 +679,7 @@ export default {
                         }
                     }
                 } else {
-                    self.$message.error('策略运行失败：'+response.data.msg);
+                    self.$message.error('策略运行失败：'+ response.data.msg);
                     console.log('fail' + response.data.msg);
                     for(var i in self.str_saved) {
                         if(self.str_saved[i].str_name == name){
@@ -696,9 +711,9 @@ export default {
                     index: item.name,
                     index_type: item.index_type,
                     index_type_m: item.index_type==4?'3_1':item.index_type+'_1',
-                    index_type_value: 100,
-                    index_type_value_1: 100,
-                    index_type_value_2: 200,
+                    index_type_value: 1,
+                    index_type_value_1: 10,
+                    index_type_value_2: 20,
                     unit: item.unit,
                     in_data_index: rows.indexOf(item),
                     data_index: index

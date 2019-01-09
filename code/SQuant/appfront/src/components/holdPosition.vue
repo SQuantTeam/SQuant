@@ -36,22 +36,22 @@
                                                             <tbody class="ant-table-tbody">
                                                                 <tr v-for="item in accountJson" v-bind:key="item.symbol" class="ant-table-row  ant-table-row-level-0">
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.enable_balance}}</span>
+                                                                        <span style="font-weight: 700;">{{item.enable_balance.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.float_pnl}}</span>
+                                                                        <span style="font-weight: 700;">{{item.float_pnl.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.holding_pnl}}</span>
+                                                                        <span style="font-weight: 700;">{{item.holding_pnl.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.trading_pnl}}</span>
+                                                                        <span style="font-weight: 700;">{{item.trading_pnl.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.frozen_balance}}</span>
+                                                                        <span style="font-weight: 700;">{{item.frozen_balance.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.init_balance}}</span>
+                                                                        <span style="font-weight: 700;">{{item.init_balance.toFixed(2)}}</span>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -117,7 +117,7 @@
                                                                         <span style="font-weight: 700;" v-bind:class="{'red-font':item.direction==='long','green-font':!item.direction==='long'}">{{item.direction==='long'?'多':'空'}}</span>
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        <span style="font-weight: 700;">{{item.price}}</span>
+                                                                        <span style="font-weight: 700;">{{item.price.toFixed(2)}}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         <span style="font-weight: 700;">{{item.position}}</span>
@@ -393,7 +393,6 @@ export default {
             orderData: [],
             total: 10,
             pagesize: 5,
-            currentpage: 2,
             sliceOrderData: [],
             transcationData: [],
             // holdPositionJson: [{ "direction": "long", "enable": 300, "gatewayName": "SQuant", "name": "苏宁环球", "mktval": 930.0, "exchange": "SZ", "frozen": 0, "symbol": "000718.SZ", "ydPosition": 300, "last": 3.1, "commission": 0.0, "trading": 0.0, "tdPosition": 0, "vtPositionName": "000718.SZ.long", "rawData": null, "want": 1200, "holding": -45.0, "position": 300, "price": 3.2033, "initPosition": 300, "date": "2018-11-24", "allProfit": 30, "tradeProfit": 20, }],
@@ -420,95 +419,71 @@ export default {
             console.log(key, keyPath);
 
         },
-        current_change: function (currentPage) {
-            this.currentPage = currentPage;
-            this.updateOrderData();
+        get_account_info(){
+            // 基本信息
+            var self = this;
+            this.$axios.defaults.withCredentials=true
+            this.$axios.get(window.baseUrl + "market/queryAccount")
+                .then(response => {
+                    console.log("基本信息");
+                    console.log(response);
+                    if (response.data.error_num == 0) {
+                        console.log(response.data.account)
+                        self.accountJson = eval("["+response.data.account+"]");
+                        
+                        console.log(this.accountJson);
+                    } else {
+                        alert("获取持仓信息错误：" + response.data.msg);
+                        console.log(response.data.error_num + ":" + response.data.msg);
+                    }
+                }).catch(function (error) {
+                    // alert(error);
+                    console.log(error);
+                });
         },
-        updateOrderData() {
-            this.sliceOrderData = this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-        }
-    },
-    watch: {
-        currentPage: function (curVal, oldVal) {
-            console.log("currentPage watch", curVal, oldVal);
-            this.sliceOrderData = this.orderData.slice((curVal - 1) * this.pagesize, curVal * this.pagesize);
+        get_hold_position(){
+            // 持仓信息
+            this.$axios.defaults.withCredentials=true
+            this.$axios.get(window.baseUrl + "market/queryPosition")
+                .then(response => {
+                    console.log("持仓信息");
+                    console.log(response);
+                    if (response.data.error_num == 0) {
+                        self.holdPositionJson = eval(response.data.result);
+                        console.log(self.holdPositionJson);
+                    } else {
+                        alert("获取持仓信息错误：" + response.data.msg);
+                        console.log(response.data.error_num + ":" + response.data.msg);
+                    }
+                }).catch(function (error) {
+                    // alert(error);
+                    console.log(error);
+                });
         },
-        orderData: function (curVal, oldVal) {
-            console.log("orderata watch", curVal.length, oldVal.length, this.currentPage, this.sliceOrderData.length);
-            this.sliceOrderData = curVal.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-            console.log(this.sliceOrderData.length);
-        }
-    },
-    // computed: {
-    //     sliceOrderData: {
-    //         get: function () {
-    //             return this.orderData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-    //         },
-    //         set: function (newValue) {
-    //             return newValue;
-    //         }
-    //     }
-    // },
-    mounted() {
-        console.log(window.baseUrl);
-        // 基本信息
-        var self = this;
-        this.$axios.defaults.withCredentials=true
-        this.$axios.get(window.baseUrl + "market/queryAccount")
-            .then(response => {
-                console.log("基本信息");
-                console.log(response);
-                if (response.data.error_num == 0) {
-                    console.log(response.data.account)
-                    self.accountJson = eval("["+response.data.account+"]");
-                    
-                    console.log(this.accountJson);
-                } else {
-                    alert("获取持仓信息错误：" + response.data.msg);
-                    console.log(response.data.error_num + ":" + response.data.msg);
-                }
-            }).catch(function (error) {
-                // alert(error);
-                console.log(error);
-            });
-        // 持仓信息
-        this.$axios.defaults.withCredentials=true
-        this.$axios.get(window.baseUrl + "market/queryPosition")
-            .then(response => {
-                console.log("持仓信息");
-                console.log(response);
-                if (response.data.error_num == 0) {
-                    self.holdPositionJson = eval(response.data.result);
-                    console.log(self.holdPositionJson);
-                } else {
-                    alert("获取持仓信息错误：" + response.data.msg);
-                    console.log(response.data.error_num + ":" + response.data.msg);
-                }
-            }).catch(function (error) {
-                // alert(error);
-                console.log(error);
-            });
-        // 委托信息
-        this.$axios.defaults.withCredentials=true
-        this.$axios.get(window.baseUrl + "market/queryOrder")
-            .then(response => {
-                console.log("委托信息");
-                console.log(response);
-                if (response.data.error_num == 0) {
-                    var temp = eval(response.data.result);
-                    console.log(temp);
-                    self.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
-                    console.log(self.orderData);
+        get_weituo(){
+            // 委托信息
+            this.$axios.defaults.withCredentials=true
+            this.$axios.get(window.baseUrl + "market/queryOrder")
+                .then(response => {
+                    console.log("委托信息");
+                    console.log(response);
+                    if (response.data.error_num == 0) {
+                        var temp = eval(response.data.result);
+                        console.log(temp);
+                        self.orderData = temp.sort(function (a, b) { return -a.orderID.localeCompare(b.orderID) });
+                        console.log(self.orderData);
 
-                } else {
-                    alert("获取委托信息错误：" + response.data.msg);
-                    console.log(response.data.error_num + ":" + response.data.msg);
-                }
-            }).catch(function (error) {
-                alert(error);
-                console.log(error);
-            });
-        // 成交信息
+                    } else {
+                        alert("获取委托信息错误：" + response.data.msg);
+                        console.log(response.data.error_num + ":" + response.data.msg);
+                    }
+                }).catch(function (error) {
+                    alert(error);
+                    console.log(error);
+                });
+        },
+        get_done(){
+            // 成交信息
         this.$axios.defaults.withCredentials=true
         this.$axios.get(window.baseUrl + "market/queryTrade")
             .then(response => {
@@ -525,9 +500,18 @@ export default {
                 alert(error);
                 console.log(error);
             });
-        // this.currentpage = 1;
-        this.updateOrderData();
+        },
+        init_table(){
+            this.get_account_info();
+            this.get_hold_position();
+            this.get_weituo();
+            this.get_done();
+        }
     },
 
+    mounted() {
+        console.log(window.baseUrl);
+        this.init_table();
+    },
 }
 </script>

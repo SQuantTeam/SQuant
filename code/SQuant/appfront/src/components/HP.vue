@@ -5,7 +5,7 @@
         class="row-bg" >
         <el-col :span="3" :offset="2" id="nav_logo" >   
         </el-col>
-        <el-col :span="12" :offset="10">
+        <el-col :span="12" :offset="9">
             <el-menu
                 :default-active="Menu"
                 class="el-menu-demo"
@@ -16,6 +16,7 @@
                 <el-menu-item index="2"><a href="#/details">行情信息</a></el-menu-item>
                 <el-menu-item index="3"><a href="#/strategy">我的策略</a></el-menu-item>
                 <el-menu-item index="4"><a href="#/holdPosition">持仓信息</a></el-menu-item>
+                <el-menu-item index='/control' ><a href="/#/control">风控模块</a></el-menu-item>
                 <el-menu-item index="5" v-show="!is_login"><a href="#/signup">注册</a></el-menu-item>
                 <el-menu-item index="6" v-show="!is_login"><a href="#/signin">登录</a></el-menu-item>
                 <el-menu-item index="/#/" style="width:80px" v-show="is_login">

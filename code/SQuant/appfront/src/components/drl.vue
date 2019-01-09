@@ -48,120 +48,12 @@
                             </el-date-picker>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="start_drl">启动</el-button>
-                            <el-button @click="save_drl">保存配置</el-button>
+                            <el-button type="primary" @click="start_drl" style="float:left">训练模型</el-button>
+                            <el-button @click="run_this_drl" v-if="model_trained" style="float:left">运行模型</el-button>
+                            <el-button @click="stop_this_drl" v-if="model_is_run" style="float:left">停止该模型</el-button>
                         </el-form-item>
                     </el-form>
             </el-card>    
-        </div>
-
-        <div v-if="false">
-            <el-card :body-style="{ padding: '10px' }" style="width:68%;position:absolute;left:30%;top:9%;">
-            <el-select v-model="is_drl_stop" size="mini" style="margin-left:-80%">
-                <el-option label="运行中" value="1"></el-option>
-                <el-option label="已结束" value="0"></el-option>
-            </el-select>
-            <el-table
-                v-bind:data="is_drl_stop=='1'? drl_status.drl_status_run : drl_status.drl_status_stop"
-                height="280"
-                ref="drl_status_table"
-                highlight-current-row
-               >
-                <el-table-column
-                prop="drl_name"
-                label="名称"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="drl_type"
-                label="算法"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="drl_variables"
-                label="参数">
-                </el-table-column>
-                <el-table-column 
-                    align="right">
-                    <template slot="header" slot-scope="scope">
-                        <el-input
-                        v-model="drl_search"
-                        size="mini"
-                        placeholder="输入关键字搜索"/>
-                    </template>
-                    <template slot-scope="scope" >
-                        <el-button
-                        size="mini"
-                        type="danger"
-                        @click="stop_drl(scope.$index, drl_status)"
-                        v-if="is_drl_stop=='1'"
-                        >停止</el-button>
-                        <el-button
-                        size="mini"
-                        type="danger"
-                        @click="view_drl_res(scope.$index, drl_status)"
-                        v-else>
-                        查看结果</el-button>
-                    </template>
-                    </el-table-column>
-            </el-table>
-            </el-card>
-        </div>
-
-        <div v-if="false">
-            <el-card :body-style="{ padding: '10px' }" style="width:68%;position:absolute;left:30%;top:55%;" > 
-            <h5 style="margin-bottom: 0px;margin-top:0px">配置</h5>
-            <el-table
-                :data="drl_config.filter(data => !drl_search || data.drl_name.toLowerCase().includes(drl_search.toLowerCase()) || (data.drl_type.toLowerCase().includes(drl_search.toLowerCase())))"
-                height="280"
-               >
-                <el-table-column
-                prop="drl_name"
-                label="名称"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="drl_type"
-                label="算法"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="drl_variables"
-                label="参数">
-                </el-table-column>
-                <el-table-column
-                    align="right">
-                    <template slot="header" slot-scope="scope">
-                        <el-input
-                        v-model="drl_search"
-                        size="mini"
-                        placeholder="输入关键字搜索"/>
-                    </template>
-                    <template slot-scope="scope">
-                        <el-button
-                        size="mini"
-                        @click="edit_drl_config(scope.$index, scope.row)">编辑</el-button>
-                        <el-button
-                        size="mini"
-                        type="danger"
-                        @click="delete_drl_config(scope.$index, drl_config)">删除</el-button>
-                    </template>
-                    </el-table-column>
-            </el-table>
-            </el-card>
-        </div>
-
-        <div v-if="false">
-            <el-card :body-style="{ padding: '10px' }" style="width:382.1px;position:absolute;left:2%;top:30%;">
-                <h5 style="margin:5px">策略：{{drl_result.name}} 结果展示</h5>
-                <div>
-                    <img v-bind:src="trade_point" class="image"/>
-                    <!-- src="../assets/banner-2-1.jpg" style="position:absolute;width:442px !important;margin-left:-417px;margin-top:265px;"> -->
-                </div>
-                <div>
-                    <img v-bind:src="img2" class="image"/>
-                </div>
-            </el-card>
         </div>
 
         <div>
@@ -224,6 +116,8 @@ export default {
     components: {squantheader},
     data() {
       return {
+            model_trained: false,
+            model_is_run: false,
             stock_search_selected: '',
             stock_basic_info: [],
             drl_details: {
@@ -271,74 +165,6 @@ export default {
                     }
                 }]
             },
-            is_drl_stop: '1',
-            drl_search: '',
-            drl_status: {
-                drl_status_run : [{
-                    drl_id: 1,
-                    drl_name: '2016-05-031',
-                    drl_type: '王小虎',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄',
-                    status: 1,
-                }],
-                drl_status_stop: [{
-                    drl_id: 2,
-                    drl_name: '2016-05-032',
-                    drl_type: '王小虎',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄',
-                    status: 0,
-                },{
-                    drl_id: 3,
-                    drl_name: '2016-05-033',
-                    drl_type: '王小虎',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄',
-                    status: 0,
-                }],
-            },
-            drl_config: [
-                {
-                    drl_id: 1,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎1',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                }, 
-                {
-                    drl_id: 2,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎2',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                },
-                {
-                    drl_id: 3,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎3',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                },
-                {
-                    drl_id: 4,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎4',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                },
-                {
-                    drl_id: 5,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎5',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                },
-                {
-                    drl_id: 6,
-                    drl_name: '2016-05-03',
-                    drl_type: '王小虎6',
-                    drl_variables: '上海市普陀区金沙江路 1518 弄'
-                }
-            ],
-            drl_result: {
-                name: '',
-                res1: 'r1.png',
-                res2: 'r1.png',
-                is_show: false
-            },
       };
     },
     methods: {
@@ -364,11 +190,6 @@ export default {
             }).then(function (response) {
                 if(response.data.error_num == 0) {
                     var result = response.data.list;
-                    // date	"20180316"
-                    // action	2
-                    // profit_ratio	0
-                    // target_price	31.4
-                    // hs300_profit_ratio	0
                     var date_arr = [];
                     var action_arr = [];
                     var profit_ratio_arr = [];
@@ -382,8 +203,6 @@ export default {
                         profit_ratio_arr.push(item.profit_ratio);
                         target_price_arr.push(item.target_price);
                         hs300_profit_ratio_arr.push(item.hs300_profit_ratio);
-
-
                         if(item.action==1) {
                             //  {name : '周最低', value : -2, xAxis: 1, yAxis: 1.5},
                             var buy = {name : '买入', xAxis: item.date, yAxis: item.target_price, symbol: 'circle',  symbolSize: 5, itemStyle:{normal:{color:'red'}}}
@@ -396,6 +215,7 @@ export default {
                     console.log(response);
                     self.trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr);
                     self.fortune_linechart_init(date_arr, profit_ratio_arr, hs300_profit_ratio_arr);
+                    self.model_trained=true;
                 }
             }).catch(function (error) {
                 console.log(error);
@@ -3278,48 +3098,6 @@ export default {
             {value: '长城证券', stock_code: '002939.SZ'}
             ];
         },
-        stop_drl(index, rows) {
-            console.log('stop',rows)
-            console.log(index)
-            console.log(rows[index])
-            var item = rows.drl_status_run[index]
-            item.status = 0
-            rows.drl_status_run.splice(index, 1)
-            rows.drl_status_stop.push(item)
-        },
-        view_drl_res(index, rows){
-            var drl_id = rows.drl_status_stop[index].drl_id
-            this.drl_result = {
-                name: rows.drl_status_stop[index].drl_name,
-                is_show: true,
-                res1: 'r1.png',
-                res2: 'r2.png'
-            }
-            console.log(this.drl_result)
-            this.$refs.drl_status_table.setCurrentRow(rows.drl_status_stop[index]);
-        },
-        edit_drl_config(index, row){
-            console.log(index, row);
-        },
-        delete_drl_config(index, rows){
-            console.log(index, rows);
-            rows.splice(index, 1);
-        },
-        get_drl_status() {
-            this.drl_status_run = []
-            this.drl_status_stop = []
-            for(var index in this.drl_status){
-                console.log(index)
-                var item = this.drl_status[index]
-                if (item.status == 0) {
-                    this.drl_status_run.push(item)
-                } else {
-                    this.drl_status_stop.push(item)
-                }
-            }
-            console.log(this.drl_status_run)
-            console.log(this.drl_status_stop)
-        },
         trade_point_linechart_init(date_arr, sell_or_buy, target_price_arr) {
             var option = {
                 title: {
@@ -3479,18 +3257,16 @@ export default {
             var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
             return year+"-"+month+"-"+day;
         },
+        run_this_drl(){
+
+        },
+        stop_this_drl(){
+
+        }
     },
     mounted() {
         this.stock_basic_info = this.load_stock_basic_info();
         this.drl_details.duration = this.get_date();
-    },
-    computed: {
-        trade_point: function() {
-            return require('../assets/result/'+this.drl_result.res1)
-        },
-        img2: function() {
-            return require('../assets/result/'+this.drl_result.res2)
-        },
     },
   }
 </script>
