@@ -202,7 +202,6 @@ def run_sniper_algo(request):
 
         # 风控检测
         active = request.session.get("risk_manager_status", None)
-        print (active)
         if active is not None and active is True:
             symbol = str(setting['symbol'])  # 合约代码
             direction = text_type(setting['direction'])  # 买卖

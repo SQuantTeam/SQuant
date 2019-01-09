@@ -13,6 +13,7 @@ urlpatterns = [
         user_views.delete_user, ),
     url(r'user/login$', user_views.login, ),
     url(r'user/all$', user_views.get_all_user, ),
+    url(r'user/logout$', user_views.logout, ),
 
     url(r'market/connect$', views.connect, ),
     url(r'market/quote/(?P<symbol>[0-9]{6}\.S[HZ])$', views.quote, ),

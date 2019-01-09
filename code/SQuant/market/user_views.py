@@ -54,6 +54,7 @@ def login(request):
     print("session.values:", request.session.values())
     response = {}
     try:
+        request.session.flush()
         user_data = json.loads(request.body)
         print("user_data:", user_data)
         user = User.objects.get(email=user_data['email'])
@@ -150,4 +151,17 @@ def delete_user(request, email):
     except Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 1
+    return JsonResponse(response)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def logout(request):
+    response = {}
+    try:
+        request.session.flush()
+        response['msg'] = '退出登录'
+        response['error_num'] = 0
+    except Exception, e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
     return JsonResponse(response)
