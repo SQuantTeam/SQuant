@@ -8,7 +8,6 @@ import json
 
 # Create your models here.
 
-
 class Learning(models.Model):
     # id=models.IntegerField()
     email = models.CharField(max_length=255, unique=True, )
@@ -25,3 +24,4 @@ class Learning(models.Model):
         for attr in fields:
             d[attr] = getattr(self, attr)
         return json.dumps(d)
+
