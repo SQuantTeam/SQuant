@@ -248,8 +248,11 @@
                     <template slot-scope="scope">
                         <a target="_blank"
                         :href=str_saved[scope.$index].result 
-                        v-show="str_saved[scope.$index].result!='none'"
+                        v-show="str_saved[scope.$index].result!='none' && str_saved[scope.$index].success==true"
                         >查看结果</a>
+                        <span target="_blank"
+                        v-show="str_saved[scope.$index].result!='none' && str_saved[scope.$index].success==false"
+                        >运行失败</span>
                     </template>
                     </el-table-column>
                 <el-table-column
@@ -337,29 +340,24 @@ export default {
                     label: '每月'
             }],
             pool_sets: [{
-                    value: '沪深300',
+                    value: '000300.SH',
                     label: '沪深300'
                 }, {
-                    value: '上证A股',
-                    label: '上证A股'
-                }, {
-                    value: '深证A股',
-                    label: '深证A股'
-                }, {
-                    value: '全A股',
-                    label: '全A股'
-                }, {
-                    value: '中小板',
-                    label: '中小板'
-                }, {
-                    value: '创业版',
-                    label: '创业版'
-                }, {
-                    value: '上证50',
-                    label: '上证50'
-                }, {
-                    value: '中证500',
+                    value: '000905.SH',
                     label: '中证500'
+                }, {
+                    value: '000016.SH',
+                    label: '上证50'
+                },
+                {
+                    value: '399006.SZ',
+                    label: '创业板'
+                }, {
+                    value: '399005.SZ',
+                    label: '中小版'
+                }, {
+                    value: '000002.SH',
+                    label: '全A股'
                 }
             ],
             industry_sets: [{
@@ -369,35 +367,31 @@ export default {
                     value: '000905.SH',
                     label: '中证500'
                 }, {
-                    value: '000016',
+                    value: '000016.SH',
                     label: '上证50'
                 },
                 {
-                    value: '上证A股',
-                    label: '上证A股'
+                    value: '399006.SZ',
+                    label: '创业板'
                 }, {
-                    value: '深证A股',
-                    label: '深证A股'
+                    value: '399005.SZ',
+                    label: '中小版'
                 }, {
-                    value: '全A股',
+                    value: '000002.SH',
                     label: '全A股'
                 }
             ],
             weight_sets: [{
                 value: 'equal_weight',
                 label: '等权重'
-                }, {
-                value: 'factor_value_weight',
-                label: 'factor_value_weight'
                 }
             ],
             strategy_details: {
                 duration: ['2018-11-01','2018-12-01'],
                 period: 'day',
-                pool: [],
+                pool: ['000300.SH'],
                 benchmark: '000300.SH',
                 pc_method: 'equal_weight',
-                universe: '',
                 amount: 5
             },
             selected_norm: {
@@ -565,6 +559,12 @@ export default {
                     message: '进行策略运行，请先进行账户连接'
                 });
                 return
+            } else if(this.strategy_details.pc_method=='factor_value_weight' && this.sort_selected_index.length==0){
+                this.$message({
+                    type: 'info',
+                    message: '当选择因子权重，排序指标不能为空'
+                });
+                return
             }
             this.$prompt('请输入策略配置名称', '提示', {
             confirmButtonText: '确定',
@@ -608,11 +608,11 @@ export default {
                 var t = j.index_type_m;
                 var l = [];
                 if(t == '1_1') {
-                    l = [parseFloat(j.index_type_value), -1]
+                    l = [parseInt(j.index_type_value), -1]
                 } else if(t == '1_2') {
-                    l = [-1, parseFloat(j.index_type_value)]
+                    l = [-1, parseInt(j.index_type_value)]
                 } else {
-                    l = [parseFloat(j.index_type_value_1), parseFloat(j.index_type_value_2)]
+                    l = [parseInt(j.index_type_value_1), parseInt(j.index_type_value_2)]
                 }
                 if(isNaN(l[0]) || isNaN(l[1])) {
                     this.$message({
@@ -629,15 +629,15 @@ export default {
                 var j = this.sort_selected_index[index];
                 var nid = j.nid;
                 var data = {};
-                if(isNaN(parseFloat(j.index_type_value))) {
+                if(isNaN(parseInt(j.index_type_value))) {
                     this.$message({
                         type: 'info',
                         message: '请输入非空数值'
                     });
                     return
                 }
-                rank_index[j.nid] = parseFloat(j.index_type_value);
-                rank_index_c = rank_index_c + j.index + ':('+parseFloat(j.index_type_value)+') ';
+                rank_index[j.nid] = parseInt(j.index_type_value);
+                rank_index_c = rank_index_c + j.index + ':('+parseInt(j.index_type_value)+') ';
             }    
             var s_config = "回测时间："+start_date+' ~ '+end_date
                         + ', 回测频率：'+this.strategy_details.period 
@@ -647,10 +647,12 @@ export default {
                         + ", 选股指标：{ "+ stock_index_c +"}"
                         + ", 排序指标：{ "+ rank_index_c + "}"
 
+            var universe = this.strategy_details.pool.join(',');
+            
             var json = {
                 "start_date" : start_date,
                 "end_date" : end_date,
-                "universe" : "000905.SH",
+                "universe" : universe,
                 "benchmark" : this.strategy_details.benchmark,
                 "period" : this.strategy_details.period,
                 "pc_method" : this.strategy_details.pc_method,
@@ -666,6 +668,7 @@ export default {
                 "str_name": name,
                 "config": s_config,
                 "result": "none",
+                "success": true,
             })
 
             console.log(s_config);
@@ -681,19 +684,28 @@ export default {
                     });
                     for(var i in self.str_saved) {
                         if(self.str_saved[i].str_name == name){
-                            self.str_saved[i].result = response.data.msg;
+                            self.str_saved[i].result = response.data.result;
+                            console.log(response.data.result);
                             break
                         }
                     }
                 } else if(response.data.msg.indexOf('No trade records found in your')>=0){
                     self.$message.error('策略运行失败：所选的指标没有对应的股票存在！');
+                    for(var i in self.str_saved) {
+                        if(self.str_saved[i].str_name == name){
+                            self.str_saved[i].success = false;
+                            self.str_saved[i].result = '';
+                            break
+                        }
+                    }
                 }
                 else {
                     self.$message.error('策略运行失败：'+ response.data.msg);
                     console.log('fail' + response.data.msg);
                     for(var i in self.str_saved) {
                         if(self.str_saved[i].str_name == name){
-                            self.str_saved[i].result = ''
+                            self.str_saved[i].success = false;
+                            self.str_saved[i].result = '';
                             break
                         }
                     }
@@ -769,6 +781,7 @@ export default {
                             "str_name": strategy.fields.name,
                             "config": strategy.fields.obvious_param,
                             "result": strategy.fields.remote_report_path,
+                            "success": true,
                         }
                         self.str_saved.push(j);
                     }
