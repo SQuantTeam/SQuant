@@ -8,7 +8,7 @@ import requests
 from django.utils.encoding import force_text, python_2_unicode_compatible
 import json
 
-from ml import app
+# from ml import app
 
 
 @require_http_methods(["GET"])

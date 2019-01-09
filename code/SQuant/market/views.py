@@ -333,7 +333,7 @@ def placeOrder(request):
                                        trade_limit=trade_limit, trade_count=trade_count)
             msg, result = risk_manager.checkRisk(orderReq=orderReq, tick=tick, account=account)
             if result is False:
-                response['result'] = msg
+                response['msg'] = msg
                 response['error_num'] = 1
                 return JsonResponse(response)
 

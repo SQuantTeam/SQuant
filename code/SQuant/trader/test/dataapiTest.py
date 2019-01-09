@@ -1,5 +1,8 @@
 # -*- coding: UTF-8 -*-
 # encoding: utf-8
+
+import pandas as pd
+
 from trader.data.dataapi import DataApi
 from trader.sqGateway import *
 
@@ -82,51 +85,58 @@ def onMarketData(self, key, data):
 
 
 if __name__ == '__main__':
+    # 显示所有列
+    pd.set_option('display.max_columns', None)
+    # 显示所有行
+    pd.set_option('display.max_rows', None)
     api = DataApi(addr="tcp://data.quantos.org:8910")
     phone = '15827606670'
     token = 'eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTU4Mj' \
     'c2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k'
-    df, msg  = api.login(phone, token)
-    print(df)
+    df, msg = api.login(phone, token)
+    print(df, msg)
 
-    symbol = '000001.SH'
-    fields = "OPEN,CLOSE,HIGH,LOW,LAST,\
-            VOLUME,TURNOVER,OI,PRECLOSE,TIME,DATE,\
-            LIMIT_UP,LIMIT_DOWN"
-    fields = fields.replace(' ', '').lower()
+    df, msg = api.query(view="help.apiParam", filter="param=pe")
+    print (df)
 
-    # 获取实时行情
-    df, msg = api.quote(symbol=symbol, fields=fields)
-    print ('here', df)
+    # symbol = '000718.SZ'
+    # fields = "OPEN,CLOSE,HIGH,LOW,LAST,\
+    #         VOLUME,TURNOVER,OI,PRECLOSE,TIME,DATE,\
+    #         LIMIT_UP,LIMIT_DOWN"
+    # fields = fields.replace(' ', '').lower()
+    #
+    # # 获取实时行情
+    # df, msg = api.quote(symbol=symbol, fields=fields)
+    # print ('here', df)
     # print(df.to_json(orient='records'))
-
-    #获取k线图
-    df, msg = api.bar(
-        symbol="600030.SH",
-        trade_date=20181116,
-        freq="5M",
-        start_time=0,
-        end_time=160000,
-        fields="")
-    df.to_csv('df.csv')
-    print(df.to_json(orient='records'))
-    print(msg)
-
-    api.close()
-
-    # 获取k线图
-    df, msg = api.bar(
-        symbol="600030.SH",
-        trade_date=20181116,
-        freq="5M",
-        start_time=0,
-        end_time=160000,
-        fields="")
-    print(df.to_json(orient='records'))
-    print(msg)
-
-    df, msg = api.query("jz.instrumentInfo",
-                             fields="symbol, name, buylot, selllot, pricetick, multiplier, inst_type",
-                             filter="market=SH,SZ,SHF,CZC,DCE,CFE&status=1&inst_type=1,2,3,4,5,101,102,103")
-
-    df.to_csv("instrument.csv", encoding = "utf-8")
+    #
+    # #获取k线图
+    # df, msg = api.bar(
+    #     symbol="600030.SH",
+    #     trade_date=20181116,
+    #     freq="5M",
+    #     start_time=0,
+    #     end_time=160000,
+    #     fields="")
+    # df.to_csv('df.csv')
+    # print(df.to_json(orient='records'))
+    # print(msg)
+    #
+    # api.close()
+    #
+    # # 获取k线图
+    # df, msg = api.bar(
+    #     symbol="600030.SH",
+    #     trade_date=20181116,
+    #     freq="5M",
+    #     start_time=0,
+    #     end_time=160000,
+    #     fields="")
+    # print(df.to_json(orient='records'))
+    # print(msg)
+    #
+    # df, msg = api.query("jz.instrumentInfo",
+    #                          fields="symbol, name, buylot, selllot, pricetick, multiplier, inst_type",
+    #                          filter="market=SH,SZ,SHF,CZC,DCE,CFE&status=1&inst_type=1,2,3,4,5,101,102,103")
+    #
+    # df.to_csv("instrument.csv", encoding = "utf-8")

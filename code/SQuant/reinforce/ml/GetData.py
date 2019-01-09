@@ -1,3 +1,4 @@
+
 # -*- coding: UTF-8 -*-
 # Author： 施源 Kris
 # Create Time： 2018.8.15
@@ -69,7 +70,7 @@ def get_data(symbol, n_samples=500, save_to_csv=False):
                 # 保存数据到本地csv文件
                 if save_to_csv:
                     data.to_csv(local_name, index=True)
-                # 过老的数据没有太大的参考价值，取最近的n_samples条数据 
+                # 过老的数据没有太大的参考价值，取最近的n_samples条数据
                 _df = df[-n_samples:]
                 return _df
             # 处理网络异常错误

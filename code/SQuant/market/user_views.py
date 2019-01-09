@@ -107,6 +107,11 @@ def add_user(request):
     try:
         user_data = json.loads(request.body)
         # print("add_user->user_data:"+str(user_data))
+        user = User.objects.filter(email=user_data['email'])
+        if user.count() > 0:
+            response['msg'] = "该用户已存在"
+            response['error_num'] = 1
+            return JsonResponse(response)
         user = User(email=user_data['email'],
                     password=user_data['password'],
                     user_type=user_data['user_type'])
