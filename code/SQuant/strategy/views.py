@@ -264,7 +264,7 @@ def run_sniper_algo(request):
         finished_algo = FinishedAlgorithem(user=user, name=algo_name, timestamp=sniper_algo.timestamp,
                                            traded_list=trade_id_list_str, obvious_param=obvious_param)
         finished_algo.save()
-
+        trade_gateway.close()
         # return the list of traded order's id to the font
         response['result'] = trade_id_list_str
         response['err_num'] = 0
@@ -322,7 +322,7 @@ def run_twap_algo(request):
             return JsonResponse(response)
 
         trade_gateway = TradeGateway(setting=setting, gatewayName="squant")
-        twap_algo = TwapAlgo(tradeGatewaya=trade_gateway, setting=setting, email=email, algoName=algo_name)
+        twap_algo = TwapAlgo(tradeGateway=trade_gateway, setting=setting, email=email, algoName=algo_name)
 
         # run sniper algorithm
         run_algo(twap_algo)
@@ -332,6 +332,7 @@ def run_twap_algo(request):
         # update database
         algo = Algorithem(user=user, name=algo_name, file_path=twap_algo.algorithm_param_path)
         algo.save()
+        trade_gateway.close()
 
         response['result'] = ""
         response['err_num'] = 0
