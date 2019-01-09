@@ -235,7 +235,7 @@
                 <el-table-column
                 prop="str_name"
                 label="名称"
-                width="150"
+                width="100"
                 fixed>
                 </el-table-column>
                 <el-table-column
@@ -608,11 +608,11 @@ export default {
                 var t = j.index_type_m;
                 var l = [];
                 if(t == '1_1') {
-                    l = [parseInt(j.index_type_value), -1]
+                    l = [parseFloat(j.index_type_value), -1]
                 } else if(t == '1_2') {
-                    l = [-1, parseInt(j.index_type_value)]
+                    l = [-1, parseFloat(j.index_type_value)]
                 } else {
-                    l = [parseInt(j.index_type_value_1), parseInt(j.index_type_value_2)]
+                    l = [parseFloat(j.index_type_value_1), parseFloat(j.index_type_value_2)]
                 }
                 if(isNaN(l[0]) || isNaN(l[1])) {
                     this.$message({
@@ -629,15 +629,15 @@ export default {
                 var j = this.sort_selected_index[index];
                 var nid = j.nid;
                 var data = {};
-                if(isNaN(parseInt(j.index_type_value))) {
+                if(isNaN(parseFloat(j.index_type_value))) {
                     this.$message({
                         type: 'info',
                         message: '请输入非空数值'
                     });
                     return
                 }
-                rank_index[j.nid] = parseInt(j.index_type_value);
-                rank_index_c = rank_index_c + j.index + ':('+parseInt(j.index_type_value)+') ';
+                rank_index[j.nid] = parseFloat(j.index_type_value);
+                rank_index_c = rank_index_c + j.index + ':('+parseFloat(j.index_type_value)+') ';
             }    
             var s_config = "回测时间："+start_date+' ~ '+end_date
                         + ', 回测频率：'+this.strategy_details.period 
@@ -685,7 +685,10 @@ export default {
                             break
                         }
                     }
-                } else {
+                } else if(response.data.msg.indexOf('No trade records found in your')>=0){
+                    self.$message.error('策略运行失败：所选的指标没有对应的股票存在！');
+                }
+                else {
                     self.$message.error('策略运行失败：'+ response.data.msg);
                     console.log('fail' + response.data.msg);
                     for(var i in self.str_saved) {
