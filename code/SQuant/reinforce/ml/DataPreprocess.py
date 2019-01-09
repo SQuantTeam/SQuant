@@ -106,13 +106,45 @@ def data_A_preprocess(data, split_ratio):
     date_train = date_series[:n_train]
     # 测试数据集
     test = _data[-n_test:]
-    print("train 1:",train[1])
+    print("train 1:", train[1])
     print("test 1:", test[1])
     date_test = date_series[-n_test:]
-    print("date_train 1",date_train.iloc[1])
+    print("date_train 1", date_train.iloc[1])
     print("date_test 1:", date_test.iloc[1])
     return train, test, date_train, date_test
 
 
-def data_A_process():
-    return None
+def data_A_bar(data):
+    _data = data
+
+    # 数据行数
+    n_rows = _data.shape[0]
+    # 数据列数
+    n_cols = _data.shape[1]
+    # # 获取开盘价数据列
+    data_c_open = _data[['open']]
+
+    # # 若两者行数相等，则可以拼接数据
+    # if len(tradePrice) == len(_data):
+    # 取历史的开盘价、收盘价、最低价、最高价、成交量
+    # ts_code，trade_date，open，high，low，close，pre_close，change，pct_change，vol，amount
+    # ['Open', 'High', 'Low', 'Close', 'Volume']
+    # 'pre_close', 'change', 'pct_change', 'amount'
+    _data = _data.loc[:, ['open', 'high', 'low', 'close', 'volume']]
+    # 用当天的最高价与最低价的平均值进行
+    _data['tradePrice'] = (_data['high'] + _data['low']) / 2.0
+
+    # 初始化现金为100000. (默认初始资本为10w)
+    _data['cash'] = 100000.
+    # 初始化股票价值为0（默认当前未持股）
+    _data['stockValue'] = 0.
+    time_series = data['time']
+    temp = data.loc[:, ['trade_date']]
+    print("trade_date shape:", temp.shape)
+    _data['Date'] = temp
+
+    # 将处理后的数据转换为numpy数组
+    _data = np.array(_data)
+    print("_data.shape:", _data.shape,"time_series.shape:",time_series.shape)
+    print("date_test 1:", _data[0])
+    return _data, time_series

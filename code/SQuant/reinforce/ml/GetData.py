@@ -2,11 +2,20 @@
 # Author： 施源 Kris
 # Create Time： 2018.8.15
 import os
+import sys
 import numpy as np
 import pandas as pd
 import quandl  # 用quandl的api获取stock price 以苹果公司股票进行实验 代码-APPL
 import tushare as ts
 import datetime
+
+sys.path.append("../..")
+from trader.sqSetting import MdAddress, TdAddress, DefaultPhone, DefaultToken
+from trader.gateway.tradeGateway import TradeGateway
+
+# from trader.sqConstant import *
+# from trader.sqGateway import *
+# from trader.trade.riskManager import RiskManager
 
 print(ts.__version__)
 ts.set_token('787e601c7738be1352a81c4aae6eae842a097e17f5d86514b3393cec')
@@ -96,7 +105,46 @@ def get_A_data(ts_code="000001.SZ", end_date=(datetime.date.today() + datetime.t
     print("get_A_data df_n.iloc[-1]:", df_n.iloc[-1])
     return df_n
 
-    # df = ts.pro_bar(pro_api=ts.pro_api(), ts_code='399300.SZ', adj='qfq', start_date='20180101', end_date='20181225')
-    # pro.daily(ts_code='399300.SZ', start_date='20180101', end_date='20181225')
-    # 只有index_daily有效
-    # df1 = pro.index_daily(ts_code='000300.SH', start_date='20180101', end_date='20181225')
+
+def get_latest_bar(symbol, trade_date, freq):
+    # phone = request.session.get('phone', None)
+    # token = request.session.get('token', None)
+    print("exec GetData->get_latest_bar method")
+    phone = DefaultPhone
+    token = DefaultToken
+    setting = {}
+    setting['mdAddress'] = MdAddress
+    setting['tdAddress'] = TdAddress
+    setting['username'] = phone
+    setting['token'] = token
+    tradeGateway = TradeGateway(setting, gatewayName="SQuant")
+    if tradeGateway.loginStatus == False:
+        print("GetData->get_latest_bar:loginStatus==False")
+        return None
+    else:
+        if not cmp(freq, "5M") and not cmp(freq, "1M"):
+            freq = "5M"
+        if trade_date.__len__() == 8:
+            trade_date = (trade_date[0:4] + "-" + trade_date[4:6] + "-" + trade_date[6:8])
+        print("tradedate:", trade_date)
+        df, msg = tradeGateway.qryQuoteBar(symbol=symbol, trade_date=trade_date, freq=freq)
+        # 释放资源
+        tradeGateway.close()
+        print("msg:", msg)
+        if df is None:
+            print("GetData->get_latest_bar:get data none")
+            return None
+        print(df.shape, type(df))
+        df['close'] = df['low'] * 1.05
+        # result = df.to_json(orient='records')
+        # print("GetData->get_latest_bar:df  [", result)
+        return df
+
+
+# df = ts.pro_bar(pro_api=ts.pro_api(), ts_code='399300.SZ', adj='qfq', start_date='20180101', end_date='20181225')
+# pro.daily(ts_code='399300.SZ', start_date='20180101', end_date='20181225')
+# 只有index_daily有效
+# df1 = pro.index_daily(ts_code='000300.SH', start_date='20180101', end_date='20181225')
+
+if __name__ == '__main__':
+    get_latest_bar(symbol="000001.SH", trade_date="2019-01-09", freq="1M")
