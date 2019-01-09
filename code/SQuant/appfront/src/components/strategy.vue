@@ -340,29 +340,24 @@ export default {
                     label: '每月'
             }],
             pool_sets: [{
-                    value: '沪深300',
+                    value: '000300.SH',
                     label: '沪深300'
                 }, {
-                    value: '上证A股',
-                    label: '上证A股'
-                }, {
-                    value: '深证A股',
-                    label: '深证A股'
-                }, {
-                    value: '全A股',
-                    label: '全A股'
-                }, {
-                    value: '中小板',
-                    label: '中小板'
-                }, {
-                    value: '创业版',
-                    label: '创业版'
-                }, {
-                    value: '上证50',
-                    label: '上证50'
-                }, {
-                    value: '中证500',
+                    value: '000905.SH',
                     label: '中证500'
+                }, {
+                    value: '000016.SH',
+                    label: '上证50'
+                },
+                {
+                    value: '399006.SZ',
+                    label: '创业板'
+                }, {
+                    value: '399005.SZ',
+                    label: '中小版'
+                }, {
+                    value: '000002.SH',
+                    label: '全A股'
                 }
             ],
             industry_sets: [{
@@ -397,7 +392,7 @@ export default {
                 pool: [],
                 benchmark: '000300.SH',
                 pc_method: 'equal_weight',
-                universe: '',
+                universe: '000300.SH',
                 amount: 5
             },
             selected_norm: {
