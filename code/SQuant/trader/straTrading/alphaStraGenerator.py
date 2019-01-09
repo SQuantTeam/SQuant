@@ -244,6 +244,8 @@ class AlphaStraGenerator(object):
         # Load local data file that we just stored.
         dv = DataView()
         dv.load_dataview(folder_path=self.dataview_store_folder)
+        if "600270.SH" in dv.symbol:
+            dv.symbol.remove("600270.SH")
 
         backtest_props = {"start_date": dv.start_date,  # start and end date of back-test
                           "end_date": dv.end_date,
@@ -324,8 +326,8 @@ if __name__ == '__main__':
     #                 "volume": 100, "turnover_ratio": 100}, "amount": 5, "strategy_name": "sort",
     #  "obvious_param": "回测时间：20181219 ~ 20190108, 回测频率：day, 回测基准：000300.SH, 权重：equal_weight, 股数：5, 选股指标：{ }, 排序指标：{ 营业收入(TTM):(100) 总市值:(100) 流通市值:(100) 净利润:(100) 息税前利润:(100) 滚动市盈率:(100) 市盈率:(100) 流动比率:(100) 速动比率:(100) 基本每股收益:(100) 市净率:(100) 市销率(TTM):(100) 市现率:(100) 昨日开盘价:(100) 昨日最高价:(100) 昨日最低价:(100) 昨日收盘价:(100) 昨日成交量:(100) 昨日换手率:(100) }"}
 
-    stra = AlphaStraGenerator(start_date=20181101, end_date=20181201, universe="000905.SH,000300.SH", benchmark="000300.SH",
-                              period="week", pc_method="equal_weight", stock_index={}, rank_index=rank_index,
+    stra = AlphaStraGenerator(start_date=20181228, end_date=20190109, universe="000905.SH,000300.SH", benchmark="000300.SH",
+                              period="day", pc_method="equal_weight", stock_index={}, rank_index={},
                               amount=5, phone=phone, token=token, email=email, strategy_name="sort")
     stra.save_stra()
     stra.run_stra()
