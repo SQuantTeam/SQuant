@@ -279,8 +279,8 @@ def placeOrder(request):
         orderReq.symbol = userData['symbol']
         code, exchange = orderReq.symbol.split('.')
         orderReq.exchange = exchange
-        orderReq.price = userData['price']
-        orderReq.volume = userData['volume']
+        orderReq.price = float(userData['price'].encode("utf-8"))
+        orderReq.volume = int(userData['volume'].encode("utf-8"))
         orderReq.urgency = 0
         orderReq.priceType = userData['priceType']
         orderReq.direction = userData['direction']
@@ -313,10 +313,10 @@ def placeOrder(request):
         # 风控检测
         active = request.session.get("risk_manager_status", None)
         if active is not None and active is True:
-            order_size_limit = request.session.get("order_size_limit")
-            order_price_upper_limit = request.session.get("order_price_upper_limit")
-            balance_use_limit = request.session.get("balance_use_limit")
-            trade_limit = request.session.get("trade_limit")
+            order_size_limit = int(request.session.get("order_size_limit"))
+            order_price_upper_limit = float(request.session.get("order_price_upper_limit"))
+            balance_use_limit = float(request.session.get("balance_use_limit"))
+            trade_limit = int(request.session.get("trade_limit"))
 
             # 获取用户账户信息
             account = tradeGateway.qryAccount()
