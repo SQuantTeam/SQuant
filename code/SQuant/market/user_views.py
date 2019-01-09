@@ -54,6 +54,7 @@ def login(request):
     print("session.values:", request.session.values())
     response = {}
     try:
+        request.session.flush()
         user_data = json.loads(request.body)
         print("user_data:", user_data)
         user = User.objects.get(email=user_data['email'])
@@ -106,6 +107,11 @@ def add_user(request):
     try:
         user_data = json.loads(request.body)
         # print("add_user->user_data:"+str(user_data))
+        user = User.objects.filter(email=user_data['email'])
+        if user.count() > 0:
+            response['msg'] = "该用户已存在"
+            response['error_num'] = 1
+            return JsonResponse(response)
         user = User(email=user_data['email'],
                     password=user_data['password'],
                     user_type=user_data['user_type'])
@@ -150,4 +156,17 @@ def delete_user(request, email):
     except Exception, e:
         response['msg'] = str(e)
         response['error_num'] = 1
+    return JsonResponse(response)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def logout(request):
+    response = {}
+    try:
+        request.session.flush()
+        response['msg'] = '退出登录'
+        response['error_num'] = 0
+    except Exception, e:
+        response['msg'] = str(e)
+        response['error_num'] = 2
     return JsonResponse(response)

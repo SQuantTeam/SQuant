@@ -80,7 +80,7 @@ class RiskManager(object):
 
         if orderReq.price / tick.lastPrice > self.order_price_upper_limit:
             msg = (u'风控：委托价格%s，超过限制比率%s'
-                              % (orderReq.volume, self.order_price_upper_limit))
+                              % (orderReq.price, self.order_price_upper_limit))
             return msg, False
 
         # 检查成交合约量
@@ -91,7 +91,7 @@ class RiskManager(object):
 
         if orderReq.price * orderReq.volume / account.enable_balance > self.balance_use_limit:
             msg = (u'风控：委托成交额超过账户可用余额比例限制%s'
-                              % (self.order_size_limit))
+                              % (self.balance_use_limit))
             return msg, False
 
         msg = u"风控：通过风控"

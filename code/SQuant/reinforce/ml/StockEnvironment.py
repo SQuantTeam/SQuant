@@ -9,12 +9,14 @@ import tensorforce
 # 全局变量
 # 状态的步长
 N_TIMESTEPS = 5
+
+
 # 每次下单交易的股数
 # ORDER_SIZE = 100
 
 
-class StockEnv (Environment):
-    def __init__(self, data,order_size):
+class StockEnv(Environment):
+    def __init__(self, data, order_size):
         # 获取股价数据，包括过去20天的历史数据和当天(第21天)的开盘价
         self.xdata = data
         # 初始化环境
@@ -39,7 +41,7 @@ class StockEnv (Environment):
         """
         return None
 
-    def reset(self,order_size):
+    def reset(self, order_size):
         """
         Reset environment and setup for new episode.
         Returns:
@@ -145,7 +147,7 @@ class StockEnv (Environment):
         # 以下情形给予最大惩罚，提前结束：
         #       1. 现金数量 < 0; 2. 资本总值 < 7万; 3. 手头留存现金不足总资本的30% 4. 卖空操作时，没有足够的现金买回股票
         if self.cash_hold <= 0 or self.current_value <= 70000. or (
-                    self.cash_hold <= (0.3 * self.current_value)):  # or self.stock_amount < -20
+                self.cash_hold <= (0.3 * self.current_value)):  # or self.stock_amount < -20
             self.reward = self.reward - 1.
 
         if self.stock_amount < 0 and ((-1 * self.stock_amount) > (0.7 * self.cash_hold / self.states[-1, 5])):
