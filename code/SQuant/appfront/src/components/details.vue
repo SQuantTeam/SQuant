@@ -3403,6 +3403,13 @@ export default {
           ];
       },
       stock_basic_select(item) {
+        if(sessionStorage.getItem('userConnect')=="false"){
+            this.$message({
+                type: 'info',
+                message: '进行详情查看，请先进行账户连接'
+            });
+            return
+        }
         if (this.stock_list_data_symbol.indexOf(item.stock_code) < 0) {
           this.stock_list_data_symbol.push(item.stock_code);
           this.add_stock_list_data(item.stock_code);
@@ -3545,9 +3552,9 @@ export default {
               }
             }
             self.refresh_all();
-            // self.timer = setInterval(() => {
-            //   self.refresh_all();
-            // },10000)
+            self.timer = setInterval(() => {
+              self.refresh_all();
+            },60000)
             
           } else {
             console.log(response);

@@ -92,6 +92,7 @@ body {
 
 <script>
 export default {
+    inject: ['reload'],
     data() {
         return {
             is_connect: false,
@@ -150,6 +151,7 @@ export default {
                     self.is_connect = true;
                     sessionStorage.setItem('userConnect', true);
                     self.$store.dispatch("setConnect",true);
+                    self.reload();
                 } else {
                     self.$message({
                         type: 'info',
