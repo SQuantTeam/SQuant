@@ -257,6 +257,13 @@ export default {
             };
         },
         start_alg() {
+            if(sessionStorage.getItem('userConnect')=="false"){
+                this.$message({
+                    type: 'info',
+                    message: '进行算法运行，请先进行账户连接'
+                });
+                return
+            }
             console.log(this.alg_details);
             this.$prompt('请输入算法名称', '提示', {
                 confirmButtonText: '确定',
@@ -367,6 +374,13 @@ export default {
             console.log(type);
         },
         rerun_alg_config(index, row){
+            if(sessionStorage.getItem('userConnect')=="false"){
+                this.$message({
+                    type: 'info',
+                    message: '进行算法运行，请先进行账户连接'
+                });
+                return
+            }
             var item = row[index];
             var alg_id = Math.random()
             this.alg_status.alg_status_run.push({

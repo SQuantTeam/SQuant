@@ -8,6 +8,7 @@ export const userStatus = (state,user) => {
       sessionStorage.setItem("userEmail","NNNNOOOOEmail");
       sessionStorage.setItem("userToken","");
       sessionStorage.setItem("userType", null);
+      sessionStorage.setItem("userConnect", false);
       state.currentUser = null;
       state.isLogin = false;
       state.token = "";

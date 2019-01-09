@@ -105,11 +105,27 @@ export default {
     },
     methods: {
         signout() {
-            sessionStorage.setItem('userEmail', "NNNNOOOOEmail")
-            sessionStorage.setItem('userToken', null)
-            sessionStorage.setItem('userType', null)
-            this.$store.dispatch('setUser', null)
-            window.location.href = '/#/'
+            var self = this;
+            this.$axios.post(window.baseUrl + "user/logout")
+                .then(response => {
+                    if(response.data.error_num==0) {
+                            self.$message({
+                            type: 'success',
+                            message: '成功退出！'
+                        });
+                        sessionStorage.setItem('userEmail', "NNNNOOOOEmail")
+                        sessionStorage.setItem('userToken', null)
+                        sessionStorage.setItem('userType', null)
+                        sessionStorage.setItem('userConnect', false)
+                        this.$store.dispatch('setUser', null)
+                        this.$store.dispatch('userConnect', false)
+                        window.location.href = '/#/'
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            
+
         },
         connect_cancel() {
             this.dialogFormVisible = false
@@ -132,6 +148,8 @@ export default {
                         message: '成功绑定！'
                     });
                     self.is_connect = true;
+                    sessionStorage.setItem('userConnect', true);
+                    self.$store.dispatch("setConnect",true);
                 } else {
                     self.$message({
                         type: 'info',

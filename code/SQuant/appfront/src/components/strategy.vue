@@ -559,6 +559,13 @@ export default {
             // console.log(end_date);
         },
         start(){
+            if(sessionStorage.getItem('userConnect')=="false"){
+                this.$message({
+                    type: 'info',
+                    message: '进行策略运行，请先进行账户连接'
+                });
+                return
+            }
             this.$prompt('请输入策略配置名称', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',

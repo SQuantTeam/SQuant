@@ -309,12 +309,6 @@ export default {
         price_type: [{
           value: '限价',
           label: '限价'
-        }, {
-          value: 'VWAP',
-          label: 'VWAP'
-        }, {
-          value: 'TWAP',
-          label: 'TWAP'
         }],
         price_type_value: '限价',
         offset: [{
@@ -477,8 +471,8 @@ export default {
                     trigger: 'axis',
                     formatter: function (params) {
                         var res = params[0].seriesName + ' ' + params[0].name;
-                        res += '<br/>  open : ' + params[0].value[0] + '  highest : ' + params[0].value[3];
-                        res += '<br/>  close : ' + params[0].value[1] + '  lowest : ' + params[0].value[2];
+                        res += '<br/>  open : ' + params[0].value[1] + '  highest : ' + params[0].value[4];
+                        res += '<br/>  close : ' + params[0].value[2] + '  lowest : ' + params[0].value[3];
                         return res;
                     }
                 },
@@ -3550,9 +3544,9 @@ export default {
               }
             }
             self.refresh_all();
-            self.timer = setInterval(() => {
-              self.refresh_all();
-            },10000)
+            // self.timer = setInterval(() => {
+            //   self.refresh_all();
+            // },10000)
             
           } else {
             console.log(response);

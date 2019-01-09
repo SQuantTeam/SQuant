@@ -63,7 +63,7 @@ export default {
                 trade_limit: 100,
                 order_size_limit: 100,
                 order_price_upper_limit: 1.0,
-                balance_use_limit: 10000,
+                balance_use_limit: 1.0,
             },
         };
     },

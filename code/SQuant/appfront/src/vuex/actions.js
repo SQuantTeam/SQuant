@@ -8,4 +8,7 @@ export const setToken = ({commit},userToken) => {
 export const setType = ({commit},userType) => {
   commit("userType",userType)
 }
+export const setConnect = ({commit},userConnect) => {
+  commit("userConnect",userConnect)
+}
   

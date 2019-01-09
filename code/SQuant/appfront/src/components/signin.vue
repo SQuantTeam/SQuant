@@ -109,7 +109,9 @@ export default {
                         sessionStorage.setItem('userEmail', this.signin.email);
                         sessionStorage.setItem('userToken', cookie);
                         sessionStorage.setItem('userType', response.data.msg.user_type);
+                        sessionStorage.setItem('userConnect', false);
                         self.$store.dispatch("setUser",'this_is_an_email');
+                        self.$store.dispatch("setConnect",false);
                         self.$store.dispatch("setToken", cookie);
                         self.$message({
                             type: 'success',
