@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-# Author： 施源 Kris
 # Create Time： 2018.8.15
 import os
 import sys

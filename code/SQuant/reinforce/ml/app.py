@@ -335,6 +335,7 @@ def test_bar_model(symbol="AAPL", order_size=10, split_ratio=0.8, epochs=1,
     # train, test, date_train, date_test = DataPreprocess.data_preprocess(data, _split_ratio)
     train, test, date_train, date_test = DataPreprocess.data_A_preprocess(data, _split_ratio)
     bar_test, time_test = DataPreprocess.data_A_bar(bar_data)
+    print("bar_test.shape:", bar_test.shape, "time_test.shape:", time_test.shape)
 
     DataPreprocess.data_A_bar(bar_data)
     # 生成训练环境和测试环境
@@ -654,6 +655,8 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
 
 
 def getBarPltData(test, act, fortune, cash, date_test, symbol):
+    print("act.len:", len(act), "test.len:", len(test), "fortune.len:", len(fortune),
+          "date_test.len", len(date_test))
     d = test
     a = act
     f = fortune
@@ -743,7 +746,6 @@ def getBarPltData(test, act, fortune, cash, date_test, symbol):
 
     # ax1.legend(handles=[f_type1, f_type2], labels=['a', 'b', ], loc='best',fontsize="small")
     # 收益率为0的基准线
-
     # plt.show()
 
     # ---------

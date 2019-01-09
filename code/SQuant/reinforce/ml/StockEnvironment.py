@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-# Author： 施源 Kris
 # Create Time： 2018.8.15
 
 from tensorforce.environments import Environment
@@ -16,10 +15,8 @@ N_TIMESTEPS = 5
 
 class StockEnv (Environment):
     def __init__(self, data,order_size):
-
         # 获取股价数据，包括过去20天的历史数据和当天(第21天)的开盘价
         self.xdata = data
-
         # 初始化环境
         self.reset(order_size)
 
