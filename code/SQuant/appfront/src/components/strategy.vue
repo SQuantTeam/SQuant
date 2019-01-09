@@ -389,10 +389,9 @@ export default {
             strategy_details: {
                 duration: ['2018-11-01','2018-12-01'],
                 period: 'day',
-                pool: [],
+                pool: ['000300.SH'],
                 benchmark: '000300.SH',
                 pc_method: 'equal_weight',
-                universe: '000300.SH',
                 amount: 5
             },
             selected_norm: {
@@ -648,10 +647,12 @@ export default {
                         + ", 选股指标：{ "+ stock_index_c +"}"
                         + ", 排序指标：{ "+ rank_index_c + "}"
 
+            var universe = this.strategy_details.pool.join(',');
+            
             var json = {
                 "start_date" : start_date,
                 "end_date" : end_date,
-                "universe" : "000905.SH",
+                "universe" : universe,
                 "benchmark" : this.strategy_details.benchmark,
                 "period" : this.strategy_details.period,
                 "pc_method" : this.strategy_details.pc_method,
