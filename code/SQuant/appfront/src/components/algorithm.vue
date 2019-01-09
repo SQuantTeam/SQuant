@@ -263,6 +263,24 @@ export default {
                     message: '进行算法运行，请先进行账户连接'
                 });
                 return
+            } else if(this.alg_details.code==""){
+                this.$message({
+                    type: 'info',
+                    message: '进行算法运行，请先选择交易代码'
+                });
+                return
+            }else if(isNaN(parseFloat(this.alg_details.price))){
+                this.$message({
+                    type: 'info',
+                    message: '进行算法运行，请先填写正确的价格'
+                });
+                return
+            }else if(isNaN(parseInt(this.alg_details.volume))){
+                this.$message({
+                    type: 'info',
+                    message: '进行算法运行，请先填写正确的数量'
+                });
+                return
             }
             console.log(this.alg_details);
             this.$prompt('请输入算法名称', '提示', {
