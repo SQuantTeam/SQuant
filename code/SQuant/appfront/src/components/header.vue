@@ -6,7 +6,7 @@
                 <div id="nav_logo_collapsed"></div>
             </el-col>
 
-            <el-col :span="12" :offset="12" v-if="is_manager==false">
+            <el-col :span="12" :offset="11" v-if="is_manager==false">
                 <el-menu :default-active="this.$router.path" class="el-menu-demo" mode="horizontal" text-color="#fff" active-text-color="#fff">
                     <el-menu-item index='/#/'>
                         <a href="./">SQuant</a>
@@ -16,6 +16,9 @@
                     </el-menu-item>
                     <el-menu-item index="/strategy" >
                         <a href="/#/strategy">我的策略</a>
+                    </el-menu-item>
+                    <el-menu-item index='/control' >
+                        <a href="/#/control">风控模块</a>
                     </el-menu-item>
                     <el-menu-item index='/holdPosition' >
                         <a href="/#/holdPosition">持仓信息</a>
@@ -91,6 +94,7 @@ body {
 export default {
     data() {
         return {
+            is_connect: false,
             connect_details: {
                 phone: '',
                 token: ''
@@ -127,11 +131,13 @@ export default {
                         type: 'success',
                         message: '成功绑定！'
                     });
+                    self.is_connect = true;
                 } else {
                     self.$message({
                         type: 'info',
                         message: '绑定失败，请稍后再试'
                     });
+                    self.is_connect = self.connect_details;
                 }
                 
                 console.log(response);

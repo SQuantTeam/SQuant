@@ -175,7 +175,7 @@
 
         <div>
             <el-menu
-            default-active="v_1"
+            default-active="v_3"
             class="el-menu-vertical-demo"
             background-color="#252a2f"
             text-color="#fff"

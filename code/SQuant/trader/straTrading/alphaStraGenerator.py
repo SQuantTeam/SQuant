@@ -268,7 +268,10 @@ class AlphaStraGenerator(object):
         stock_rank.add_signal(name="user_rank_method", func=self.stock_ranker)
 
         trade_api = AlphaTradeApi()
-        strategy = AlphaStrategy(stock_selector=stock_selector, signal_model=stock_rank, pc_method=self.pc_method)
+        if self.stock_index:
+            strategy = AlphaStrategy(stock_selector=stock_selector, signal_model=stock_rank, pc_method=self.pc_method)
+        else:
+            strategy = AlphaStrategy(signal_model=stock_rank, pc_method=self.pc_method)
         pm = PortfolioManager()
         bt = AlphaBacktestInstance()
         context = model.Context(dataview=dv, instance=bt, strategy=strategy, trade_api=trade_api, pm=pm)
@@ -305,14 +308,25 @@ class AlphaStraGenerator(object):
 if __name__ == '__main__':
     stock_index = {"turnover_ratio": [-1, 100],
                    "pe": [-1, 20]}
-    rank_index = {"pe": 1}
+    rank_index = {"oper_rev_ttm": 100, "total_mv": 100, "float_mv": 100, "net_profit_incl_min_int_inc": 100,
+                    "ebit": 100, "pe_ttm": 100, "pe": 100, "current_ratio": 100, "quick_ratio": 100, "eps_basic": 100,
+                    "pb": 100, "ps_ttm": 100, "pcf_ncfttm": 100, "open": 100, "high": 100, "low": 100, "close": 100,
+                    "volume": 100, "turnover_ratio": 100}
     phone = "15827606670"
     token = "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1Mzc4NTM5NDU0NjIiLCJpc3MiOiJhdXRoMCIsImlkI" \
             "joiMTU4Mjc2MDY2NzAifQ.ODXNTAjCFnD8gAH3NO2hNdv1QjYtTGB-uJLGI3njJ_k"
     email = "1"
+    # {"start_date": 20181219, "end_date": 20190108, "universe": "000905.SH", "benchmark": "000300.SH", "period": "day",
+    #  "pc_method": "equal_weight", "stock_index": {},
+    #  "rank_index": {"oper_rev_ttm": 100, "total_mv": 100, "float_mv": 100, "net_profit_incl_min_int_inc": 100,
+    #                 "ebit": 100, "pe_ttm": 100, "pe": 100, "current_ratio": 100, "quick_ratio": 100, "eps_basic": 100,
+    #                 "pb": 100, "ps_ttm": 100, "pcf_ncfttm": 100, "open": 100, "high": 100, "low": 100, "close": 100,
+    #                 "volume": 100, "turnover_ratio": 100}, "amount": 5, "strategy_name": "sort",
+    #  "obvious_param": "回测时间：20181219 ~ 20190108, 回测频率：day, 回测基准：000300.SH, 权重：equal_weight, 股数：5, 选股指标：{ }, 排序指标：{ 营业收入(TTM):(100) 总市值:(100) 流通市值:(100) 净利润:(100) 息税前利润:(100) 滚动市盈率:(100) 市盈率:(100) 流动比率:(100) 速动比率:(100) 基本每股收益:(100) 市净率:(100) 市销率(TTM):(100) 市现率:(100) 昨日开盘价:(100) 昨日最高价:(100) 昨日最低价:(100) 昨日收盘价:(100) 昨日成交量:(100) 昨日换手率:(100) }"}
+
     stra = AlphaStraGenerator(start_date=20181101, end_date=20181201, universe="000905.SH,000300.SH", benchmark="000300.SH",
-                              period="week", pc_method="equal_weight", stock_index=stock_index, rank_index =rank_index,
-                              amount=5, phone=phone, token=token, email=email, strategy_name="test")
+                              period="week", pc_method="equal_weight", stock_index={}, rank_index=rank_index,
+                              amount=5, phone=phone, token=token, email=email, strategy_name="sort")
     stra.save_stra()
     stra.run_stra()
     # stra.save_dataview()

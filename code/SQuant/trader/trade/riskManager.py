@@ -83,7 +83,6 @@ class RiskManager(object):
                               % (orderReq.volume, self.order_price_upper_limit))
             return msg, False
 
-
         # 检查成交合约量
         if self.trade_count >= self.trade_limit:
             msg = (u'风控：今日总成交合约数量%s，超过限制%s'
