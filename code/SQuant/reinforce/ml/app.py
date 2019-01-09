@@ -21,7 +21,6 @@ import DataPreprocess
 import StockEnvironment
 import Runner
 
-
 global _symbol
 global _split_ratio
 global _epochs
@@ -201,7 +200,7 @@ class MyThread(QThread):
         print('Model Name: {}'.format(trained_model))
 
         # 用训练后的trained_Q对test数据进行分析，给出预测出的最终交易行为；显示测试情况图
-        fortune, act, reward, cash = runner.tester(env_test, trained_model,order_size)
+        fortune, act, reward, cash = runner.tester(env_test, trained_model, order_size)
         d = test
         a = act
         f = fortune
@@ -277,12 +276,12 @@ class PlotCanvas(FigureCanvas):
 
 
 def test_model(symbol="AAPL", order_size=10, split_ratio=0.8, epochs=1,
-    end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
+               end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
                n_samples=500, isTrain=False):
     _symbol = symbol
     _split_ratio = split_ratio
     _epochs = epochs
-    data = GetData.get_A_data(ts_code=_symbol,end_date=end_date,n_samples=n_samples)
+    data = GetData.get_A_data(ts_code=_symbol, end_date=end_date, n_samples=n_samples)
     print(data.columns.values)
     # 数据预处理 根据用户输入的split_ratio 返回划分好的训练集和测试集
     # train, test, date_train, date_test = DataPreprocess.data_preprocess(data, _split_ratio)
@@ -308,17 +307,67 @@ def test_model(symbol="AAPL", order_size=10, split_ratio=0.8, epochs=1,
                     trained_model = dir_name
         if trained_model == None:
             print("No model for predict,now train a model")
-            trained_model = runner.trainer(_symbol, env_train, _epochs,order_size)
+            trained_model = runner.trainer(_symbol, env_train, _epochs, order_size)
     else:
         # 训练dqn网络，返回训练完毕的模型，以及训练最终结果; 显示训练情况图
         trained_model = runner.trainer(_symbol, env_train, _epochs)
     print('Model Name: {}'.format(trained_model))
     # 用训练后的trained_Q对test数据进行分析，给出预测出的最终交易行为；显示测试情况图
-    fortune, act, reward, cash = runner.tester(env_test, trained_model,order_size)
+    fortune, act, reward, cash = runner.tester(env_test, trained_model, order_size)
     print("profitRatio:{},fortune:{},act:{},reward:{},cash:{}".format(fortune[-1] / 100000.0, fortune[-1], act[-1],
                                                                       reward[-1], cash[-1]))
     print("fortune len:", len(fortune))
     return test, act, fortune, cash, date_test
+
+
+def test_bar_model(symbol="AAPL", order_size=10, split_ratio=0.8, epochs=1,
+                   end_date=(datetime.date.today()).strftime('%Y%m%d'),
+                   n_samples=1000, isTrain=False):
+    _symbol = symbol
+    _split_ratio = split_ratio
+    _epochs = epochs
+    data = GetData.get_A_data(ts_code=_symbol, end_date=end_date, n_samples=n_samples)
+    # yesterday one minutes data
+    bar_data = GetData.get_latest_bar(symbol=symbol, trade_date=end_date, freq="1M")
+    print("test_latest_model:bar_data.shape:", bar_data.shape)
+    print(data.columns.values)
+    # 数据预处理 根据用户输入的split_ratio 返回划分好的训练集和测试集
+    # train, test, date_train, date_test = DataPreprocess.data_preprocess(data, _split_ratio)
+    train, test, date_train, date_test = DataPreprocess.data_A_preprocess(data, _split_ratio)
+    bar_test, time_test = DataPreprocess.data_A_bar(bar_data)
+
+    DataPreprocess.data_A_bar(bar_data)
+    # 生成训练环境和测试环境
+    # env_test = StockEnvironment.StockEnv(test, order_size)
+    env_test = StockEnvironment.StockEnv(bar_test, order_size)
+    env_train = StockEnvironment.StockEnv(train, order_size)
+
+    # 初始化runner
+    runner = Runner.Runner()
+    trained_model = None
+    if isTrain == False:
+        for new_dir in os.listdir(os.curdir):  # 列表出该目录下的所有文件(返回当前目录'.')
+            # 如果有success的模型就使用，否则使用train模型
+            if new_dir.startswith('success-model-{}'.format(_symbol)):
+                trained_model = new_dir
+        # 如果没有success模型，使用训练过的train模型
+        if trained_model == None:
+            for dir_name in os.listdir(os.curdir):  # 列表出该目录下的所有文件(返回当前目录'.')
+                if dir_name.startswith('train-model-{}'.format(_symbol)):
+                    trained_model = dir_name
+        if trained_model == None:
+            print("No model for predict,now train a model")
+            trained_model = runner.trainer(_symbol, env_train, _epochs, order_size)
+    else:
+        # 训练dqn网络，返回训练完毕的模型，以及训练最终结果; 显示训练情况图
+        trained_model = runner.trainer(_symbol, env_train, _epochs)
+    print('Model Name: {}'.format(trained_model))
+    # 用训练后的trained_Q对test数据进行分析，给出预测出的最终交易行为；显示测试情况图
+    fortune, act, reward, cash = runner.tester(env_test, trained_model, order_size)
+    print("profitRatio:{},fortune:{},act:{},reward:{},cash:{}".format(fortune[-1] / 100000.0, fortune[-1], act[-1],
+                                                                      reward[-1], cash[-1]))
+    print("fortune len:", len(fortune))
+    return bar_test, act, fortune, cash, time_test
 
 
 def compute_profit_ratio(data):
@@ -418,6 +467,96 @@ def plt_data(test, act, fortune, cash, date_test, symbol):
     plt.show()
 
 
+def plt_bar_data(test, act, fortune, cash, time_test, symbol):
+    print("act.len:", len(act), ",time_test.len:", len(time_test), "test.len:", len(test), "fortune.len:", len(fortune))
+    d = test
+    a = act
+    f = fortune
+    c = cash
+    dt = time_test
+    close_price = d[5:, 3]
+    # --获取date数据
+    # 载入数据 act_list，从中获取 Act
+    act = a
+    # 新增画布
+    fig = plt.figure()
+
+    # 绘制股价交易图
+    ax = fig.add_subplot(211)
+    # 画布上添加 Close Price
+    ax.plot(np.arange(len(close_price)), close_price)
+    print(dt.shape)
+    date_list = []
+    for d in dt[5:]:
+        temp = str(d)
+        if len(d) == 5:
+            temp = "0" + temp
+        date_list.append(temp[0:2] + ":" + temp[2:4])
+    ax_xticks_label = []
+    ax.set_xticks(np.arange(0, len(date_list), 10))
+    x_tick_labels = []
+    i = 0
+    for item in date_list:
+        if (i % 10) == 0:
+            ax_xticks_label.append(item)
+        i += 1
+    ax.set_xticklabels(ax_xticks_label)
+
+    # 调整 X 轴坐标
+    ax.set_xlim((0, len(close_price)))
+    # 调整 Y 轴坐标
+    ax.set_ylim((np.min(close_price), np.max(close_price)))
+    # 设置 X 轴名称
+    ax.set_xlabel("Date")
+    # 设置 Y 轴名称
+    ax.set_ylabel("Stock Price")
+    # 设置图标名称
+    ax.set_title('Trade Point predicted for {}'.format(symbol))
+    for i in range(len(act)):
+        if act[i] == 1:
+            type1 = ax.scatter(x=i, y=close_price[i], c='r', marker='o', linewidths=0, label='Buy')
+        if act[i] == 2:
+            type2 = ax.scatter(x=i, y=close_price[i], c='g', marker='o', linewidths=0, label='Sell')
+            # 显示图标
+
+    # 绘制收益率折线图
+    # ax1 = fig.add_subplot(212)
+    # plot_fortune = [(i / 100000 - 1.0) * 100 for i in fortune]
+    # print("plot_fortuen.len:", plot_fortune.__len__())
+    # f_type1 = ax1.plot(np.arange(len(fortune)), plot_fortune, color='red', linewidth=1.0, label=symbol)
+    # date_list1 = []
+    # for d in dt[5:]:
+    #     date_list1.append(d)
+    # ax1.set_xticks(np.arange(0, len(date_list1), 10))
+    # x_tick_labels = []
+    # i = 0
+    # for item in date_list1:
+    #     if (i % 10) == 0:
+    #         x_tick_labels.append(item)
+    #     i += 1
+    #
+    # ax1.set_xticklabels(x_tick_labels)
+    # ax1.set_xlabel("Date")
+    # ax1.set_ylabel("Fortune(%)")
+    # ax1.set_title("Fortune Figure for {}".format(symbol))
+    #
+    # # 将基准沪深300收益率作为比较基准
+    # print("date_list:", date_list1[0], date_list1[-1])
+    # hs300_data = GetData.get_stock(ts_code="399300.SZ", start_date=date_list1[0], end_date=date_list1[-1])
+    # print("hs300_data.shape:", hs300_data.shape)
+    # hs300_profit_ratio = compute_profit_ratio(hs300_data['close'].values)
+    #
+    # print("hs300 length:", (hs300_profit_ratio.__len__()))
+    # print("hs300_profit_ratio.len:", hs300_profit_ratio.__len__())
+    # f_type2 = ax1.plot(np.arange(len(date_list1)), hs300_profit_ratio, color='black', linewidth=1.0,
+    #                    linestyle='--', label="hs300")
+
+    # ax1.legend(handles=[f_type1, f_type2], labels=['a', 'b', ], loc='best',fontsize="small")
+    # 收益率为0的基准线
+
+    plt.show()
+
+
 def getPlotData(test, act, fortune, cash, date_test, symbol):
     d = test
     a = act
@@ -489,7 +628,7 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
 
     # 将基准沪深300收益率作为比较基准
     print("date_list:", date_list1[0], date_list1[-1])
-    hs300_data = GetData.get_A_data(ts_code="399300.SZ", end_date=date_list1[-1],n_samples=len(date_list1))
+    hs300_data = GetData.get_A_data(ts_code="399300.SZ", end_date=date_list1[-1], n_samples=len(date_list1))
     print("hs300_data.shape:", hs300_data.shape)
     hs300_profit_ratio = compute_profit_ratio(hs300_data['close'].values)
 
@@ -514,6 +653,110 @@ def getPlotData(test, act, fortune, cash, date_test, symbol):
     return df_result
 
 
+def getBarPltData(test, act, fortune, cash, date_test, symbol):
+    d = test
+    a = act
+    f = fortune
+    c = cash
+    dt = date_test
+    close_price = d[5:, 3]
+    # --获取date数据
+    # 载入数据 act_list，从中获取 Act
+    act = a
+    # 新增画布
+    fig = plt.figure()
+
+    # 绘制股价交易图
+    ax = fig.add_subplot(211)
+    # 画布上添加 Close Price
+    ax.plot(np.arange(len(close_price)), close_price)
+    print(dt.shape)
+    date_list = []
+    for d in dt[5:]:
+        temp = str(d)
+        if len(temp) == 5:
+            temp = "0" + temp
+        date_list.append(temp[0:2] + ":" + temp[2:4])
+    ax_xticks_label = []
+    ax.set_xticks(np.arange(0, len(date_list), 10))
+    x_tick_labels = []
+    i = 0
+    for item in date_list:
+        if (i % 10) == 0:
+            ax_xticks_label.append(item)
+        i += 1
+    ax.set_xticklabels(ax_xticks_label)
+
+    # 调整 X 轴坐标
+    ax.set_xlim((0, len(close_price)))
+    # 调整 Y 轴坐标
+    ax.set_ylim((np.min(close_price), np.max(close_price)))
+    # 设置 X 轴名称
+    ax.set_xlabel("Date")
+    # 设置 Y 轴名称
+    ax.set_ylabel("Stock Price")
+    # 设置图标名称
+    ax.set_title('Trade Point predicted for {}'.format(symbol))
+    for i in range(len(act)):
+        if act[i] == 1:
+            type1 = ax.scatter(x=i, y=close_price[i], c='r', marker='o', linewidths=0, label='Buy')
+        if act[i] == 2:
+            type2 = ax.scatter(x=i, y=close_price[i], c='g', marker='o', linewidths=0, label='Sell')
+            # 显示图标
+
+    # 绘制收益率折线图
+    ax1 = fig.add_subplot(212)
+    plot_fortune = [(i / 100000 - 1.0) * 100 for i in fortune]
+    print("plot_fortuen.len:", plot_fortune.__len__())
+    # f_type1 = ax1.plot(np.arange(len(fortune)), plot_fortune, color='red', linewidth=1.0, label=symbol)
+    date_list1 = []
+    for d in dt[5:]:
+        date_list1.append(d)
+    ax1.set_xticks(np.arange(0, len(date_list1), 10))
+    x_tick_labels = []
+    i = 0
+    for item in date_list1:
+        if (i % 10) == 0:
+            x_tick_labels.append(item)
+        i += 1
+
+    ax1.set_xticklabels(x_tick_labels)
+    ax1.set_xlabel("Date")
+    ax1.set_ylabel("Fortune(%)")
+    ax1.set_title("Fortune Figure for {}".format(symbol))
+
+    # 将基准沪深300收益率作为比较基准
+    print("date_list:", date_list1[0], date_list1[-1])
+    yesterday = (datetime.date.today()).strftime('%Y-%m-%d')
+
+    raw_hs300_data = GetData.get_latest_bar(symbol="399300.SZ", trade_date=yesterday, freq="1M")
+    hs300_data = raw_hs300_data[-len(date_list1):]
+
+    # hs300_data = GetData.get_A_data(ts_code="399300.SZ", end_date=date_list1[-1], n_samples=len(date_list1))
+    print("hs300_data.shape:", hs300_data.shape)
+    hs300_profit_ratio = compute_profit_ratio(hs300_data['close'].values)
+
+    print("hs300 length:", (hs300_profit_ratio.__len__()))
+    print("hs300_profit_ratio.len:", hs300_profit_ratio.__len__())
+    # f_type2 = ax1.plot(np.arange(len(date_list1)), hs300_profit_ratio, color='black', linewidth=1.0,
+    #                    linestyle='--', label="hs300")
+
+    # ax1.legend(handles=[f_type1, f_type2], labels=['a', 'b', ], loc='best',fontsize="small")
+    # 收益率为0的基准线
+
+    # plt.show()
+
+    # ---------
+    df_result = pd.DataFrame([])
+    df_result['time'] = date_list
+    df_result['action'] = act
+    df_result['target_price'] = close_price
+    df_result['hs300_profit_ratio'] = hs300_profit_ratio
+    df_result['profit_ratio'] = plot_fortune
+    print(df_result.iloc[1])
+    return df_result
+
+
 def init():
     # 获取对应公司的数据
     symbol = "000002.SZ"
@@ -522,24 +765,58 @@ def init():
     n_samples = 1000
     isTrain = False
     end_date = (datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d')
-    order_size=10
+    order_size = 10
     # 获取模型在股价上的数据
-    test, act, fortune, cash, date_test = test_model(symbol,order_size, split_ratio, epochs, end_date,n_samples, isTrain)
+    test, act, fortune, cash, date_test = test_model(symbol, order_size, split_ratio, epochs, end_date, n_samples,
+                                                     isTrain)
     # 将数据在图像上画出
     plt_data(test, act, fortune, cash, date_test, symbol)
 
 
-def getBackTestData(symbol='000002.SZ',order_size=10,
+def init_bar():
+    # 获取对应公司的数据
+    symbol = "000002.SZ"
+    split_ratio = 0.8
+    epochs = 1
+    n_samples = 1000
+    isTrain = False
+    end_date = (datetime.date.today()).strftime('%Y%m%d')
+    order_size = 10
+    # 获取模型在股价上的数据
+    bar_test, act, fortune, cash, time_test = test_bar_model(symbol, order_size, split_ratio, epochs, end_date,
+                                                             n_samples,
+                                                             isTrain)
+    # 将数据在图像上画出
+    plt_bar_data(bar_test, act, fortune, cash, time_test, symbol)
+
+
+def getBackTestData(symbol='000002.SZ', order_size=10,
                     end_date=(datetime.date.today() + datetime.timedelta(days=-1)).strftime('%Y%m%d'),
                     epochs=1, n_samples=1000, isTrain=False):
     # 获取对应公司的数据
     split_ratio = 0.8
     epochs = 1
     # 获取模型在股价上的数据
-    test, act, fortune, cash, date_test = test_model(symbol,order_size, split_ratio, epochs,end_date, n_samples, isTrain)
+    test, act, fortune, cash, date_test = test_model(symbol, order_size, split_ratio, epochs, end_date, n_samples,
+                                                     isTrain)
     # 将数据在图像上画出
     result = getPlotData(test, act, fortune, cash, date_test, symbol)
     print("getBackTestData->result.shape:", result.shape)
+    return result
+
+
+def getBarData(symbol='000002.SZ', order_size=10,
+               end_date=(datetime.date.today()).strftime('%Y%m%d'),
+               epochs=1, n_samples=1000, isTrain=False):
+    # 获取对应公司的数据
+    split_ratio = 0.8
+    epochs = 1
+    # 获取模型在股价上的数据
+    test, act, fortune, cash, date_test = test_bar_model(symbol, order_size, split_ratio, epochs, end_date, n_samples,
+                                                         isTrain)
+    # 将数据在图像上画出
+    result = getBarPltData(test, act, fortune, cash, date_test, symbol)
+    print("getBarData->result.shape:", result.shape)
     return result
 
 
@@ -550,4 +827,6 @@ if __name__ == '__main__':
     # sys.exit(app.exec_())
 
     # 训练绘图
-    init()
+    # init()
+    # init_bar()
+    getBarData()
