@@ -97,7 +97,7 @@ export default {
             if(this.is_valid_input()==false){
                 this.$message({
                     message: "请输入非空数值",
-                    type: 'error'
+                    type: 'info'
                 });
                 return;
             }

@@ -117,6 +117,7 @@ export default {
     components: {squantheader},
     data() {
       return {
+            db: false,
             timer: null,
             disable_model_train: false,
             model_trained: false,
@@ -203,8 +204,11 @@ export default {
                 });
                 return
             }
+            this.add_or_update_drl(0);
             console.log("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style)
             var self = this;
+            self.model_trained=true;
+            self.trained_details=self.drl_details;
             this.$axios.get("http://localhost:8000/squant/reinforce/backTest/"+this.drl_details.code+"/"+this.drl_details.duration+"/"+this.drl_details.style, {
             }).then(function (response) {
                 if(response.data.error_num == 0) {
@@ -3256,10 +3260,49 @@ export default {
             var day=date.getDate()<10 ? "0"+date.getDate() : date.getDate();
             return year+"-"+month+"-"+day;
         },
+        add_or_update_drl(is_running){
+            var email = sessionStorage.getItem('userEmail');
+            var json = {}
+            if(is_running==0){
+                json = {
+                    "email": email,
+                    "stockid": this.drl_details.code,
+                    "prefer": this.drl_details.style,
+                    "date": this.drl_details.duration,
+                    "running": is_running
+                }
+            } else {
+                json = {
+                    "email": email,
+                    "stockid": this.trained_details.code,
+                    "prefer": this.trained_details.style,
+                    "date": this.trained_details.duration,
+                    "running": is_running
+                }
+            }
+            
+            if(this.db==false){
+                this.$axios.post("http://localhost:8000/squant/reinforce/learn/add", json)
+                    .then(function (response) {
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            }else{
+                this.$axios.put("http://localhost:8000/squant/reinforce/learn/update", json)
+                    .then(function (response) {
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            }
+            
+        },
         run_this_drl(){
             this.disable_model_train = true;
             this.model_is_run = true;
             this.refresh_drl();
+            this.add_or_update_drl(1);
             this.timer = setInterval(() => {
               this.refresh_drl();
             },60000)
@@ -3301,11 +3344,62 @@ export default {
             this.disable_model_train = false;
             this.model_is_run = false;
             clearInterval(this.timer);
+            var email = sessionStorage.getItem('userEmail');
+            var json = {
+                "email": email,
+                "stockid": this.drl_details.code,
+                "prefer": this.drl_details.style,
+                "date": this.drl_details.duration,
+                "running": 0
+            }
+            var self = this;
+            this.$axios.put("http://localhost:8000/squant/reinforce/learn/update", json)
+                .then(function (response) {
+                console.log(response);
+                self.model_is_run=false;
+            }).catch(function (error) {
+                console.log(error);
+            });
+            
+        },
+        get_saved_drl(){
+            var self = this;
+            var email = sessionStorage.getItem('userEmail')
+            this.$axios.get("http://localhost:8000/squant/reinforce/learn/"+email, {
+            }).then(function (response) {
+                if(response.data.msg.indexOf("Learning matching query does not exist.")>=0){
+                    self.db=false;
+                }else if(response.data.error_num==0 && response.data.list.running==1){
+                    self.drl_details = {
+                        code: response.data.list.stockid,
+                        style: response.data.list.prefer,
+                        duration: response.data.list.date
+                    }
+                    self.db=true;
+                    self.trained_details = self.drl_details;
+                    self.model_is_run=false;
+                    self.model_trained=true;
+                    self.run_this_drl();
+                }else{
+                    self.drl_details = {
+                        code: response.data.list.stockid,
+                        style: response.data.list.prefer,
+                        duration: response.data.list.date
+                    }
+                    self.db=true;
+                    self.trained_details = self.drl_details;
+                    self.model_trained=true;
+                }
+                console.log(response.data)
+            }).catch(function (error) {
+                console.log(error);
+            });
         }
     },
     mounted() {
         this.stock_basic_info = this.load_stock_basic_info();
         this.drl_details.duration = this.get_date();
+        this.get_saved_drl();
     },
     beforeDestroy() {
         if(this.timer) {
