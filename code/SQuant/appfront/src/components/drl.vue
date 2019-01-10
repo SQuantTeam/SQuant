@@ -3389,6 +3389,7 @@ export default {
                     self.db=true;
                     self.trained_details = self.drl_details;
                     self.model_trained=true;
+                    self.start_drl();
                 }
                 console.log(response.data)
             }).catch(function (error) {

@@ -62,7 +62,7 @@ export default {
             security_details: {
                 trade_limit: 100,
                 order_size_limit: 100,
-                order_price_upper_limit: 1.0,
+                order_price_upper_limit: 2.0,
                 balance_use_limit: 1.0,
             },
         };

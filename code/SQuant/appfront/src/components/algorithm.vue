@@ -224,7 +224,7 @@ export default {
                 label: 'Sinper狙击手'
             }],
             alg_details: {
-                code: '000718.SZ',
+                code: '000002.SZ',
                 direction: 'long',
                 price: 3.21,
                 volume: 5000,
