@@ -1,0 +1,4 @@
+pandas==0.23.4
+Keras==0.3.3
+numpy==1.14.2
+quandl==3.4.2
