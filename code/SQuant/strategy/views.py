@@ -223,9 +223,13 @@ def run_sniper_algo(request):
             trade_limit = request.session.get("trade_limit")
 
             # 获取用户账户信息
-            account = trade_gateway.qryAccount()
+            for i in range(0, 10):
+                account = trade_gateway.qryAccount()
+                if account.init_balance > 0:
+                    break
+
             # 查询当日下单数，因为查询订单的接口不稳定，有时候拿不到值，所以多查几次以保证结果的正确性
-            for i in range(0, 5):
+            for i in range(0, 10):
                 trade_list = trade_gateway.qryTrade()
                 trade_count = len(trade_list)
                 if trade_count > 0:
