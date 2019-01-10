@@ -250,6 +250,9 @@ class AlphaStraGenerator(object):
         if "600270.SH" in dv.symbol:
             dv.symbol.remove("600270.SH")
 
+        if "300024.SZ" in dv.symbol:
+            dv.symbol.remove("300024.SZ")
+
         backtest_props = {"start_date": dv.start_date,  # start and end date of back-test
                           "end_date": dv.end_date,
                           "period": self.period,  # re-balance period length
