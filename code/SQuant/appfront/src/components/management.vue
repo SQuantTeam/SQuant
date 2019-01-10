@@ -14,11 +14,6 @@
                 width="250">
                 </el-table-column>
                 <el-table-column
-                prop="user_phone"
-                label="用户手机号码"
-                width="250">
-                </el-table-column>
-                <el-table-column
                 prop="user_type"
                 label="用户类型"
                 width="200">

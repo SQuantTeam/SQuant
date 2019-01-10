@@ -226,7 +226,7 @@ export default {
             alg_details: {
                 code: '000002.SZ',
                 direction: 'long',
-                price: 3.21,
+                price: 26,
                 volume: 5000,
                 offset: 'open',
                 alg_type: 'Sinper'

@@ -123,8 +123,8 @@
 
             
               <div>
-              <h5 style="margin-left: -100%;margin-top: 16%;">限价：</h5><el-input-number v-model="sell_buy_limit" :min="1" :max="100" label="限价" style="margin-left: -100%;margin-top: 14%;"></el-input-number>
-              <h5 style="margin-left: -54%;margin-top: 16%;">股数：</h5><el-input-number v-model="sell_buy_hand" :min="1" :max="100" label="股数" style="margin-left: 12%;"></el-input-number>
+              <h5 style="margin-left: -100%;margin-top: 16%;">限价：</h5><el-input-number v-model="sell_buy_limit" :min="1" :max="100" :step="0.01" label="限价" style="margin-left: -100%;margin-top: 14%;"></el-input-number>
+              <h5 style="margin-left: -54%;margin-top: 16%;">股数：</h5><el-input-number v-model="sell_buy_hand" :min="1" :max="10000" label="股数" style="margin-left: 12%;"></el-input-number>
               </div>
               <div style="position: relative;margin-left: -1%;margin-top: 5%;">
               <!-- <el-button v-bind:style="{backgroundColor: stock_color}" style="color: white;margin-left:-57%;margin-right:15%;margin-top: 3%;width:150px">买入</el-button>

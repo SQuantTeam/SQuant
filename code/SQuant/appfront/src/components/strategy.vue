@@ -173,10 +173,10 @@
                             <div v-show="norm=='sort_norm'">
                                 <div style="margin-top:0%;">
                                     <el-tabs :tab-position="'top'" style="height: 300px;margin-left:6%">
-                                        <el-tab-pane label="股票指标">
+                                        <el-tab-pane label="财务指标">
                                             <el-button v-for="item in sort_norm.cash_index" :key="item.name" size="mini" :type="item.type" style="float:left;margin-left:3%;margin-top:3%" @click="select_stock_index(1, sort_norm.cash_index, item, 2)">{{item.name}}</el-button>
                                         </el-tab-pane>
-                                        <el-tab-pane label="行情">
+                                        <el-tab-pane label="行情指标">
                                             <el-button v-for="item in sort_norm.stock_price" :key="item.name" size="mini" :type="item.type" style="float:left;margin-left:3%;margin-top:3%" @click="select_stock_index(2, sort_norm.stock_price, item, 2)">{{item.name}}</el-button>
                                         </el-tab-pane>
                                     </el-tabs>
